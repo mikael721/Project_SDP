@@ -29,10 +29,23 @@ const BahanBaku = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    createdAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    deletedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
   {
     tableName: "bahan_baku",
-    timestamps: false,
+    timestamps: true,
+    paranoid: true,
   }
 );
 
