@@ -1,6 +1,10 @@
 const BahanBaku = require("../models/bahanBakuModel");
+const {
+  addBahanBakuSchema,
+  updateBahanBakuSchema,
+} = require("../validations/bahanBakuValidation");
 
-// **1. GET - Mendapatkan semua bahan baku**
+// GET ALL
 exports.getAllBahanBaku = async (req, res) => {
   try {
     const bahanBakuList = await BahanBaku.findAll();
@@ -10,7 +14,7 @@ exports.getAllBahanBaku = async (req, res) => {
   }
 };
 
-// **2. GET - Mendapatkan bahan baku berdasarkan ID**
+// GET ONE
 exports.getBahanBakuById = async (req, res) => {
   try {
     const bahanBaku = await BahanBaku.findByPk(req.params.id);
@@ -23,34 +27,15 @@ exports.getBahanBakuById = async (req, res) => {
   }
 };
 
-// **3. POST - Menambahkan bahan baku baru**
+// ADD
 exports.addBahanBaku = async (req, res) => {
   try {
-    const {
-      bahan_baku_nama,
-      bahan_baku_jumlah,
-      bahan_baku_harga,
-      bahan_baku_satuan,
-      bahan_baku_harga_satuan,
-    } = req.body;
-    if (
-      !bahan_baku_nama ||
-      !bahan_baku_jumlah ||
-      !bahan_baku_harga ||
-      !bahan_baku_satuan ||
-      !bahan_baku_harga_satuan
-    ) {
-      return res.status(400).json({ message: "Semua kolom harus diisi!" });
+    const { error } = addBahanBakuSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
     }
 
-    const newBahanBaku = await BahanBaku.create({
-      bahan_baku_nama,
-      bahan_baku_jumlah,
-      bahan_baku_harga,
-      bahan_baku_satuan,
-      bahan_baku_harga_satuan,
-    });
-
+    const newBahanBaku = await BahanBaku.create(req.body);
     return res
       .status(201)
       .json({ message: "Bahan baku berhasil ditambahkan!", newBahanBaku });
@@ -59,40 +44,65 @@ exports.addBahanBaku = async (req, res) => {
   }
 };
 
-// **4. PUT - Mengupdate bahan baku berdasarkan ID**
-exports.updateBahanBaku = async (req, res) => {
+//UPDATE JUMLAH (PERTAMBAHAN)
+exports.addBahanBakuJumlah = async (req, res) => {
   try {
-    const { id } = req.params;
-    const {
-      bahan_baku_nama,
-      bahan_baku_jumlah,
-      bahan_baku_harga,
-      bahan_baku_satuan,
-      bahan_baku_harga_satuan,
-    } = req.body;
+    const { error } = updateBahanBakuSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
 
-    const updatedBahanBaku = await BahanBaku.update(
-      {
-        bahan_baku_nama,
-        bahan_baku_jumlah,
-        bahan_baku_harga,
-        bahan_baku_satuan,
-        bahan_baku_harga_satuan,
-      },
-      { where: { bahan_baku_id: id } }
-    );
+    const { bahan_baku_id, bahan_baku_jumlah } = req.body;
 
-    if (updatedBahanBaku[0] === 0) {
+    const bahanBaku = await BahanBaku.findByPk(bahan_baku_id);
+    if (!bahanBaku) {
       return res.status(404).json({ message: "Bahan baku tidak ditemukan!" });
     }
 
-    return res.status(200).json({ message: "Bahan baku berhasil diperbarui!" });
+    bahanBaku.bahan_baku_jumlah += bahan_baku_jumlah;
+    await bahanBaku.save();
+
+    return res
+      .status(200)
+      .json({ message: "Jumlah bahan baku berhasil ditambahkan!", bahanBaku });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
 
-// **5. DELETE - Menghapus bahan baku berdasarkan ID**
+//UPDATE JUMLAH (PENGURANGAN)
+exports.subtractBahanBakuJumlah = async (req, res) => {
+  try {
+    const { error } = updateBahanBakuSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
+
+    const { bahan_baku_id, bahan_baku_jumlah } = req.body;
+
+    const bahanBaku = await BahanBaku.findByPk(bahan_baku_id);
+    if (!bahanBaku) {
+      return res.status(404).json({ message: "Bahan baku tidak ditemukan!" });
+    }
+
+    if (bahanBaku.bahan_baku_jumlah - bahan_baku_jumlah < 0) {
+      return res.status(400).json({
+        message: "Pengurangan jumlah bahan baku tidak bisa di bawah 0!",
+      });
+    }
+
+    bahanBaku.bahan_baku_jumlah -= bahan_baku_jumlah;
+    await bahanBaku.save();
+
+    return res
+      .status(200)
+      .json({ message: "Jumlah bahan baku berhasil dikurangi!", bahanBaku });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// DELETE PAKEK ID
 exports.deleteBahanBaku = async (req, res) => {
   try {
     const { id } = req.params;
