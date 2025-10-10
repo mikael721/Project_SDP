@@ -1,10 +1,10 @@
 const { Sequelize } = require("sequelize");
-require("dotenv").config(); // Load environment variables
+require("dotenv").config();
 
 const sequelize = new Sequelize(
-  process.env.DB_NAME, // database name
-  process.env.DB_USER, // database username
-  process.env.DB_PASSWORD, // database password
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
   {
     host: process.env.DB_HOST,
     dialect: process.env.DB_DIALECT,
@@ -12,7 +12,6 @@ const sequelize = new Sequelize(
 );
 
 async function testDB() {
-  // test database connection
   try {
     await sequelize.authenticate();
     console.log("Database connected!");
@@ -23,4 +22,4 @@ async function testDB() {
 
 testDB();
 
-module.exports = { sequelize }; // export the sequelize object
+module.exports = { sequelize };

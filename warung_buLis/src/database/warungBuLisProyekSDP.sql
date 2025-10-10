@@ -20,31 +20,6 @@ CREATE TABLE `bahan_baku` (
   PRIMARY KEY (`bahan_baku_id`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Tabel transaksi_header
-DROP TABLE IF EXISTS `transaksi_header`;
-CREATE TABLE `transaksi_header` (
-  `transaksi_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `transaksi_tanggal` DATETIME DEFAULT NULL,
-  `transaksi_keterangan` VARCHAR(255) DEFAULT NULL,
-  `transaksi_biaya_tambahan` INT(11) DEFAULT NULL,
-  PRIMARY KEY (`transaksi_id`)
-) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Tabel pembelian
-DROP TABLE IF EXISTS `pembelian`;
-CREATE TABLE `pembelian` (
-  `pembelian_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `transaksi_id` INT(11) NOT NULL,
-  `bahan_baku_id` INT(11) NOT NULL,
-  `pembelian_jumlah` FLOAT NOT NULL,
-  `pembelian_satuan` VARCHAR(255) NOT NULL,
-  `pembelian_harga_satuan` INT(11) NOT NULL,
-  PRIMARY KEY (`pembelian_id`),
-  KEY `bahan_baku_id` (`bahan_baku_id`),
-  KEY `transaksi_id` (`transaksi_id`),
-  CONSTRAINT `pembelian_ibfk_1` FOREIGN KEY (`bahan_baku_id`) REFERENCES `bahan_baku` (`bahan_baku_id`),
-  CONSTRAINT `pembelian_ibfk_2` FOREIGN KEY (`transaksi_id`) REFERENCES `transaksi_header` (`transaksi_id`)
-) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Tabel menu
 DROP TABLE IF EXISTS `menu`;
@@ -55,22 +30,6 @@ CREATE TABLE `menu` (
   `menu_gambar` TEXT NOT NULL,
   `menu_status_aktif` TINYINT(1) DEFAULT 1,
   PRIMARY KEY (`menu_id`)
-) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Tabel penjualan
-DROP TABLE IF EXISTS `penjualan`;
-CREATE TABLE `penjualan` (
-  `penjualan_id` INT(11) NOT NULL AUTO_INCREMENT,
-  `transaksi_id` INT(11) NOT NULL,
-  `menu_id` INT(11) DEFAULT NULL,
-  `penjualan_jumlah` INT(11) NOT NULL,
-  `penjualan_jenis` ENUM('offline','online') DEFAULT NULL,
-  `penjualan_presentase_uang_muka` INT(11) DEFAULT NULL,
-  PRIMARY KEY (`penjualan_id`),
-  KEY `menu_id` (`menu_id`),
-  KEY `transaksi_id` (`transaksi_id`),
-  CONSTRAINT `penjualan_ibfk_1` FOREIGN KEY (`menu_id`) REFERENCES `menu` (`menu_id`),
-  CONSTRAINT `penjualan_ibfk_2` FOREIGN KEY (`transaksi_id`) REFERENCES `transaksi_header` (`transaksi_id`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Tabel detail_menu
@@ -122,7 +81,112 @@ CREATE TABLE `pesanan_detail` (
   CONSTRAINT `pesanan_detail_ibfk_2` FOREIGN KEY (`pesanan_id`) REFERENCES `pesanan` (`pesanan_id`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE DATABASE IF NOT EXISTS `warungbulis` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE `warungbulis`;
+
+-- Tabel Header_Penjualan
+DROP TABLE IF EXISTS `header_penjualan`;
+CREATE TABLE `header_penjualan` (
+  `header_penjualan_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `header_penjualan_tanggal` DATETIME NOT NULL,
+  `header_penjualan_jenis` ENUM('offline', 'online') NOT NULL,
+  `header_penjualan_keterangan` VARCHAR(255) NOT NULL,
+  `header_penjualan_biaya_tambahan` INT(11) NOT NULL,
+  `header_penjualan_uang_muka` INT(11) NOT NULL,
+  PRIMARY KEY (`header_penjualan_id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Tabel Header_Pembelian
+DROP TABLE IF EXISTS `header_pembelian`;
+CREATE TABLE `header_pembelian` (
+  `header_pembelian_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `header_pembelian_tanggal` DATETIME NOT NULL,
+  `header_pembelian_keterangan` VARCHAR(255) NOT NULL,
+  `header_pembelian_biaya_tambahan` INT(11) NOT NULL,
+  PRIMARY KEY (`header_pembelian_id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Tabel Pembelian
+DROP TABLE IF EXISTS `pembelian`;
+CREATE TABLE `pembelian` (
+  `pembelian_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `header_pembelian_id` INT(11) NOT NULL,
+  `bahan_baku_id` INT(11) NOT NULL,
+  `pembelian_jumlah` FLOAT NOT NULL,
+  `pembelian_satuan` VARCHAR(255) NOT NULL,
+  `pembelian_harga_satuan` INT(11) NOT NULL,
+  PRIMARY KEY (`pembelian_id`),
+  KEY `bahan_baku_id` (`bahan_baku_id`),
+  KEY `header_pembelian_id` (`header_pembelian_id`),
+  CONSTRAINT `pembelian_ibfk_1` FOREIGN KEY (`bahan_baku_id`) REFERENCES `bahan_baku` (`bahan_baku_id`),
+  CONSTRAINT `pembelian_ibfk_2` FOREIGN KEY (`header_pembelian_id`) REFERENCES `header_pembelian` (`header_pembelian_id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Tabel Penjualan
+DROP TABLE IF EXISTS `penjualan`;
+CREATE TABLE `penjualan` (
+  `penjualan_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `header_penjualan_id` INT(11) NOT NULL,
+  `menu_id` INT(11) NOT NULL,
+  `penjualan_jumlah` INT(11) NOT NULL,
+  PRIMARY KEY (`penjualan_id`),
+  KEY `menu_id` (`menu_id`),
+  KEY `header_penjualan_id` (`header_penjualan_id`),
+  CONSTRAINT `penjualan_ibfk_1` FOREIGN KEY (`menu_id`) REFERENCES `menu` (`menu_id`),
+  CONSTRAINT `penjualan_ibfk_2` FOREIGN KEY (`header_penjualan_id`) REFERENCES `header_penjualan` (`header_penjualan_id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Data dummy untuk tabel header_penjualan
+INSERT INTO `header_penjualan` (`header_penjualan_tanggal`, `header_penjualan_jenis`, `header_penjualan_keterangan`, `header_penjualan_biaya_tambahan`, `header_penjualan_uang_muka`) VALUES
+('2025-10-01 10:00:00', 'offline', 'Penjualan menu offline', 5000, 0),
+('2025-10-01 12:00:00', 'online', 'Penjualan menu online', 10000, 50),
+('2025-10-02 09:30:00', 'offline', 'Penjualan menu offline', 3000, 0),
+('2025-10-02 14:00:00', 'online', 'Penjualan menu online', 7000, 20),
+('2025-10-03 08:00:00', 'offline', 'Penjualan menu offline', 4000, 0),
+('2025-10-03 13:00:00', 'online', 'Penjualan menu online', 6000, 10),
+('2025-10-04 11:00:00', 'offline', 'Penjualan menu offline', 4000, 0),
+('2025-10-04 15:00:00', 'online', 'Penjualan menu online', 5000, 15),
+('2025-10-05 10:30:00', 'offline', 'Penjualan menu offline', 6000, 0),
+('2025-10-05 16:00:00', 'online', 'Penjualan menu online', 7000, 25);
+
+-- Data dummy untuk tabel header_pembelian
+INSERT INTO `header_pembelian` (`header_pembelian_tanggal`, `header_pembelian_keterangan`, `header_pembelian_biaya_tambahan`) VALUES
+('2025-10-01 09:00:00', 'Pembelian bahan baku', 0),
+('2025-10-02 11:00:00', 'Pembelian tambahan', 0),
+('2025-10-03 10:00:00', 'Pembelian bahan pelengkap', 0),
+('2025-10-04 12:00:00', 'Pembelian bahan baku', 0),
+('2025-10-05 14:00:00', 'Pembelian bahan pokok', 0),
+('2025-10-06 09:30:00', 'Pembelian tambahan', 0),
+('2025-10-07 11:00:00', 'Pembelian bahan baku', 0),
+('2025-10-08 10:30:00', 'Pembelian bahan pelengkap', 0),
+('2025-10-09 12:30:00', 'Pembelian bahan baku', 0),
+('2025-10-10 14:00:00', 'Pembelian bahan pokok', 0);
+
+-- Data dummy untuk tabel pembelian
+INSERT INTO `pembelian` (`header_pembelian_id`, `bahan_baku_id`, `pembelian_jumlah`, `pembelian_satuan`, `pembelian_harga_satuan`) VALUES
+(1, 1, 10, 'ekor', 20000),
+(1, 2, 20, 'butir', 6000),
+(1, 3, 10, 'ekor', 15000),
+(2, 4, 5, 'kg', 5000),
+(2, 5, 5, 'kg', 6000),
+(3, 6, 2, 'kg', 15000),
+(4, 7, 5, 'liter', 14000),
+(4, 8, 2, 'kg', 2000),
+(5, 9, 5, 'kg', 13000),
+(5, 10, 2, 'botol', 10000);
+
+-- Data dummy untuk tabel penjualan
+INSERT INTO `penjualan` (`header_penjualan_id`, `menu_id`, `penjualan_jumlah`) VALUES
+(1, 1, 2),
+(1, 2, 3),
+(2, 3, 1),
+(2, 4, 2),
+(3, 5, 1),
+(4, 6, 2),
+(5, 7, 1),
+(6, 8, 2),
+(7, 9, 3),
+(8, 10, 1);
 
 -- Data dummy untuk tabel bahan_baku
 INSERT INTO `bahan_baku` (`bahan_baku_nama`, `bahan_baku_jumlah`, `bahan_baku_harga`, `bahan_baku_satuan`, `bahan_baku_harga_satuan`) VALUES
@@ -137,32 +201,6 @@ INSERT INTO `bahan_baku` (`bahan_baku_nama`, `bahan_baku_jumlah`, `bahan_baku_ha
 ('Gula Pasir', 10, 130000, 'kg', 13000),
 ('Daging Sapi', 10, 180000, 'kg', 18000);
 
--- Data dummy untuk tabel transaksi_header
-INSERT INTO `transaksi_header` (`transaksi_tanggal`, `transaksi_keterangan`, `transaksi_biaya_tambahan`) VALUES
-('2025-10-01 10:00:00', 'Pembelian bahan baku', 0),
-('2025-10-01 12:00:00', 'Penjualan menu offline', 5000),
-('2025-10-02 09:30:00', 'Penjualan menu online', 10000),
-('2025-10-02 14:00:00', 'Pembelian tambahan', 0),
-('2025-10-03 08:00:00', 'Penjualan offline', 3000),
-('2025-10-03 13:00:00', 'Penjualan online', 7000),
-('2025-10-04 11:00:00', 'Pembelian bahan pelengkap', 0),
-('2025-10-04 15:00:00', 'Penjualan offline', 4000),
-('2025-10-05 10:30:00', 'Penjualan online', 6000),
-('2025-10-05 16:00:00', 'Pembelian bahan pokok', 0);
-
--- Data dummy untuk tabel pembelian
-INSERT INTO `pembelian` (`transaksi_id`, `bahan_baku_id`, `pembelian_jumlah`, `pembelian_satuan`, `pembelian_harga_satuan`) VALUES
-(1, 1, 10, 'ekor', 20000),
-(1, 2, 20, 'butir', 6000),
-(1, 3, 10, 'ekor', 15000),
-(4, 4, 5, 'kg', 5000),
-(4, 5, 5, 'kg', 6000),
-(4, 6, 2, 'kg', 15000),
-(7, 7, 5, 'liter', 14000),
-(7, 8, 2, 'kg', 2000),
-(10, 9, 5, 'kg', 13000),
-(10, 10, 2, 'botol', 10000);
-
 -- Data dummy untuk tabel menu
 INSERT INTO `menu` (`menu_nama`, `menu_harga`, `menu_gambar`, `menu_status_aktif`) VALUES
 ('Ayam Goreng', 25000, 'https://muchbutter.com/indonesian-fried-chicken-ayam-goreng/', 1),
@@ -176,18 +214,6 @@ INSERT INTO `menu` (`menu_nama`, `menu_harga`, `menu_gambar`, `menu_status_aktif
 ('Bakso', 20000, 'https://www.wandercooks.com/bakso-indonesian-meatball-soup/', 1),
 ('Rawon', 28000, 'https://www.cookmeindonesian.com/rawon-east-javanese-beef-stew-with-keluak/', 1);
 
--- Data dummy untuk tabel penjualan
-INSERT INTO `penjualan` (`transaksi_id`, `menu_id`, `penjualan_jumlah`, `penjualan_jenis`, `penjualan_presentase_uang_muka`) VALUES
-(2, 1, 2, 'offline', 0),
-(2, 2, 3, 'offline', 0),
-(3, 3, 1, 'online', 50),
-(3, 4, 2, 'online', 30),
-(5, 5, 1, 'offline', 0),
-(6, 6, 2, 'online', 40),
-(6, 7, 1, 'online', 20),
-(8, 8, 2, 'offline', 0),
-(9, 9, 3, 'online', 60),
-(9, 10, 1, 'online', 50);
 
 -- Data dummy untuk tabel detail_menu
 INSERT INTO `detail_menu` (`detail_menu_nama_bahan`, `detail_menu_jumlah`, `detail_menu_satuan`, `detail_menu_total_harga`, `menu_id`) VALUES
