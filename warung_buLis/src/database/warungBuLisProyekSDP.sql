@@ -4,7 +4,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
 CREATE DATABASE /*!32312 IF NOT EXISTS*/`warungbulis` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
 USE `warungbulis`;
 
@@ -17,9 +16,11 @@ CREATE TABLE `bahan_baku` (
   `bahan_baku_harga` INT(11) NOT NULL,
   `bahan_baku_satuan` VARCHAR(100) NOT NULL,
   `bahan_baku_harga_satuan` INT(11) NOT NULL,
+  `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deletedAt` DATETIME DEFAULT NULL,
   PRIMARY KEY (`bahan_baku_id`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 
 -- Tabel menu
 DROP TABLE IF EXISTS `menu`;
@@ -29,6 +30,9 @@ CREATE TABLE `menu` (
   `menu_harga` INT(11) NOT NULL,
   `menu_gambar` TEXT NOT NULL,
   `menu_status_aktif` TINYINT(1) DEFAULT 1,
+  `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deletedAt` DATETIME DEFAULT NULL,
   PRIMARY KEY (`menu_id`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -41,6 +45,9 @@ CREATE TABLE `detail_menu` (
   `detail_menu_satuan` VARCHAR(255) NOT NULL,
   `detail_menu_total_harga` INT(11) NOT NULL,
   `menu_id` INT(11) NOT NULL,
+  `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deletedAt` DATETIME DEFAULT NULL,
   PRIMARY KEY (`detail_menu_id`),
   KEY `menu_id` (`menu_id`),
   CONSTRAINT `detail_menu_ibfk_1` FOREIGN KEY (`menu_id`) REFERENCES `menu` (`menu_id`)
@@ -53,6 +60,9 @@ CREATE TABLE `pegawai` (
   `pegawai_nama` VARCHAR(100) NOT NULL,
   `pegawai_email` VARCHAR(100) NOT NULL,
   `pegawai_password` VARCHAR(255) NOT NULL,
+  `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deletedAt` DATETIME DEFAULT NULL,
   PRIMARY KEY (`pegawai_id`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -64,6 +74,9 @@ CREATE TABLE `pesanan` (
   `pesanan_lokasi` VARCHAR(255) NOT NULL,
   `pesanan_tanggal` DATETIME DEFAULT NULL,
   `pesanan_tanggal_pengiriman` DATETIME DEFAULT NULL,
+  `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deletedAt` DATETIME DEFAULT NULL,
   PRIMARY KEY (`pesanan_id`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -74,6 +87,9 @@ CREATE TABLE `pesanan_detail` (
   `menu_id` INT(11) DEFAULT NULL,
   `pesanan_detail_jumlah` INT(11) NOT NULL,
   `pesanan_id` INT(11) DEFAULT NULL,
+  `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deletedAt` DATETIME DEFAULT NULL,
   PRIMARY KEY (`pesanan_detail_id`),
   KEY `menu_id` (`menu_id`),
   KEY `pesanan_id` (`pesanan_id`),
@@ -81,10 +97,7 @@ CREATE TABLE `pesanan_detail` (
   CONSTRAINT `pesanan_detail_ibfk_2` FOREIGN KEY (`pesanan_id`) REFERENCES `pesanan` (`pesanan_id`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE DATABASE IF NOT EXISTS `warungbulis` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `warungbulis`;
-
--- Tabel Header_Penjualan
+-- Tabel header_penjualan
 DROP TABLE IF EXISTS `header_penjualan`;
 CREATE TABLE `header_penjualan` (
   `header_penjualan_id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -93,20 +106,26 @@ CREATE TABLE `header_penjualan` (
   `header_penjualan_keterangan` VARCHAR(255) NOT NULL,
   `header_penjualan_biaya_tambahan` INT(11) NOT NULL,
   `header_penjualan_uang_muka` INT(11) NOT NULL,
+  `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deletedAt` DATETIME DEFAULT NULL,
   PRIMARY KEY (`header_penjualan_id`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Tabel Header_Pembelian
+-- Tabel header_pembelian
 DROP TABLE IF EXISTS `header_pembelian`;
 CREATE TABLE `header_pembelian` (
   `header_pembelian_id` INT(11) NOT NULL AUTO_INCREMENT,
   `header_pembelian_tanggal` DATETIME NOT NULL,
   `header_pembelian_keterangan` VARCHAR(255) NOT NULL,
   `header_pembelian_biaya_tambahan` INT(11) NOT NULL,
+  `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deletedAt` DATETIME DEFAULT NULL,
   PRIMARY KEY (`header_pembelian_id`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Tabel Pembelian
+-- Tabel pembelian
 DROP TABLE IF EXISTS `pembelian`;
 CREATE TABLE `pembelian` (
   `pembelian_id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -115,6 +134,9 @@ CREATE TABLE `pembelian` (
   `pembelian_jumlah` FLOAT NOT NULL,
   `pembelian_satuan` VARCHAR(255) NOT NULL,
   `pembelian_harga_satuan` INT(11) NOT NULL,
+  `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deletedAt` DATETIME DEFAULT NULL,
   PRIMARY KEY (`pembelian_id`),
   KEY `bahan_baku_id` (`bahan_baku_id`),
   KEY `header_pembelian_id` (`header_pembelian_id`),
@@ -122,19 +144,23 @@ CREATE TABLE `pembelian` (
   CONSTRAINT `pembelian_ibfk_2` FOREIGN KEY (`header_pembelian_id`) REFERENCES `header_pembelian` (`header_pembelian_id`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Tabel Penjualan
+-- Tabel penjualan
 DROP TABLE IF EXISTS `penjualan`;
 CREATE TABLE `penjualan` (
   `penjualan_id` INT(11) NOT NULL AUTO_INCREMENT,
   `header_penjualan_id` INT(11) NOT NULL,
   `menu_id` INT(11) NOT NULL,
   `penjualan_jumlah` INT(11) NOT NULL,
+  `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deletedAt` DATETIME DEFAULT NULL,
   PRIMARY KEY (`penjualan_id`),
   KEY `menu_id` (`menu_id`),
   KEY `header_penjualan_id` (`header_penjualan_id`),
   CONSTRAINT `penjualan_ibfk_1` FOREIGN KEY (`menu_id`) REFERENCES `menu` (`menu_id`),
   CONSTRAINT `penjualan_ibfk_2` FOREIGN KEY (`header_penjualan_id`) REFERENCES `header_penjualan` (`header_penjualan_id`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 
 -- Data dummy untuk tabel header_penjualan
 INSERT INTO `header_penjualan` (`header_penjualan_tanggal`, `header_penjualan_jenis`, `header_penjualan_keterangan`, `header_penjualan_biaya_tambahan`, `header_penjualan_uang_muka`) VALUES
