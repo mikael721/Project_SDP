@@ -1,8 +1,9 @@
 import { useRouteError } from "react-router";
 
-const ErrorPage = (props) => {
+const ErrorPage = () => {
   const error = useRouteError();
   console.log(error);
+
   return (
     <div
       style={{
@@ -14,7 +15,7 @@ const ErrorPage = (props) => {
       }}>
       <img
         src="https://media.tenor.com/hgaPyfjpKjsAAAAe/sad-cat.png"
-        alt="errror"
+        alt="error"
         style={{
           width: "300px",
           height: "300px",
@@ -23,11 +24,11 @@ const ErrorPage = (props) => {
         }}
       />
       <h1 style={{ textAlign: "center" }}>
-        Wah Error: {error?.statusText ?? props.statusText}(
-        {error?.status ?? props.status})
+        Wah Error: {error?.statusText || "Unknown Error"} (
+        {error?.status || "Unknown Status"})
       </h1>
       <h2 style={{ textAlign: "center" }}>
-        {error?.error?.message ?? props.message}
+        {error?.message || "Something went wrong!"}
       </h2>
     </div>
   );
