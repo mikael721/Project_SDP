@@ -15,7 +15,7 @@ const PageLayoutPegawai = () => {
           style={{ display: "flex", alignItems: "center" }}>
           <Group h="100%" justify="space-between" style={{ flex: 1 }}>
             <Link to="/" style={{ textDecoration: "none" }}>
-              <Image src={logo} alt="Logo" h={50} fit="contain" />
+              <Image src={logo} alt="Logo" h={65} fit="contain" />
             </Link>
 
             <Group gap="lg" visibleFrom="sm">

@@ -1,36 +1,35 @@
 import { useRouteError } from "react-router";
-
+import {
+  AppShell,
+  Title,
+  Text,
+  Stack,
+  Image,
+  MantineProvider,
+} from "@mantine/core";
+import warungTheme from "../theme/theme";
+import img from "../asset/errorPage.png";
 const ErrorPage = () => {
   const error = useRouteError();
   console.log(error);
 
   return (
-    <div
-      style={{
-        backgroundColor: "#83358f",
-        color: "white",
-        height: "100vh",
-        paddingTop: "10vh",
-        boxSizing: "border-box",
-      }}>
-      <img
-        src="https://media.tenor.com/hgaPyfjpKjsAAAAe/sad-cat.png"
-        alt="error"
-        style={{
-          width: "300px",
-          height: "300px",
-          display: "block",
-          margin: "auto",
-        }}
-      />
-      <h1 style={{ textAlign: "center" }}>
-        Wah Error: {error?.statusText || "Unknown Error"} (
-        {error?.status || "Unknown Status"})
-      </h1>
-      <h2 style={{ textAlign: "center" }}>
-        {error?.message || "Something went wrong!"}
-      </h2>
-    </div>
+    <MantineProvider theme={warungTheme}>
+      <AppShell header={{ height: 0 }} padding="md">
+        <AppShell.Main>
+          <Stack align="center" spacing="lg" justify="center" h="100vh">
+            <Image src={img} alt="error" w={300} h={300} fit="contain" />
+            <Title order={1} c="white" ta="center">
+              Error ({error?.status || "Unknown Status"}) :{" "}
+              {error?.statusText || "Unknown Error"}
+            </Title>
+            <Text size="lg" c="white" ta="center">
+              {error?.message || "Something went wrong!"}
+            </Text>
+          </Stack>
+        </AppShell.Main>
+      </AppShell>
+    </MantineProvider>
   );
 };
 

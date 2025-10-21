@@ -1,35 +1,31 @@
 import { createTheme } from "@mantine/core";
 
-// Define the brown theme
-const brownTheme = createTheme({
+const warungTheme = createTheme({
   colors: {
     brown: [
-      "#F5F0EB",
-      "#EBE0D5",
-      "#DCCBBC",
-      "#C9B3A0",
-      "#B69B83",
-      "#A08469",
-      "#8C7057",
-      "#775C45",
-      "#634A36",
-      "#503A2A",
+      "#E5C9B8",
+      "#C9A89A",
+      "#B68B7D",
+      "#A06E61",
+      "#7D5B4E",
+      "#5B3A35",
+      "#4D302C",
+      "#3F2523",
+      "#312020",
+      "#231C1C",
     ],
   },
   primaryColor: "brown",
-  primaryShade: 2,
+  primaryShade: 4,
   components: {
     AppShell: {
       styles: {
         main: {
-          background: "#F5F0EB",
+          background: "#4c2e01ff",
+          color: "white",
         },
-      },
-    },
-    Header: {
-      styles: {
-        root: {
-          background: "#A08469",
+        header: {
+          backgroundColor: "#8C6234",
           color: "white",
         },
       },
@@ -37,4 +33,4 @@ const brownTheme = createTheme({
   },
 });
 
-export default brownTheme;
+export default warungTheme;

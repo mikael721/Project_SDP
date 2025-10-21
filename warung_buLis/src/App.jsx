@@ -24,7 +24,8 @@ const router = createBrowserRouter(
     <Route path="/" errorElement={<ErrorPage />}>
       <Route index element={<MenuPage />} />
       <Route path="customer" element={<MenuPage />} />
-      <Route path="cart" element={<CartPage />} />
+      <Route path="customer/cart" element={<CartPage />} />{" "}
+      {/* Updated route */}
       <Route path="pegawai" element={<LoginPage />} />
       <Route element={<PageLayoutPegawai />}>
         <Route path="pegawai/penjualan">
