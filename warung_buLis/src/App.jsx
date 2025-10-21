@@ -15,21 +15,18 @@ import { MenuManagementPage } from "./pages/pegawai/MenuManagementPage";
 import { StokManagementPage } from "./pages/pegawai/StokManagementPage";
 import { LaporanKeuanganPage } from "./pages/pegawai/LaporanKeuanganPage";
 import ErrorPage from "./pages/ErrorPage";
+import brownTheme from "./theme/theme";
+import { MantineProvider } from "@mantine/core";
+import "@mantine/core/styles.css";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" errorElement={<ErrorPage />}>
       <Route index element={<MenuPage />} />
-      <Route path="customer">
-        <Route path="menu" element={<MenuPage />} />
-        <Route path="cart" element={<CartPage />} />
-      </Route>
+      <Route path="customer" element={<MenuPage />} />
+      <Route path="cart" element={<CartPage />} />
+      <Route path="pegawai" element={<LoginPage />} />
       <Route element={<PageLayoutPegawai />}>
-        <Route
-          path="pegawai"
-          element={<LoginPage />}
-          errorElement={<ErrorPage />}
-        />
         <Route path="pegawai/penjualan">
           <Route
             index
@@ -70,7 +67,11 @@ const router = createBrowserRouter(
 );
 
 const App = () => {
-  return <RouterProvider router={router} />;
+  return (
+    <MantineProvider theme={brownTheme}>
+      <RouterProvider router={router} />
+    </MantineProvider>
+  );
 };
 
 export default App;

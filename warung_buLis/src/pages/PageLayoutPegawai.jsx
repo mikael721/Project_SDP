@@ -1,55 +1,94 @@
 import { Link, Outlet } from "react-router-dom";
+import { AppShell, Burger, Container, Group, Image, Menu } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import logo from "../asset/logo.png";
 
 const PageLayoutPegawai = () => {
+  const [opened, { toggle, close }] = useDisclosure(false);
+
   return (
-    <div>
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <div className="container-fluid">
-          <Link to="/" className="navbar-brand">
-            <img src={logo} alt="Logo" style={{ width: "100px" }} />
-          </Link>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav ms-auto">
-              {" "}
-              <li className="nav-item">
-                <Link to="/pegawai/penjualan" className="nav-link">
+    <AppShell header={{ height: 70 }} padding="md">
+      <AppShell.Header>
+        <Container
+          fluid
+          h="100%"
+          style={{ display: "flex", alignItems: "center" }}>
+          <Group h="100%" justify="space-between" style={{ flex: 1 }}>
+            <Link to="/" style={{ textDecoration: "none" }}>
+              <Image src={logo} alt="Logo" h={50} fit="contain" />
+            </Link>
+
+            <Group gap="lg" visibleFrom="sm">
+              <Link
+                to="/pegawai/penjualan"
+                style={{ textDecoration: "none", color: "white" }}>
+                Penjualan
+              </Link>
+              <Link
+                to="/pegawai/menu"
+                style={{ textDecoration: "none", color: "white" }}>
+                Menu
+              </Link>
+              <Link
+                to="/pegawai/stok"
+                style={{ textDecoration: "none", color: "white" }}>
+                Stok
+              </Link>
+              <Link
+                to="/pegawai/laporan"
+                style={{ textDecoration: "none", color: "white" }}>
+                Laporan
+              </Link>
+            </Group>
+
+            <Menu
+              opened={opened}
+              onClose={close}
+              position="bottom-end"
+              offset={15}
+              transitionProps={{ transition: "pop", duration: 150 }}
+              middlewares={{ shift: true, flip: true }}
+              shadow="md"
+              width={200}>
+              <Menu.Target>
+                <Burger
+                  opened={opened}
+                  onClick={toggle}
+                  hiddenFrom="sm"
+                  size="sm"
+                  color="white"
+                />
+              </Menu.Target>
+
+              <Menu.Dropdown>
+                <Menu.Item
+                  component={Link}
+                  to="/pegawai/penjualan"
+                  onClick={close}>
                   Penjualan
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/pegawai/menu" className="nav-link">
+                </Menu.Item>
+                <Menu.Item component={Link} to="/pegawai/menu" onClick={close}>
                   Menu
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/pegawai/stok" className="nav-link">
+                </Menu.Item>
+                <Menu.Item component={Link} to="/pegawai/stok" onClick={close}>
                   Stok
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/pegawai/laporan" className="nav-link">
+                </Menu.Item>
+                <Menu.Item
+                  component={Link}
+                  to="/pegawai/laporan"
+                  onClick={close}>
                   Laporan
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
-      <main>
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </Group>
+        </Container>
+      </AppShell.Header>
+
+      <AppShell.Main>
         <Outlet />
-      </main>
-    </div>
+      </AppShell.Main>
+    </AppShell>
   );
 };
 
