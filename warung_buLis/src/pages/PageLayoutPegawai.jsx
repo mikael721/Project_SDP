@@ -1,7 +1,5 @@
-import React from "react";
 import { Link, Outlet } from "react-router-dom";
 import logo from "../asset/logo.png";
-import "bootstrap/dist/css/bootstrap.min.css";
 
 const PageLayoutPegawai = () => {
   return (
