@@ -8,6 +8,9 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // ini biar bisa terima body !!!
 // ===================================================================
+// menu management
+app.use("/api/menu_management")
+
 // login
 app.use("/api/login", login)
 
