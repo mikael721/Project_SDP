@@ -11,7 +11,12 @@ const LoginPage = () => {
     handleSubmit,
     formState:{ errors },
     reset
-  } = useForm()
+  } = useForm() // lek butuh resolver tambahi ndk sini ntik !!! 
+
+  const onSubmit = (data) => {
+    console.log(data);
+  }
+
 
   return (
     <AppShell header={{ height: 0 }} padding="md">
@@ -22,12 +27,12 @@ const LoginPage = () => {
             {/* buat login */}
             <img src={logoGambar} alt="" className="logo"/>
             <p className="judulLogin">Login Karyawan</p>
-            <form action="">
+            <form onSubmit={handleSubmit(onSubmit)}>
               <div className="sl1">
-                <div className="custoIDPass">ID : </div>  <input type="text" placeholder="Masukan ID Anda" className="setBarInput"/> <br />
+                <div className="custoIDPass">ID : </div>  <input type="text" placeholder="Masukan ID Anda" className="setBarInput" {...register('id')}/> <br />
               </div>
               <div className="sl1">
-                <div className="custoIDPass">Password : </div>  <input type="password" placeholder="Masukan Password Anda" className="setBarInput"/> <br />
+                <div className="custoIDPass">Password : </div>  <input type="password" placeholder="Masukan Password Anda" className="setBarInput" {...register('password')}/> <br />
               </div>
               <br />
               <button className="buttonLogin">Login</button>
