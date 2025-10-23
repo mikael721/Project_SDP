@@ -33,6 +33,7 @@ const LoginPage = () => {
                   placeholder="Masukan ID Anda"
                   className="setBarInput"
                   {...register("id")}
+                  required
                 />{" "}
                 <br />
               </div>
@@ -43,6 +44,7 @@ const LoginPage = () => {
                   placeholder="Masukan Password Anda"
                   className="setBarInput"
                   {...register("password")}
+                  required
                 />{" "}
                 <br />
               </div>
