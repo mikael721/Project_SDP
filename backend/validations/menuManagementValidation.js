@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const loginSchema = Joi.object({
+const menuSchema = Joi.object({
     menu_nama: Joi.string().required().messages({
         'string.empty': 'Harap Isi Nama Menu',
         'any.required': 'Nama Menu Dibutuhkan'

@@ -3,13 +3,14 @@ const bodyParser = require("body-parser");
 const { sequelize } = require("./config/sequelize");
 const bahanBakuRoutes = require("./routes/bahanBakuRoutes")
 const login = require("./routes/loginRoutes")
+const menuManagement = require('./routes/menuManagement');
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // ini biar bisa terima body !!!
 // ===================================================================
 // menu management
-app.use("/api/menu_management")
+app.use("/api/menu_management",menuManagement)
 
 // login
 app.use("/api/login", login)
