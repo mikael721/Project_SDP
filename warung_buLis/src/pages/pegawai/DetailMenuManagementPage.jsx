@@ -1,7 +1,10 @@
 import React from "react";
 
 const DetailMenuManagementPage = () => {
-  return <div>DetailMenuManagementPage</div>;
+  return
+  <div>
+    
+  </div>;
 };
 
 export default DetailMenuManagementPage;
