@@ -137,6 +137,7 @@ export const StokManagementPage = () => {
               <Group>
                 <Button
                   variant="filled"
+                  color="rgba(125, 125, 125, 1)"
                   onClick={() => {
                     reset();
                     setMode("tambah");
@@ -218,7 +219,7 @@ export const StokManagementPage = () => {
                 />
 
                 <Group position="right" mt="sm">
-                  <Button type="submit" color="red">
+                  <Button type="submit" color="blue">
                     {mode === "tambah" ? "Submit" : "Update"}
                   </Button>
                 </Group>
