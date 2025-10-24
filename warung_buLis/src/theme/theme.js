@@ -1,4 +1,4 @@
-import { createTheme } from "@mantine/core";
+import { Button, createTheme } from "@mantine/core";
 
 const warungTheme = createTheme({
   colors: {
@@ -33,9 +33,45 @@ const warungTheme = createTheme({
     Paper: {
       styles: {
         root: {
-          backgroundColor: "rgba(255, 255, 255, 0.04)", // Background color for Paper
-          borderColor: "rgba(255, 255, 255, 0.12)", // Border color for Paper
-          color: "white", // Text color
+          backgroundColor: "rgba(255, 255, 255, 0.04)",
+          border: "1px solid gray",
+          color: "white",
+        },
+      },
+    },
+    TextInput: {
+      styles: {
+        input: {
+          background: "rgba(255,255,255,0.03)",
+          color: "white",
+          borderColor: "white",
+        },
+        label: {
+          color: "white",
+        },
+      },
+    },
+    NumberInput: {
+      styles: {
+        input: {
+          background: "rgba(255,255,255,0.03)",
+          color: "white",
+          borderColor: "white",
+        },
+        label: {
+          color: "white",
+        },
+      },
+    },
+    Select: {
+      styles: {
+        input: {
+          background: "rgba(255,255,255,0.03)",
+          color: "white",
+          borderColor: "white",
+        },
+        label: {
+          color: "white",
         },
       },
     },

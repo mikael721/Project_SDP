@@ -97,13 +97,13 @@ export const StokManagementPage = () => {
       style={{
         cursor: "pointer",
         color: "inherit",
-        borderBottom: "1px solid white",
+        border: "1px solid white",
       }}>
-      <td style={{ padding: "4% 2%" }}>{item.id}</td>
-      <td style={{ padding: "4% 2%" }}>{item.nama}</td>
-      <td style={{ padding: "4% 2%" }}>{item.jumlah}</td>
-      <td style={{ padding: "4% 2%" }}>{item.satuan}</td>
-      <td style={{ padding: "4% 2%" }}>{item.hargaPerSatuan}</td>
+      <td style={{ padding: "4% 3%" }}>{item.id}</td>
+      <td style={{ padding: "4% 0%" }}>{item.nama}</td>
+      <td style={{ padding: "4% 0%" }}>{item.jumlah}</td>
+      <td style={{ padding: "4% 0%" }}>{item.satuan}</td>
+      <td style={{ padding: "4% 0%" }}>{item.hargaPerSatuan}</td>
     </tr>
   ));
 
@@ -116,39 +116,27 @@ export const StokManagementPage = () => {
       }}>
       <Container size="md">
         <Stack spacing="lg">
-          <Title order={3} style={{ color: "white" }}>
-            Stok Management
-          </Title>
+          <Title order={3}>Stok Management</Title>
 
-          <Paper withBorder shadow="sm" p="md" radius="md">
+          <Paper shadow="sm" p="md" radius="md">
             <Group position="apart" align="center" spacing="xl">
               <Group align="center" spacing="sm">
-                <Text weight={600} style={{ color: "white" }}>
-                  Mode
-                </Text>
+                <Text weight={600}>Mode</Text>
 
                 <Radio.Group
                   value={mode}
                   onChange={handleModeChange}
                   name="mode">
                   <Group spacing="sm">
-                    <Radio
-                      value="tambah"
-                      label="Tambah"
-                      sx={{ label: { color: "white" } }}
-                    />
-                    <Radio
-                      value="update"
-                      label="Update"
-                      sx={{ label: { color: "white" } }}
-                    />
+                    <Radio value="tambah" label="Tambah" />
+                    <Radio value="update" label="Update" />
                   </Group>
                 </Radio.Group>
               </Group>
 
               <Group>
                 <Button
-                  variant="outline"
+                  variant="filled"
                   onClick={() => {
                     reset();
                     setMode("tambah");
@@ -175,13 +163,6 @@ export const StokManagementPage = () => {
                       label="Nama Bahan"
                       placeholder="Masukkan nama bahan"
                       {...field}
-                      styles={{
-                        label: { color: "white" },
-                        input: {
-                          background: "rgba(255,255,255,0.03)",
-                          color: "white",
-                        },
-                      }}
                     />
                   )}
                 />
@@ -197,13 +178,6 @@ export const StokManagementPage = () => {
                       {...field}
                       value={field.value || 0}
                       onChange={(val) => field.onChange(val ?? 0)}
-                      styles={{
-                        label: { color: "white" },
-                        input: {
-                          background: "rgba(255,255,255,0.03)",
-                          color: "white",
-                        },
-                      }}
                     />
                   )}
                 />
@@ -217,17 +191,7 @@ export const StokManagementPage = () => {
                       placeholder="Pilih satuan atau ketik"
                       data={["kg", "biji", "ltr", "pack"]}
                       searchable
-                      creatable
-                      getCreateLabel={(query) => `+ Tambah ${query}`}
-                      onCreate={(query) => query}
                       {...field}
-                      styles={{
-                        label: { color: "white" },
-                        input: {
-                          background: "rgba(255,255,255,0.03)",
-                          color: "white",
-                        },
-                      }}
                     />
                   )}
                 />
@@ -240,17 +204,9 @@ export const StokManagementPage = () => {
                       label="Harga Per Satuan"
                       placeholder="Harga per satuan"
                       min={0}
-                      parser={(value) => value?.replace(/\D/g, "") ?? ""}
                       {...field}
                       value={field.value || 0}
                       onChange={(val) => field.onChange(val ?? 0)}
-                      styles={{
-                        label: { color: "white" },
-                        input: {
-                          background: "rgba(255,255,255,0.03)",
-                          color: "white",
-                        },
-                      }}
                     />
                   )}
                 />
@@ -270,26 +226,21 @@ export const StokManagementPage = () => {
             </Box>
           </Paper>
 
-          <Paper withBorder shadow="sm" p="md" radius="md">
-            <Title order={4} style={{ color: "white" }}>
+          <Paper shadow="sm" p="md" radius="md">
+            <Title order={4} pb="md">
               Bahan Baku
             </Title>
-            <Table
-              highlightOnHover
-              striped
-              verticalSpacing="sm"
-              withBorder
-              sx={{ border: "1px solid white" }}>
+            <Table>
               <thead>
-                <tr style={{ color: "white" }}>
-                  <th>ID Bahan</th>
+                <tr style={{ border: "1px solid white" }}>
+                  <th style={{ paddingLeft: "3%" }}>ID Bahan</th>
                   <th>Nama</th>
                   <th>Jumlah</th>
                   <th>Satuan</th>
-                  <th>Harga Per Satuan</th>
+                  <th>Harga/Satuan</th>
                 </tr>
               </thead>
-              <tbody style={{ color: "white" }}>{rows}</tbody>
+              <tbody>{rows}</tbody>
             </Table>
             <Text size="sm" mt="xs">
               Klik baris untuk mengisi form dan beralih ke mode Update
