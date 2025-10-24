@@ -17,7 +17,7 @@ const LoginPage = () => {
   };
 
   return (
-    <AppShell header={{ height: 0 }} padding="md">
+    <AppShell header={{ height: 0 }} padding="0">
       <AppShell.Header></AppShell.Header>
       <AppShell.Main>
         <div className="loginPage">
