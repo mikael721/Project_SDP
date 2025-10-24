@@ -30,6 +30,15 @@ const warungTheme = createTheme({
         },
       },
     },
+    Paper: {
+      styles: {
+        root: {
+          backgroundColor: "rgba(255, 255, 255, 0.04)", // Background color for Paper
+          borderColor: "rgba(255, 255, 255, 0.12)", // Border color for Paper
+          color: "white", // Text color
+        },
+      },
+    },
   },
 });
 

@@ -26,14 +26,7 @@ export const StokManagementPage = () => {
     { id: 4, nama: "Tahu", jumlah: 2, satuan: "kg", hargaPerSatuan: 1000 },
   ]);
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    setValue,
-    getValues,
-    formState: { errors },
-  } = useForm({
+  const { control, handleSubmit, reset, setValue, getValues } = useForm({
     defaultValues: {
       id: "",
       nama: "",
@@ -117,8 +110,6 @@ export const StokManagementPage = () => {
   return (
     <Box
       sx={{
-        backgroundColor: "#8C6234",
-        color: "white",
         minHeight: "100vh",
         paddingTop: 24,
         paddingBottom: 24,
@@ -129,16 +120,7 @@ export const StokManagementPage = () => {
             Stok Management
           </Title>
 
-          <Paper
-            withBorder
-            shadow="sm"
-            p="md"
-            radius="md"
-            style={{
-              backgroundColor: "rgba(255,255,255,0.04)",
-              borderColor: "rgba(255,255,255,0.12)",
-              color: "white",
-            }}>
+          <Paper withBorder shadow="sm" p="md" radius="md">
             <Group position="apart" align="center" spacing="xl">
               <Group align="center" spacing="sm">
                 <Text weight={600} style={{ color: "white" }}>
@@ -188,13 +170,11 @@ export const StokManagementPage = () => {
                 <Controller
                   control={control}
                   name="nama"
-                  rules={{ required: "Nama wajib diisi" }}
                   render={({ field }) => (
                     <TextInput
                       label="Nama Bahan"
                       placeholder="Masukkan nama bahan"
                       {...field}
-                      error={errors.nama?.message}
                       styles={{
                         label: { color: "white" },
                         input: {
@@ -209,10 +189,6 @@ export const StokManagementPage = () => {
                 <Controller
                   control={control}
                   name="jumlah"
-                  rules={{
-                    required: "Jumlah wajib diisi",
-                    min: { value: 1, message: "Jumlah harus lebih dari 0" },
-                  }}
                   render={({ field }) => (
                     <NumberInput
                       label="Jumlah"
@@ -221,7 +197,6 @@ export const StokManagementPage = () => {
                       {...field}
                       value={field.value || 0}
                       onChange={(val) => field.onChange(val ?? 0)}
-                      error={errors.jumlah?.message}
                       styles={{
                         label: { color: "white" },
                         input: {
@@ -236,7 +211,6 @@ export const StokManagementPage = () => {
                 <Controller
                   control={control}
                   name="satuan"
-                  rules={{ required: "Satuan wajib diisi" }}
                   render={({ field }) => (
                     <Select
                       label="Satuan"
@@ -247,7 +221,6 @@ export const StokManagementPage = () => {
                       getCreateLabel={(query) => `+ Tambah ${query}`}
                       onCreate={(query) => query}
                       {...field}
-                      error={errors.satuan?.message}
                       styles={{
                         label: { color: "white" },
                         input: {
@@ -262,10 +235,6 @@ export const StokManagementPage = () => {
                 <Controller
                   control={control}
                   name="hargaPerSatuan"
-                  rules={{
-                    required: "Harga wajib diisi",
-                    min: { value: 1, message: "Harga harus lebih dari 0" },
-                  }}
                   render={({ field }) => (
                     <NumberInput
                       label="Harga Per Satuan"
@@ -275,7 +244,6 @@ export const StokManagementPage = () => {
                       {...field}
                       value={field.value || 0}
                       onChange={(val) => field.onChange(val ?? 0)}
-                      error={errors.hargaPerSatuan?.message}
                       styles={{
                         label: { color: "white" },
                         input: {
@@ -302,16 +270,7 @@ export const StokManagementPage = () => {
             </Box>
           </Paper>
 
-          <Paper
-            withBorder
-            shadow="sm"
-            p="md"
-            radius="md"
-            style={{
-              backgroundColor: "rgba(255,255,255,0.03)",
-              borderColor: "rgba(255,255,255,0.12)",
-              color: "white",
-            }}>
+          <Paper withBorder shadow="sm" p="md" radius="md">
             <Title order={4} style={{ color: "white" }}>
               Bahan Baku
             </Title>
@@ -332,7 +291,7 @@ export const StokManagementPage = () => {
               </thead>
               <tbody style={{ color: "white" }}>{rows}</tbody>
             </Table>
-            <Text size="sm" color="white" mt="xs">
+            <Text size="sm" mt="xs">
               Klik baris untuk mengisi form dan beralih ke mode Update
             </Text>
           </Paper>
