@@ -1,11 +1,18 @@
 import { AppShell } from "@mantine/core";
-import React from "react";
+import { setLogin,setLogout } from '../../slice + storage/userSlice'
+import { useDispatch, useSelector } from "react-redux";
+
 
 const MenuPage = () => {
+
+  let token = useSelector((d) => d.user.userToken);
+
   return (
     <AppShell header={{ height: 0 }} padding="md">
       <AppShell.Main>
-        <div>MenuPage</div>
+        <div>
+          MainPage
+        </div>
       </AppShell.Main>
     </AppShell>
   );
