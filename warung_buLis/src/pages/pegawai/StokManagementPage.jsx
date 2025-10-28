@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
@@ -16,16 +16,12 @@ import {
   Select,
   Container,
 } from "@mantine/core";
+import axios from "axios";
 
 export const StokManagementPage = () => {
   const [mode, setMode] = useState("tambah");
-  const [bahanBaku, setBahanBaku] = useState([
-    { id: 1, nama: "Sayur Kol", jumlah: 1, satuan: "kg", hargaPerSatuan: 1000 },
-    { id: 2, nama: "Lele", jumlah: 5, satuan: "biji", hargaPerSatuan: 1000 },
-    { id: 3, nama: "Tempe", jumlah: 6, satuan: "kg", hargaPerSatuan: 1000 },
-    { id: 4, nama: "Tahu", jumlah: 2, satuan: "kg", hargaPerSatuan: 1000 },
-  ]);
-
+  const [bahanBaku, setBahanBaku] = useState([]);
+  const [updatedBahan, setupdatedBahan] = useState(second);
   const { control, handleSubmit, reset, setValue, getValues } = useForm({
     defaultValues: {
       id: "",
@@ -35,6 +31,20 @@ export const StokManagementPage = () => {
       hargaPerSatuan: 0,
     },
   });
+  const getstok = async () => {
+    axios.get(`http://localhost:3000/api/bahan_baku/`).then((respond) => {});
+  };
+  useEffect(() => {
+    getstok();
+  }, []);
+
+  const updateStok = async () => {
+    axios.post(`http://localhost:3000/api/bahan_baku/`, { updatedBahan });
+  };
+
+  const deleteStok = async () => {
+    axios.delete(`http://localhost:3000/api/bahan_baku/1`);
+  };
 
   const onSubmit = (data) => {
     if (mode === "tambah") {
@@ -92,18 +102,18 @@ export const StokManagementPage = () => {
 
   const rows = bahanBaku.map((item) => (
     <tr
-      key={item.id}
+      key={item.bahan_baku_id}
       onClick={() => handleRowClick(item)}
       style={{
         cursor: "pointer",
         color: "inherit",
         border: "1px solid white",
       }}>
-      <td style={{ padding: "4% 3%" }}>{item.id}</td>
-      <td style={{ padding: "4% 0%" }}>{item.nama}</td>
-      <td style={{ padding: "4% 0%" }}>{item.jumlah}</td>
-      <td style={{ padding: "4% 0%" }}>{item.satuan}</td>
-      <td style={{ padding: "4% 0%" }}>{item.hargaPerSatuan}</td>
+      <td style={{ padding: "4% 3%" }}>{item.bahan_baku_id}</td>
+      <td style={{ padding: "4% 0%" }}>{item.bahan_baku_nama}</td>
+      <td style={{ padding: "4% 0%" }}>{item.bahan_baku_jumlah}</td>
+      <td style={{ padding: "4% 0%" }}>{item.bahan_baku_satuan}</td>
+      <td style={{ padding: "4% 0%" }}>{item.bahan_baku_harga_satuan}</td>
     </tr>
   ));
 
@@ -128,7 +138,7 @@ export const StokManagementPage = () => {
                   onChange={handleModeChange}
                   name="mode">
                   <Group spacing="sm">
-                    <Radio value="tambah" label="Tambah" />
+                    <Radio value="tambah" label="Baru" />
                     <Radio value="update" label="Update" />
                   </Group>
                 </Radio.Group>

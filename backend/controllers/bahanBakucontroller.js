@@ -44,65 +44,31 @@ exports.addBahanBaku = async (req, res) => {
   }
 };
 
-//UPDATE JUMLAH (PERTAMBAHAN)
-exports.addBahanBakuJumlah = async (req, res) => {
+// UPDATE
+exports.updateBahanBaku = async (req, res) => {
   try {
-    const { error } = updateBahanBakuSchema.validate(req.body);
+    const { error } = addBahanBakuSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ message: error.details[0].message });
     }
 
-    const { bahan_baku_id, bahan_baku_jumlah } = req.body;
+    const { id } = req.params;
+    const bahanBaku = await BahanBaku.findByPk(id);
 
-    const bahanBaku = await BahanBaku.findByPk(bahan_baku_id);
     if (!bahanBaku) {
       return res.status(404).json({ message: "Bahan baku tidak ditemukan!" });
     }
 
-    bahanBaku.bahan_baku_jumlah += bahan_baku_jumlah;
-    await bahanBaku.save();
-
+    await bahanBaku.update(req.body);
     return res
       .status(200)
-      .json({ message: "Jumlah bahan baku berhasil ditambahkan!", bahanBaku });
+      .json({ message: "Bahan baku berhasil diperbarui!", bahanBaku });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
 
-//UPDATE JUMLAH (PENGURANGAN)
-exports.subtractBahanBakuJumlah = async (req, res) => {
-  try {
-    const { error } = updateBahanBakuSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
-    }
-
-    const { bahan_baku_id, bahan_baku_jumlah } = req.body;
-
-    const bahanBaku = await BahanBaku.findByPk(bahan_baku_id);
-    if (!bahanBaku) {
-      return res.status(404).json({ message: "Bahan baku tidak ditemukan!" });
-    }
-
-    if (bahanBaku.bahan_baku_jumlah - bahan_baku_jumlah < 0) {
-      return res.status(400).json({
-        message: "Pengurangan jumlah bahan baku tidak bisa di bawah 0!",
-      });
-    }
-
-    bahanBaku.bahan_baku_jumlah -= bahan_baku_jumlah;
-    await bahanBaku.save();
-
-    return res
-      .status(200)
-      .json({ message: "Jumlah bahan baku berhasil dikurangi!", bahanBaku });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-};
-
-// DELETE PAKEK ID
+// DELETE
 exports.deleteBahanBaku = async (req, res) => {
   try {
     const { id } = req.params;
