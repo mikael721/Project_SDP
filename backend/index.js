@@ -12,8 +12,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // ini biar bisa terima body !!!
 
 // ===================================================================
-// menu management
+// menu
 app.use("/api/menu_management", menuManagement);
+
+// menu detail
+app.use("/api/menu_management/detail", detailMenuRoutes);
 
 // login
 app.use("/api/login", login);

@@ -1,8 +1,5 @@
 const BahanBaku = require("../models/bahanBakuModel");
-const {
-  addBahanBakuSchema,
-  updateBahanBakuSchema,
-} = require("../validations/bahanBakuValidation");
+const { addBahanBakuSchema } = require("../validations/bahanBakuValidation");
 
 // GET ALL
 exports.getAllBahanBaku = async (req, res) => {
