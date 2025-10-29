@@ -24,8 +24,7 @@ const router = createBrowserRouter(
     <Route path="/" errorElement={<ErrorPage />}>
       <Route index element={<MenuPage />} />
       <Route path="customer" element={<MenuPage />} />
-      <Route path="customer/cart" element={<CartPage />} />{" "}
-      {/* Updated route */}
+      <Route path="customer/cart" element={<CartPage />} />
       <Route path="pegawai" element={<LoginPage />} />
       <Route element={<PageLayoutPegawai />}>
         <Route path="pegawai/penjualan">
@@ -35,7 +34,7 @@ const router = createBrowserRouter(
             errorElement={<ErrorPage />}
           />
           <Route
-            path="detail"
+            path="detail/:id"
             element={<DetailPenjualanPage />}
             errorElement={<ErrorPage />}
           />
@@ -47,7 +46,7 @@ const router = createBrowserRouter(
             errorElement={<ErrorPage />}
           />
           <Route
-            path="detail"
+            path="detail/:id"
             element={<DetailMenuManagementPage />}
             errorElement={<ErrorPage />}
           />

@@ -16,12 +16,12 @@ const warungTheme = createTheme({
     ],
   },
   primaryColor: "brown",
-  primaryShade: 4,
+  primaryShade: 5,
   components: {
     AppShell: {
       styles: {
         main: {
-          background: "#4c2e01ff",
+          background: "#4C2E01",
           color: "white",
         },
         header: {
@@ -33,7 +33,7 @@ const warungTheme = createTheme({
     Paper: {
       styles: {
         root: {
-          backgroundColor: "rgba(255, 255, 255, 0.04)",
+          backgroundColor: "#8C6234",
           border: "1px solid gray",
           color: "white",
         },

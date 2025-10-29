@@ -21,46 +21,104 @@ import axios from "axios";
 export const StokManagementPage = () => {
   const [mode, setMode] = useState("tambah");
   const [bahanBaku, setBahanBaku] = useState([]);
-  const [updatedBahan, setupdatedBahan] = useState(second);
+  const [loading, setLoading] = useState(false);
   const { control, handleSubmit, reset, setValue, getValues } = useForm({
     defaultValues: {
-      id: "",
-      nama: "",
-      jumlah: 0,
-      satuan: "",
-      hargaPerSatuan: 0,
+      bahan_baku_id: "",
+      bahan_baku_nama: "",
+      bahan_baku_jumlah: 0,
+      bahan_baku_satuan: "",
+      bahan_baku_harga_satuan: 0,
     },
   });
+
   const getstok = async () => {
-    axios.get(`http://localhost:3000/api/bahan_baku/`).then((respond) => {});
+    try {
+      setLoading(true);
+      const response = await axios.get(`http://localhost:3000/api/bahan_baku/`);
+      setBahanBaku(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
+
   useEffect(() => {
     getstok();
   }, []);
 
-  const updateStok = async () => {
-    axios.post(`http://localhost:3000/api/bahan_baku/`, { updatedBahan });
+  const postStok = async (data) => {
+    try {
+      setLoading(true);
+      const bahanBakuBaru = {
+        bahan_baku_nama: data.bahan_baku_nama,
+        bahan_baku_jumlah: data.bahan_baku_jumlah,
+        bahan_baku_satuan: data.bahan_baku_satuan,
+        bahan_baku_harga_satuan: data.bahan_baku_harga_satuan,
+        bahan_baku_harga: data.bahan_baku_jumlah * data.bahan_baku_harga_satuan,
+      };
+      const response = await axios.post(
+        `http://localhost:3000/api/bahan_baku/`,
+        bahanBakuBaru
+      );
+      setBahanBaku((s) => [...s, response.data]);
+      reset();
+      setMode("tambah");
+    } catch (error) {
+      console.error("Error posting data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const deleteStok = async () => {
-    axios.delete(`http://localhost:3000/api/bahan_baku/1`);
+  const updateStok = async (data) => {
+    try {
+      setLoading(true);
+      const updatedBahan = {
+        bahan_baku_nama: data.bahan_baku_nama,
+        bahan_baku_jumlah: data.bahan_baku_jumlah,
+        bahan_baku_satuan: data.bahan_baku_satuan,
+        bahan_baku_harga_satuan: data.bahan_baku_harga_satuan,
+        bahan_baku_harga: data.bahan_baku_jumlah * data.bahan_baku_harga_satuan,
+      };
+      await axios.put(
+        `http://localhost:3000/api/bahan_baku/${data.bahan_baku_id}`,
+        updatedBahan
+      );
+      setBahanBaku((s) =>
+        s.map((b) =>
+          b.bahan_baku_id === data.bahan_baku_id ? { ...b, ...updatedBahan } : b
+        )
+      );
+      reset();
+      setMode("tambah");
+    } catch (error) {
+      console.error("Error updating data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteStok = async (id) => {
+    try {
+      setLoading(true);
+      await axios.delete(`http://localhost:3000/api/bahan_baku/${id}`);
+      setBahanBaku((s) => s.filter((b) => b.bahan_baku_id !== id));
+      reset();
+      setMode("tambah");
+    } catch (error) {
+      console.error("Error deleting data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onSubmit = (data) => {
     if (mode === "tambah") {
-      const nextId = bahanBaku.length
-        ? Math.max(...bahanBaku.map((b) => b.id)) + 1
-        : 1;
-      setBahanBaku((s) => [...s, { ...data, id: nextId }]);
-      reset();
-      setMode("tambah");
+      postStok(data);
     } else {
-      const parsedId = Number(data.id);
-      setBahanBaku((s) =>
-        s.map((b) => (b.id === parsedId ? { ...data, id: parsedId } : b))
-      );
-      reset();
-      setMode("tambah");
+      updateStok(data);
     }
   };
 
@@ -69,14 +127,14 @@ export const StokManagementPage = () => {
     if (value === "tambah") reset();
     if (value === "update") {
       const current = getValues();
-      if (!current.id) {
+      if (!current.bahan_baku_id) {
         const first = bahanBaku[0];
         if (first) {
-          setValue("id", first.id);
-          setValue("nama", first.nama);
-          setValue("jumlah", first.jumlah);
-          setValue("satuan", first.satuan);
-          setValue("hargaPerSatuan", first.hargaPerSatuan);
+          setValue("bahan_baku_id", first.bahan_baku_id);
+          setValue("bahan_baku_nama", first.bahan_baku_nama);
+          setValue("bahan_baku_jumlah", first.bahan_baku_jumlah);
+          setValue("bahan_baku_satuan", first.bahan_baku_satuan);
+          setValue("bahan_baku_harga_satuan", first.bahan_baku_harga_satuan);
         }
       }
     }
@@ -84,20 +142,31 @@ export const StokManagementPage = () => {
 
   const handleRowClick = (item) => {
     setMode("update");
-    setValue("id", item.id);
-    setValue("nama", item.nama);
-    setValue("jumlah", item.jumlah);
-    setValue("satuan", item.satuan);
-    setValue("hargaPerSatuan", item.hargaPerSatuan);
+    setValue("bahan_baku_id", item.bahan_baku_id);
+    setValue("bahan_baku_nama", item.bahan_baku_nama);
+    setValue("bahan_baku_jumlah", item.bahan_baku_jumlah);
+    setValue("bahan_baku_satuan", item.bahan_baku_satuan);
+    setValue("bahan_baku_harga_satuan", item.bahan_baku_harga_satuan);
   };
 
   const handleDeleteSelected = () => {
     const current = getValues();
-    if (!current.id) return;
-    const parsedId = Number(current.id);
-    setBahanBaku((s) => s.filter((b) => b.id !== parsedId));
-    reset();
-    setMode("tambah");
+    if (!current.bahan_baku_id) return;
+    deleteStok(current.bahan_baku_id);
+  };
+
+  const cellStyle = {
+    textAlign: "center",
+    border: "1px solid #dee2e6",
+    padding: "12px",
+  };
+
+  const headerCellStyle = {
+    textAlign: "center",
+    color: "white",
+    fontWeight: 700,
+    border: "1px solid #8B7355",
+    padding: "12px",
   };
 
   const rows = bahanBaku.map((item) => (
@@ -106,14 +175,26 @@ export const StokManagementPage = () => {
       onClick={() => handleRowClick(item)}
       style={{
         cursor: "pointer",
-        color: "inherit",
-        border: "1px solid white",
+        backgroundColor: "white",
+        color: "black",
       }}>
-      <td style={{ padding: "4% 3%" }}>{item.bahan_baku_id}</td>
-      <td style={{ padding: "4% 0%" }}>{item.bahan_baku_nama}</td>
-      <td style={{ padding: "4% 0%" }}>{item.bahan_baku_jumlah}</td>
-      <td style={{ padding: "4% 0%" }}>{item.bahan_baku_satuan}</td>
-      <td style={{ padding: "4% 0%" }}>{item.bahan_baku_harga_satuan}</td>
+      <td style={cellStyle}>{item.bahan_baku_id}</td>
+      <td style={cellStyle}>{item.bahan_baku_nama}</td>
+      <td style={cellStyle}>{item.bahan_baku_jumlah}</td>
+      <td style={cellStyle}>{item.bahan_baku_satuan}</td>
+      <td style={cellStyle}>{item.bahan_baku_harga_satuan}</td>
+      <td style={cellStyle}>
+        <Button
+          variant="light"
+          size="xs"
+          color="blue"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRowClick(item);
+          }}>
+          Edit
+        </Button>
+      </td>
     </tr>
   ));
 
@@ -131,7 +212,7 @@ export const StokManagementPage = () => {
           <Paper shadow="sm" p="md" radius="md">
             <Group position="apart" align="center" spacing="xl">
               <Group align="center" spacing="sm">
-                <Text weight={600}>Mode</Text>
+                <Text weight={600}>Mode:</Text>
 
                 <Radio.Group
                   value={mode}
@@ -151,15 +232,16 @@ export const StokManagementPage = () => {
                   onClick={() => {
                     reset();
                     setMode("tambah");
-                  }}>
+                  }}
+                  disabled={loading}>
                   Clear
                 </Button>
                 <Button
                   variant="filled"
                   color="red"
                   onClick={handleDeleteSelected}
-                  disabled={!getValues().id}>
-                  Delete Selected
+                  disabled={!getValues().bahan_baku_id || loading}>
+                  Delete
                 </Button>
               </Group>
             </Group>
@@ -168,19 +250,20 @@ export const StokManagementPage = () => {
               <Stack>
                 <Controller
                   control={control}
-                  name="nama"
+                  name="bahan_baku_nama"
                   render={({ field }) => (
                     <TextInput
                       label="Nama Bahan"
                       placeholder="Masukkan nama bahan"
                       {...field}
+                      disabled={loading}
                     />
                   )}
                 />
 
                 <Controller
                   control={control}
-                  name="jumlah"
+                  name="bahan_baku_jumlah"
                   render={({ field }) => (
                     <NumberInput
                       label="Jumlah"
@@ -189,27 +272,29 @@ export const StokManagementPage = () => {
                       {...field}
                       value={field.value || 0}
                       onChange={(val) => field.onChange(val ?? 0)}
+                      disabled={loading}
                     />
                   )}
                 />
 
                 <Controller
                   control={control}
-                  name="satuan"
+                  name="bahan_baku_satuan"
                   render={({ field }) => (
                     <Select
                       label="Satuan"
                       placeholder="Pilih satuan atau ketik"
-                      data={["kg", "biji", "ltr", "pack"]}
+                      data={["kg", "ekor", "liter", "butir"]}
                       searchable
                       {...field}
+                      disabled={loading}
                     />
                   )}
                 />
 
                 <Controller
                   control={control}
-                  name="hargaPerSatuan"
+                  name="bahan_baku_harga_satuan"
                   render={({ field }) => (
                     <NumberInput
                       label="Harga Per Satuan"
@@ -218,18 +303,23 @@ export const StokManagementPage = () => {
                       {...field}
                       value={field.value || 0}
                       onChange={(val) => field.onChange(val ?? 0)}
+                      disabled={loading}
                     />
                   )}
                 />
 
                 <Controller
                   control={control}
-                  name="id"
+                  name="bahan_baku_id"
                   render={({ field }) => <input type="hidden" {...field} />}
                 />
 
-                <Group position="right" mt="sm">
-                  <Button type="submit" color="blue">
+                <Group justify="center" mt="sm">
+                  <Button
+                    type="submit"
+                    color="blue"
+                    disabled={loading}
+                    size="md">
                     {mode === "tambah" ? "Submit" : "Update"}
                   </Button>
                 </Group>
@@ -241,21 +331,21 @@ export const StokManagementPage = () => {
             <Title order={4} pb="md">
               Bahan Baku
             </Title>
-            <Table>
-              <thead>
-                <tr style={{ border: "1px solid white" }}>
-                  <th style={{ paddingLeft: "3%" }}>ID Bahan</th>
-                  <th>Nama</th>
-                  <th>Jumlah</th>
-                  <th>Satuan</th>
-                  <th>Harga/Satuan</th>
-                </tr>
-              </thead>
-              <tbody>{rows}</tbody>
-            </Table>
-            <Text size="sm" mt="xs">
-              Klik baris untuk mengisi form dan beralih ke mode Update
-            </Text>
+            <Box sx={{ overflowX: "auto" }}>
+              <Table>
+                <thead>
+                  <tr style={{ backgroundColor: "#8B7355" }}>
+                    <th style={headerCellStyle}>ID Bahan</th>
+                    <th style={headerCellStyle}>Nama</th>
+                    <th style={headerCellStyle}>Jumlah</th>
+                    <th style={headerCellStyle}>Satuan</th>
+                    <th style={headerCellStyle}>Harga/Satuan</th>
+                    <th style={headerCellStyle}>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>{rows}</tbody>
+              </Table>
+            </Box>
           </Paper>
         </Stack>
       </Container>

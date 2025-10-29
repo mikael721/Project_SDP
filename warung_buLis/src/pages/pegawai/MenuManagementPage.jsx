@@ -1,10 +1,15 @@
 import React from "react";
-import '../css/pegawai/MenuManagementPageCss.css';
+import "../css/pegawai/MenuManagementPageCss.css";
 import { NumberInput, TextInput, Table } from "@mantine/core";
 import { Controller, useForm } from "react-hook-form";
 
 export const MenuManagementPage = () => {
-  const { control, handleSubmit, formState:{ errors } ,reset } = useForm();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm();
 
   const onSubmit = (data) => {
     console.log(data);
@@ -14,21 +19,30 @@ export const MenuManagementPage = () => {
     <div className="utamaMMP">
       <div className="inputField">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div style={{ textAlign: 'center' }}>
-            <h3 style={{ fontSize: '40px', fontWeight: 'bold' }}>Add New Menu</h3>
+          <div style={{ textAlign: "center" }}>
+            <h3 style={{ fontSize: "40px", fontWeight: "bold" }}>
+              Add New Menu
+            </h3>
             <br />
           </div>
 
           {/* === Nama === */}
           <div className="inputField">
-            <div style={{ minWidth: '50px', textAlign: 'right', marginRight: '10px' }}>Name:</div>
+            <div
+              style={{
+                minWidth: "50px",
+                textAlign: "right",
+                marginRight: "10px",
+              }}>
+              Name:
+            </div>
             <Controller
               name="nama"
               control={control}
               render={({ field }) => (
                 <TextInput
                   placeholder="Masukan Nama"
-                  style={{ width: '250px' }}
+                  style={{ width: "250px" }}
                   {...field}
                   required
                 />
@@ -38,7 +52,14 @@ export const MenuManagementPage = () => {
 
           {/* === Harga === */}
           <div className="inputField">
-            <div style={{ minWidth: '50px', textAlign: 'right', marginRight: '10px' }}>Harga:</div>
+            <div
+              style={{
+                minWidth: "50px",
+                textAlign: "right",
+                marginRight: "10px",
+              }}>
+              Harga:
+            </div>
             <Controller
               name="harga"
               control={control}
@@ -46,7 +67,7 @@ export const MenuManagementPage = () => {
                 <NumberInput
                   min={0}
                   placeholder="Masukan Harga"
-                  style={{ width: '250px' }}
+                  style={{ width: "250px" }}
                   {...field}
                   required
                 />
@@ -56,14 +77,21 @@ export const MenuManagementPage = () => {
 
           {/* === Img === */}
           <div className="inputField">
-            <div style={{ minWidth: '50px', textAlign: 'right', marginRight: '10px' }}>Img:</div>
+            <div
+              style={{
+                minWidth: "50px",
+                textAlign: "right",
+                marginRight: "10px",
+              }}>
+              Img:
+            </div>
             <Controller
               name="img"
               control={control}
               render={({ field }) => (
                 <TextInput
                   placeholder="Masukan URL Gambar"
-                  style={{ width: '250px' }}
+                  style={{ width: "250px" }}
                   {...field}
                   required
                 />
@@ -71,7 +99,7 @@ export const MenuManagementPage = () => {
             />
           </div>
 
-          <div style={{ textAlign: 'center' }}>
+          <div style={{ textAlign: "center" }}>
             <button className="btnSubmitMMP">Submit</button>
           </div>
         </form>
@@ -86,8 +114,7 @@ export const MenuManagementPage = () => {
               borderBottom: "3px solid white",
               padding: "10px",
               marginBottom: "20px",
-            }}
-          >
+            }}>
             <h2>Menu</h2>
           </div>
           <Table>

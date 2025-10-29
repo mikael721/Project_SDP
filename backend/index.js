@@ -7,7 +7,7 @@ const login = require("./routes/loginRoutes");
 const menuManagement = require("./routes/menuManagement");
 
 const app = express();
-
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // ini biar bisa terima body !!!
 
