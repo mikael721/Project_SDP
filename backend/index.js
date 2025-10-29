@@ -23,6 +23,9 @@ app.use("/api/login", login);
 
 // bahan baku
 app.use("/api/bahan_Baku", bahanBakuRoutes);
+
+// pesanan detail
+app.use("/api/menu_management/detail", pesananDetailRoutes);
 // ====================================================================
 
 const PORT = process.env.PORT || 3000;
