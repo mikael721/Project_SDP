@@ -15,7 +15,7 @@ exports.addMenu = async(req,res) => {
             });
         }
         // Lakukan Insert
-        let insertMakanan = MenuManagement.create({
+        let insertMakanan = await MenuManagement.create({
             menu_nama,menu_harga,menu_gambar
         })
 

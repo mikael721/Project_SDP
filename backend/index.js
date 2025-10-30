@@ -8,22 +8,21 @@ const menuManagement = require("./routes/menuManagement");
 const detailMenuRoutes = require("./routes/detailMenuRoutes")
 const pesananDetailRoutes = require("./routes/pesananDetailRoutes")
 
-const { isAuthenticate } = require("./middleware/middleware")
-
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // ini biar bisa terima body !!!
 
 // ===================================================================
-// menu
-app.use("/api/menu_management", menuManagement);
-
-// menu detail
-app.use("/api/menu_management/detail", detailMenuRoutes);
 
 // login
 app.use("/api/login", login);
+
+// menu
+app.use("/api/menu_management" , menuManagement);
+
+// menu detail
+app.use("/api/menu_management/detail", detailMenuRoutes);
 
 // bahan baku
 app.use("/api/bahan_Baku", bahanBakuRoutes);

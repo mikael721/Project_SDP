@@ -25,9 +25,9 @@ exports.doLogin = async (req, res) => {
     // hasil masuk if else akhir
     if(valid){
       let payload = {
-        id: isUserAda.id,
-        pegawai_nama: isUserAda.nama
-      }
+        pegawai_id: isUserAda.pegawai_id,
+        pegawai_nama: isUserAda.pegawai_nama
+      };
       let jwtPass = process.env.JWT_SECRET
       let jwtExp = process.env.JWT_EXPIRES
       
