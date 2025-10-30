@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -11,11 +11,14 @@ import {
   Grid,
   ActionIcon,
 } from "@mantine/core";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 
 export const MainPenjualanPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [jumlahOrder, setJumlahOrder] = useState("");
   const [cartItems, setCartItems] = useState([]);
+
 
   // Data menu dummy - nanti bisa diganti dengan data dari API
   const menuItems = [
@@ -62,6 +65,19 @@ export const MainPenjualanPage = () => {
         "https://images.unsplash.com/photo-1626804475297-41608ea09aeb?w=400&h=300&fit=crop",
     },
   ];
+
+  // === REDIRECT LOGIN !!! ===
+  useEffect(() => {
+    cekSudahLogin()
+  },[])
+  const cekSudahLogin = () => {
+    if(!userToken){
+      navigate('/pegawai')
+    }
+  }
+  let navigate = useNavigate();
+  let dispatch = useDispatch();
+  let userToken = useSelector((state) => state.user.userToken);
 
   const handleAddToCart = (item) => {
     setCartItems((prev) => {

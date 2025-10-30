@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  userToken: 'tes',
+  userToken: null,
 };
 
 export const userSlice = new createSlice({
@@ -10,6 +10,7 @@ export const userSlice = new createSlice({
   reducers: {
     setLogin: (state, action) => {
         state.userToken = action.payload;
+        //console.log('Berhasil ! user token telah terupdate');
     },
     setLogout: (state,action) => {
         state.userToken = null;
