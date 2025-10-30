@@ -9,10 +9,6 @@ const Pembelian = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    header_pembelian_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
     bahan_baku_id: {
       type: DataTypes.INTEGER,
       allowNull: false,

@@ -27,6 +27,7 @@ export const LaporanKeuanganPage = () => {
       tanggalStart: "",
       tanggalEnd: "",
       menuId: "",
+      bahanId: "",
     },
   });
 
@@ -89,44 +90,57 @@ export const LaporanKeuanganPage = () => {
   // Fetch data pembelian
   const fetchPembelian = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/pembelian/");
-      setDataPembelian(response.data || []);
-      setFilteredPembelian(response.data || []);
+      //UBAH INI NEK MAU FILTER "2025-12-10" / "1"
+      const filter = {
+        tanggal_awal: null,
+        tanggal_akhir: "2025-12-11",
+        bahan_baku_id: null,
+      };
+      const response = await axios.get(
+        "http://localhost:3000/api/laporan_keuangan/pembelian",
+        { params: filter } // buat query
+      );
+      setDataPembelian(response.data.data || []);
+      setFilteredPembelian(response.data.data || []);
     } catch (error) {
       console.error("Error fetching pembelian:", error);
       // Data dummy untuk development
       const dummyPembelian = [
         {
-          id_bahan: 1,
-          tanggal: "11/01/2025",
-          nama: "Bandeng",
-          jumlah: 2,
-          satuan: "Biji",
-          harga: 28000,
+          pembelian_id: 1,
+          tanggal: "2025-10-30T14:46:10.000Z",
+          bahan_baku_id: 1,
+          jumlah: 10,
+          satuan: "ekor",
+          harga_satuan: 20000,
+          subtotal: 200000,
         },
         {
-          id_bahan: 2,
-          tanggal: "11/01/2025",
-          nama: "minyak",
+          pembelian_id: 2,
+          tanggal: "2025-10-30T14:46:10.000Z",
+          bahan_baku_id: 2,
           jumlah: 5000,
           satuan: "ml",
-          harga: 10000,
+          harga_satuan: 2,
+          subtotal: 10000,
         },
         {
-          id_bahan: 3,
-          tanggal: "11/01/2025",
-          nama: "garam",
+          pembelian_id: 3,
+          tanggal: "2025-10-30T14:46:10.000Z",
+          bahan_baku_id: 3,
           jumlah: 2000,
           satuan: "grm",
-          harga: 50000,
+          harga_satuan: 25,
+          subtotal: 50000,
         },
         {
-          id_bahan: 4,
-          tanggal: "11/01/2025",
-          nama: "tepung",
+          pembelian_id: 4,
+          tanggal: "2025-10-30T14:46:10.000Z",
+          bahan_baku_id: 4,
           jumlah: 7000,
           satuan: "grm",
-          harga: 20000,
+          harga_satuan: 3,
+          subtotal: 21000,
         },
       ];
       setDataPembelian(dummyPembelian);
@@ -178,9 +192,7 @@ export const LaporanKeuanganPage = () => {
 
       if (tanggalStart) {
         filtered = filtered.filter((item) => {
-          const itemDate = new Date(
-            item.tanggal.split("/").reverse().join("-")
-          );
+          const itemDate = new Date(item.tanggal);
           const startDate = new Date(tanggalStart);
           return itemDate >= startDate;
         });
@@ -188,9 +200,7 @@ export const LaporanKeuanganPage = () => {
 
       if (tanggalEnd) {
         filtered = filtered.filter((item) => {
-          const itemDate = new Date(
-            item.tanggal.split("/").reverse().join("-")
-          );
+          const itemDate = new Date(item.tanggal);
           const endDate = new Date(tanggalEnd);
           return itemDate <= endDate;
         });
@@ -207,9 +217,18 @@ export const LaporanKeuanganPage = () => {
   );
 
   const totalPembelian = filteredPembelian.reduce(
-    (sum, item) => sum + (item.harga || 0),
+    (sum, item) => sum + (item.subtotal || 0),
     0
   );
+
+  // Format date helper
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   return (
     <Box
@@ -272,21 +291,33 @@ export const LaporanKeuanganPage = () => {
                     />
                   </Group>
                 </Box>
-
-                {/* Menu ID Filter */}
-                <Controller
-                  control={control}
-                  name="menuId"
-                  render={({ field }) => (
-                    <TextInput
-                      label="Menu Id"
-                      placeholder="masukan id_menu"
-                      style={{ width: "200px" }}
-                      {...field}
-                    />
-                  )}
-                />
               </Group>
+              {/* Menu ID Filter */}
+              <Controller
+                control={control}
+                name="menuId"
+                render={({ field }) => (
+                  <TextInput
+                    label="Menu Id"
+                    placeholder="masukan id_menu"
+                    style={{ width: "200px" }}
+                    {...field}
+                  />
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="bahanId"
+                render={({ field }) => (
+                  <TextInput
+                    label="Bahan Id"
+                    placeholder="masukan bahan id"
+                    style={{ width: "200px" }}
+                    {...field}
+                  />
+                )}
+              />
 
               <Group position="left">
                 <Button
@@ -411,13 +442,13 @@ export const LaporanKeuanganPage = () => {
                 <thead>
                   <tr style={{ backgroundColor: "rgba(139, 98, 60, 0.5)" }}>
                     <th style={{ padding: "12px", textAlign: "center" }}>
-                      id_bahan
+                      pembelian_id
                     </th>
                     <th style={{ padding: "12px", textAlign: "center" }}>
                       tanggal
                     </th>
                     <th style={{ padding: "12px", textAlign: "center" }}>
-                      nama
+                      bahan_baku_id
                     </th>
                     <th style={{ padding: "12px", textAlign: "center" }}>
                       jumlah
@@ -426,7 +457,10 @@ export const LaporanKeuanganPage = () => {
                       satuan
                     </th>
                     <th style={{ padding: "12px", textAlign: "center" }}>
-                      harga
+                      harga_satuan
+                    </th>
+                    <th style={{ padding: "12px", textAlign: "center" }}>
+                      subtotal
                     </th>
                   </tr>
                 </thead>
@@ -434,13 +468,13 @@ export const LaporanKeuanganPage = () => {
                   {filteredPembelian.map((item, index) => (
                     <tr key={index}>
                       <td style={{ padding: "10px", textAlign: "center" }}>
-                        {item.id_bahan}
+                        {item.pembelian_id}
                       </td>
                       <td style={{ padding: "10px", textAlign: "center" }}>
-                        {item.tanggal}
+                        {formatDate(item.tanggal)}
                       </td>
                       <td style={{ padding: "10px", textAlign: "center" }}>
-                        {item.nama}
+                        {item.bahan_baku_id}
                       </td>
                       <td style={{ padding: "10px", textAlign: "center" }}>
                         {item.jumlah}
@@ -449,13 +483,16 @@ export const LaporanKeuanganPage = () => {
                         {item.satuan}
                       </td>
                       <td style={{ padding: "10px", textAlign: "center" }}>
-                        {item.harga.toLocaleString()}
+                        {item.harga_satuan.toLocaleString()}
+                      </td>
+                      <td style={{ padding: "10px", textAlign: "center" }}>
+                        {item.subtotal.toLocaleString()}
                       </td>
                     </tr>
                   ))}
                   <tr style={{ backgroundColor: "rgba(139, 98, 60, 0.6)" }}>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       style={{
                         padding: "10px",
                         textAlign: "center",
