@@ -15,11 +15,13 @@ import {
   Text,
   Select,
   Container,
+  Divider,
 } from "@mantine/core";
 import axios from "axios";
 
 export const StokManagementPage = () => {
   const [mode, setMode] = useState("tambah");
+  const [transactionType, setTransactionType] = useState("tambah");
   const [bahanBaku, setBahanBaku] = useState([]);
   const [loading, setLoading] = useState(false);
   const { control, handleSubmit, reset, setValue, getValues } = useForm({
@@ -114,29 +116,93 @@ export const StokManagementPage = () => {
     }
   };
 
+  const handleTransactionSubmit = async (data) => {
+    try {
+      setLoading(true);
+      const currentBahan = bahanBaku.find(
+        (b) => b.bahan_baku_id === data.bahan_baku_id
+      );
+
+      if (!currentBahan) {
+        console.error("Bahan baku tidak ditemukan");
+        return;
+      }
+
+      // Validate that transaction amount is provided
+      if (data.bahan_baku_jumlah === 0 || !data.bahan_baku_jumlah) {
+        console.error("Jumlah transaksi harus lebih dari 0");
+        return;
+      }
+
+      let newJumlah;
+      if (transactionType === "tambah") {
+        newJumlah = currentBahan.bahan_baku_jumlah + data.bahan_baku_jumlah;
+      } else {
+        newJumlah = currentBahan.bahan_baku_jumlah - data.bahan_baku_jumlah;
+        if (newJumlah < 0) {
+          console.error("Jumlah stok tidak boleh negatif");
+          return;
+        }
+      }
+
+      // Post to Pembelian table
+      const pembelianData = {
+        bahan_baku_id: data.bahan_baku_id,
+        pembelian_jumlah: data.bahan_baku_jumlah,
+        pembelian_satuan: data.bahan_baku_satuan,
+        pembelian_harga_satuan: data.bahan_baku_harga_satuan,
+      };
+
+      await axios.post(
+        `http://localhost:3000/api/bahan_baku/newPembelian`,
+        pembelianData
+      );
+
+      // Update stok using the same format as the working updateStok
+      const updatedBahan = {
+        bahan_baku_nama: currentBahan.bahan_baku_nama,
+        bahan_baku_jumlah: newJumlah,
+        bahan_baku_satuan: currentBahan.bahan_baku_satuan,
+        bahan_baku_harga_satuan: currentBahan.bahan_baku_harga_satuan,
+        bahan_baku_harga: newJumlah * currentBahan.bahan_baku_harga_satuan,
+      };
+
+      await axios.put(
+        `http://localhost:3000/api/bahan_baku/${data.bahan_baku_id}`,
+        updatedBahan
+      );
+
+      setBahanBaku((s) =>
+        s.map((b) =>
+          b.bahan_baku_id === data.bahan_baku_id ? { ...b, ...updatedBahan } : b
+        )
+      );
+
+      reset();
+    } catch (error) {
+      console.error("Error processing transaction:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const onSubmit = (data) => {
     if (mode === "tambah") {
       postStok(data);
-    } else {
-      updateStok(data);
+    } else if (mode === "update") {
+      handleTransactionSubmit(data);
     }
   };
 
   const handleModeChange = (value) => {
     setMode(value);
-    if (value === "tambah") reset();
+    if (value === "tambah") {
+      reset();
+      setTransactionType("tambah");
+    }
     if (value === "update") {
-      const current = getValues();
-      if (!current.bahan_baku_id) {
-        const first = bahanBaku[0];
-        if (first) {
-          setValue("bahan_baku_id", first.bahan_baku_id);
-          setValue("bahan_baku_nama", first.bahan_baku_nama);
-          setValue("bahan_baku_jumlah", first.bahan_baku_jumlah);
-          setValue("bahan_baku_satuan", first.bahan_baku_satuan);
-          setValue("bahan_baku_harga_satuan", first.bahan_baku_harga_satuan);
-        }
-      }
+      reset();
+      setTransactionType("tambah");
     }
   };
 
@@ -144,7 +210,7 @@ export const StokManagementPage = () => {
     setMode("update");
     setValue("bahan_baku_id", item.bahan_baku_id);
     setValue("bahan_baku_nama", item.bahan_baku_nama);
-    setValue("bahan_baku_jumlah", item.bahan_baku_jumlah);
+    setValue("bahan_baku_jumlah", 0);
     setValue("bahan_baku_satuan", item.bahan_baku_satuan);
     setValue("bahan_baku_harga_satuan", item.bahan_baku_harga_satuan);
   };
@@ -183,18 +249,6 @@ export const StokManagementPage = () => {
       <td style={cellStyle}>{item.bahan_baku_jumlah}</td>
       <td style={cellStyle}>{item.bahan_baku_satuan}</td>
       <td style={cellStyle}>{item.bahan_baku_harga_satuan}</td>
-      <td style={cellStyle}>
-        <Button
-          variant="light"
-          size="xs"
-          color="blue"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleRowClick(item);
-          }}>
-          Edit
-        </Button>
-      </td>
     </tr>
   ));
 
@@ -232,6 +286,7 @@ export const StokManagementPage = () => {
                   onClick={() => {
                     reset();
                     setMode("tambah");
+                    setTransactionType("tambah");
                   }}
                   disabled={loading}>
                   Clear
@@ -246,6 +301,23 @@ export const StokManagementPage = () => {
               </Group>
             </Group>
 
+            <Divider my="md" />
+
+            {mode === "update" && (
+              <Group align="center" spacing="sm">
+                <Text weight={600}>Tipe:</Text>
+                <Radio.Group
+                  value={transactionType}
+                  onChange={setTransactionType}
+                  name="transactionType">
+                  <Group spacing="sm">
+                    <Radio value="tambah" label="Tambah" />
+                    <Radio value="kurang" label="Kurang" />
+                  </Group>
+                </Radio.Group>
+              </Group>
+            )}
+
             <Box component="form" onSubmit={handleSubmit(onSubmit)} mt="md">
               <Stack>
                 <Controller
@@ -256,7 +328,7 @@ export const StokManagementPage = () => {
                       label="Nama Bahan"
                       placeholder="Masukkan nama bahan"
                       {...field}
-                      disabled={loading}
+                      disabled={loading || mode === "update"}
                     />
                   )}
                 />
@@ -266,9 +338,15 @@ export const StokManagementPage = () => {
                   name="bahan_baku_jumlah"
                   render={({ field }) => (
                     <NumberInput
-                      label="Jumlah"
+                      label={
+                        mode === "update"
+                          ? `Jumlah (${
+                              transactionType === "tambah" ? "Tambah" : "Kurang"
+                            })`
+                          : "Jumlah"
+                      }
                       placeholder="Jumlah"
-                      min={0}
+                      min={1}
                       {...field}
                       value={field.value || 0}
                       onChange={(val) => field.onChange(val ?? 0)}
@@ -287,7 +365,7 @@ export const StokManagementPage = () => {
                       data={["kg", "ekor", "liter", "butir", "gram", "ml"]}
                       searchable
                       {...field}
-                      disabled={loading}
+                      disabled={loading || mode === "update"}
                     />
                   )}
                 />
@@ -299,11 +377,11 @@ export const StokManagementPage = () => {
                     <NumberInput
                       label="Harga Per Satuan"
                       placeholder="Harga per satuan"
-                      min={0}
+                      min={1}
                       {...field}
                       value={field.value || 0}
                       onChange={(val) => field.onChange(val ?? 0)}
-                      disabled={loading}
+                      disabled={loading || mode === "update"}
                     />
                   )}
                 />
@@ -318,9 +396,16 @@ export const StokManagementPage = () => {
                   <Button
                     type="submit"
                     color="blue"
-                    disabled={loading}
+                    disabled={
+                      loading ||
+                      (mode === "update" && !getValues().bahan_baku_id)
+                    }
                     size="md">
-                    {mode === "tambah" ? "Submit" : "Update"}
+                    {mode === "tambah"
+                      ? "Submit"
+                      : transactionType === "tambah"
+                      ? "Tambah Stok"
+                      : "Kurang Stok"}
                   </Button>
                 </Group>
               </Stack>
@@ -328,9 +413,12 @@ export const StokManagementPage = () => {
           </Paper>
 
           <Paper shadow="sm" p="md" radius="md">
-            <Title order={4} pb="md">
-              Bahan Baku
-            </Title>
+            <Group justify="center" pb="md">
+              <Title order={4}>Bahan Baku</Title>
+            </Group>
+            <Group justify="center" pb="md">
+              <Text order={6}>(klik untuk mengedit)</Text>
+            </Group>
             <Box sx={{ overflowX: "auto" }}>
               <Table>
                 <thead>
@@ -340,7 +428,6 @@ export const StokManagementPage = () => {
                     <th style={headerCellStyle}>Jumlah</th>
                     <th style={headerCellStyle}>Satuan</th>
                     <th style={headerCellStyle}>Harga/Satuan</th>
-                    <th style={headerCellStyle}>Aksi</th>
                   </tr>
                 </thead>
                 <tbody>{rows}</tbody>

@@ -1,5 +1,10 @@
 const BahanBaku = require("../models/bahanBakuModel");
-const { addBahanBakuSchema } = require("../validations/bahanBakuValidation");
+const Pembelian = require("../models/pembelianModel");
+const {
+  addBahanBakuSchema,
+  updateBahanBakuSchema,
+  addPembelianSchema,
+} = require("../validations/bahanBakuValidation");
 
 // GET ALL
 exports.getAllBahanBaku = async (req, res) => {
@@ -44,7 +49,7 @@ exports.addBahanBaku = async (req, res) => {
 // UPDATE
 exports.updateBahanBaku = async (req, res) => {
   try {
-    const { error } = addBahanBakuSchema.validate(req.body);
+    const { error } = updateBahanBakuSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ message: error.details[0].message });
     }
@@ -61,10 +66,10 @@ exports.updateBahanBaku = async (req, res) => {
       .status(200)
       .json({ message: "Bahan baku berhasil diperbarui!", bahanBaku });
   } catch (error) {
+    console.error("Update error:", error); // Add detailed logging
     return res.status(500).json({ error: error.message });
   }
 };
-
 // DELETE
 exports.deleteBahanBaku = async (req, res) => {
   try {
@@ -80,5 +85,39 @@ exports.deleteBahanBaku = async (req, res) => {
     return res.status(200).json({ message: "Bahan baku berhasil dihapus." });
   } catch (error) {
     return res.status(500).json({ error: error.message });
+  }
+};
+exports.addPembelian = async (req, res) => {
+  try {
+    const { error } = addPembelianSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
+
+    const {
+      bahan_baku_id,
+      pembelian_jumlah,
+      pembelian_satuan,
+      pembelian_harga_satuan,
+    } = req.body;
+
+    const bahan = await BahanBaku.findByPk(bahan_baku_id);
+    if (!bahan) {
+      return res.status(404).json({ message: "Bahan baku tidak ditemukan." });
+    }
+
+    const newPembelian = await Pembelian.create({
+      bahan_baku_id,
+      pembelian_jumlah,
+      pembelian_satuan,
+      pembelian_harga_satuan,
+    });
+
+    return res.status(201).json({
+      message: "Pembelian berhasil ditambahkan!",
+      pembelian: newPembelian,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 };

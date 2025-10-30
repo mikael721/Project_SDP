@@ -7,5 +7,6 @@ router.get("/:id", bahanBakuController.getBahanBakuById);
 router.post("/new", bahanBakuController.addBahanBaku);
 router.put("/:id", bahanBakuController.updateBahanBaku);
 router.delete("/:id", bahanBakuController.deleteBahanBaku);
+router.post("/newPembelian", bahanBakuController.addPembelian);
 
 module.exports = router;
