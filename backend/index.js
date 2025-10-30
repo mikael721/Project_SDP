@@ -5,7 +5,8 @@ const { sequelize } = require("./config/sequelize");
 const bahanBakuRoutes = require("./routes/bahanBakuRoutes");
 const login = require("./routes/loginRoutes");
 const menuManagement = require("./routes/menuManagement");
-
+const detailMenuRoutes = require("./routes/detailMenuRoutes");
+const pesananDetailRoutes = require("./routes/pesananDetailRoutes");
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
