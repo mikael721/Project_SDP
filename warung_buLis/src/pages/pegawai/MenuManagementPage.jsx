@@ -3,11 +3,7 @@ import "../css/pegawai/MenuManagementPageCss.css";
 import { NumberInput, TextInput, Table, Button } from "@mantine/core";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-<<<<<<< HEAD
 import { useSelector } from "react-redux";
-=======
-import { useSelector, useDispatch } from "react-redux";
->>>>>>> 79b6cdf52b2ccf7e936c893bc32af8db1a1a5b93
 import axios from "axios";
 
 export const MenuManagementPage = () => {
@@ -33,19 +29,9 @@ export const MenuManagementPage = () => {
     if (!userToken) {
       navigate("/pegawai");
     } else {
-<<<<<<< HEAD
       getMenu();
     }
   };
-=======
-      // semua  use effect taruh sini
-      getMenu();
-    }
-  };
-  let navigate = useNavigate();
-  let dispatch = useDispatch();
-  let userToken = useSelector((state) => state.user.userToken);
->>>>>>> 79b6cdf52b2ccf7e936c893bc32af8db1a1a5b93
 
   // === GET Menu ===
   const getMenu = async () => {
@@ -60,7 +46,6 @@ export const MenuManagementPage = () => {
     }
   };
 
-<<<<<<< HEAD
   // === ADD Menu ===
   const addMenu = async (nama, harga, img) => {
     try {
@@ -104,44 +89,6 @@ export const MenuManagementPage = () => {
   const onSubmit = (data) => {
     addMenu(data.nama, data.harga, data.img);
     reset();
-=======
-  // === FUNCTION ===
-  const getMenu = async (req, res) => {
-    await axios
-      .get("http://localhost:3000/api/menu_management/getall", {
-        headers: {
-          "x-auth-token": userToken,
-        },
-      })
-      .then((res) => {
-        setmenu(res.data);
-        console.log(res.data);
-      });
-  };
-
-  const addMenu = async (nama, harga, img) => {
-    await axios
-      .post(
-        "http://localhost:3000/api/menu_management",
-        {
-          menu_nama: nama,
-          menu_harga: harga,
-          menu_gambar: img,
-        },
-        {
-          headers: {
-            "x-auth-token": userToken,
-          },
-        }
-      )
-      .then((res) => {
-        console.log("Berhasil Add Menu");
-      });
-  };
-
-  const chanegSatatus = async (status, id) => {
-    // console.log('tes');
->>>>>>> 79b6cdf52b2ccf7e936c893bc32af8db1a1a5b93
   };
 
   // === RENDER ===
@@ -246,7 +193,6 @@ export const MenuManagementPage = () => {
               </tr>
             </thead>
             <tbody>
-<<<<<<< HEAD
               {menu.map((d) => (
                 <tr key={d.menu_id} className="tableSet">
                   <td className="tableSet">{d.menu_id}</td>
@@ -281,47 +227,6 @@ export const MenuManagementPage = () => {
                   )}
                 </tr>
               ))}
-=======
-              {menu.map((d, i) => {
-                return (
-                  <tr className="tableSet">
-                    <td className="tableSet">{d.menu_id}</td>
-                    <td className="tableSet">{d.menu_nama}</td>
-                    <td className="tableSet">{d.menu_harga}</td>
-                    <td className="tableSet">
-                      <img src={d.menu_gambar} alt="Tidak Tersedia !!!" />
-                    </td>
-                    <td className="tableSet">
-                      <Button
-                        color="blue"
-                        onClick={() =>
-                          navigate(`/pegawai/menu/detail/${d.menu_id}`)
-                        }>
-                        DETAIL MENU
-                      </Button>
-                    </td>
-
-                    {d.menu_status_aktif != 1 ? (
-                      <td
-                        className="tableSet iR isHV"
-                        onClick={() => {
-                          chanegSatatus(d.menu_status_aktif, d.menu_id);
-                        }}>
-                        DEACTIVE
-                      </td>
-                    ) : (
-                      <td
-                        className="tableSet iG isHV"
-                        onClick={() => {
-                          chanegSatatus(d.menu_status_aktif, d.menu_id);
-                        }}>
-                        ACTIVE
-                      </td>
-                    )}
-                  </tr>
-                );
-              })}
->>>>>>> 79b6cdf52b2ccf7e936c893bc32af8db1a1a5b93
             </tbody>
           </Table>
         </div>
