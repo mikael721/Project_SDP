@@ -15,7 +15,7 @@ import {
   Container,
 } from "@mantine/core";
 
-export const DetailPenjualanPage = () => {
+export const DetailMenuManagementPage = () => {
   const [bahanMenu, setBahanMenu] = useState([
     {
       id: 1,
@@ -111,7 +111,8 @@ export const DetailPenjualanPage = () => {
         cursor: "pointer",
         color: "inherit",
         border: "1px solid white",
-      }}>
+      }}
+    >
       <td style={{ padding: "4% 3%" }}>{item.id}</td>
       <td style={{ padding: "4% 0%" }}>{item.nama}</td>
       <td style={{ padding: "4% 0%" }}>{item.jumlah}</td>
@@ -126,7 +127,8 @@ export const DetailPenjualanPage = () => {
           onClick={(e) => {
             e.stopPropagation(); // Prevent row click event
             handleDelete(item.id);
-          }}>
+          }}
+        >
           Delete
         </Button>
       </td>
@@ -141,7 +143,8 @@ export const DetailPenjualanPage = () => {
           paddingTop: 24,
           paddingBottom: 24,
           backgroundColor: "#6b5344",
-        }}>
+        }}
+      >
         <Container size="md">
           <Stack spacing="lg">
             <Title order={2} align="center">
@@ -229,7 +232,8 @@ export const DetailPenjualanPage = () => {
                 <Group
                   position="center"
                   mt="lg"
-                  style={{ justifyContent: "center" }}>
+                  style={{ justifyContent: "center" }}
+                >
                   <Button type="submit" color="red" size="lg" radius="xl">
                     Add
                   </Button>
@@ -239,7 +243,8 @@ export const DetailPenjualanPage = () => {
                     color="blue"
                     size="lg"
                     radius="xl"
-                    onClick={onUpdate}>
+                    onClick={onUpdate}
+                  >
                     Update
                   </Button>
 
@@ -248,7 +253,8 @@ export const DetailPenjualanPage = () => {
                     color="rgba(125, 125, 125, 1)"
                     size="lg"
                     radius="xl"
-                    onClick={reset}>
+                    onClick={reset}
+                  >
                     Clear
                   </Button>
                 </Group>
@@ -266,7 +272,8 @@ export const DetailPenjualanPage = () => {
                       <th
                         style={{
                           paddingLeft: "3%",
-                        }}>
+                        }}
+                      >
                         id_bahan
                       </th>
                       <th>nama</th>
@@ -287,4 +294,4 @@ export const DetailPenjualanPage = () => {
   );
 };
 
-export default DetailPenjualanPage;
+export default DetailMenuManagementPage;
