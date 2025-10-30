@@ -5,7 +5,7 @@ const {
   message,
 } = require("../validations/menuManagementValidation");
 
-// POST: TAMBAHKAN MENU
+// === UNTUK PEGAWAI (PAKAI TOKEN) ===
 exports.addMenu = async(req,res) => {
     try {
         // Ambil Semua Data Body
@@ -31,7 +31,6 @@ exports.addMenu = async(req,res) => {
         });
     }
 }
-
 exports.getMenu = async (req,res) => {
     try {
         
@@ -45,7 +44,6 @@ exports.getMenu = async (req,res) => {
         });
     }
 }
-
 exports.ubahStatus = async (req,res) => {
     let { id } = req.params;
     try {

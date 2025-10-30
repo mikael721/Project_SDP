@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // ini biar bisa terima body
 // login
 app.use("/api/login", login);
 
-// menu
+// menu management
 app.use("/api/menu_management", menuManagement);
 
 // menu detail
