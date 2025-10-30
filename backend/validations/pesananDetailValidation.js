@@ -2,10 +2,11 @@
 const Joi = require("joi");
 
 const createPesananDetailSchema = Joi.object({
-  menu_id: Joi.number().integer().positive().allow(null).optional().messages({
-    "number.base": "menu_id must be a number",
-    "number.integer": "menu_id must be an integer",
-    "number.positive": "menu_id must be a positive number",
+  menu_id: Joi.number().integer().positive().required().messages({
+    "number.base": "menu_id harus berupa angka",
+    "number.integer": "menu_id harus bilangan bulat",
+    "number.positive": "menu_id harus bernilai positif",
+    "any.required": "menu_id wajib diisi",
   }),
 
   pesanan_detail_jumlah: Joi.number()
@@ -14,72 +15,47 @@ const createPesananDetailSchema = Joi.object({
     .min(1)
     .required()
     .messages({
-      "number.base": "pesanan_detail_jumlah must be a number",
-      "number.integer": "pesanan_detail_jumlah must be an integer",
-      "number.positive": "pesanan_detail_jumlah must be a positive number",
-      "any.required": "pesanan_detail_jumlah is required",
+      "number.base": "pesanan_detail_jumlah harus berupa angka",
+      "number.integer": "pesanan_detail_jumlah harus bilangan bulat",
+      "number.positive": "pesanan_detail_jumlah harus bernilai positif",
+      "number.min": "pesanan_detail_jumlah harus minimal 1",
+      "any.required": "pesanan_detail_jumlah wajib diisi",
     }),
 
-  pesanan_id: Joi.number()
-    .integer()
-    .positive()
-    .allow(null)
-    .optional()
-    .messages({
-      "number.base": "pesanan_id must be a number",
-      "number.integer": "pesanan_id must be an integer",
-      "number.positive": "pesanan_id must be a positive number",
-    }),
+  pesanan_id: Joi.number().integer().positive().required().messages({
+    "number.base": "pesanan_id harus berupa angka",
+    "number.integer": "pesanan_id harus bilangan bulat",
+    "number.positive": "pesanan_id harus bernilai positif",
+    "any.required": "pesanan_id wajib diisi",
+  }),
 });
 
-const updatePesananDetailSchema = Joi.object({
-  pesanan_detail_jumlah: Joi.number()
-    .integer()
-    .positive()
-    .min(1)
+const createPesananSchema = Joi.object({
+  pesanan_nama: Joi.string().required().messages({
+    "string.empty": "Nama pesanan wajib diisi",
+    "any.required": "Nama pesanan wajib diisi",
+  }),
+  pesanan_lokasi: Joi.string().required().messages({
+    "string.empty": "Lokasi pesanan wajib diisi",
+    "any.required": "Lokasi pesanan wajib diisi",
+  }),
+  pesanan_tanggal: Joi.string()
+    .pattern(/^\d{4}-\d{2}-\d{2}$/)
+    .allow(null)
+    .messages({
+      "string.pattern.base": "Tanggal harus berformat YYYY-MM-DD",
+    }),
+  pesanan_tanggal_pengiriman: Joi.string()
+    .pattern(/^\d{4}-\d{2}-\d{2}$/)
+    .allow(null)
     .required()
     .messages({
-      "number.base": "pesanan_detail_jumlah must be a number",
-      "number.integer": "pesanan_detail_jumlah must be an integer",
-      "number.positive": "pesanan_detail_jumlah must be a positive number",
-      "any.required": "pesanan_detail_jumlah is required",
+      "string.pattern.base": "Tanggal pengiriman harus berformat YYYY-MM-DD",
+      "any.required": "Tanggal pengiriman wajib diisi",
     }),
 });
 
-exports.createPesananDetail = (req, res, next) => {
-  const { error } = createPesananDetailSchema.validate(req.body, {
-    abortEarly: false,
-  });
-
-  if (error) {
-    return res.status(400).json({
-      success: false,
-      message: "Validation failed",
-      errors: error.details.map((detail) => ({
-        field: detail.path[0],
-        message: detail.message,
-      })),
-    });
-  }
-
-  next();
-};
-
-exports.updatePesananDetail = (req, res, next) => {
-  const { error } = updatePesananDetailSchema.validate(req.body, {
-    abortEarly: false,
-  });
-
-  if (error) {
-    return res.status(400).json({
-      success: false,
-      message: "Validation failed",
-      errors: error.details.map((detail) => ({
-        field: detail.path[0],
-        message: detail.message,
-      })),
-    });
-  }
-
-  next();
+module.exports = {
+  createPesananSchema,
+  createPesananDetailSchema,
 };

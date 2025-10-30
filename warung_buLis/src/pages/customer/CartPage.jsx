@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   AppShell,
   Box,
@@ -18,52 +19,127 @@ import logo from "../../asset/logo.png";
 
 const CartPage = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [cartItems, setCartItems] = useState([
     {
-      id: 1,
+      pesanan_detail_id: 21,
+      menu_id: 1,
       name: "Nasi Padang Bungkus",
       price: 18000,
-      quantity: 1,
+      pesanan_detail_jumlah: 1,
+      pesanan_id: 1,
       image:
         "https://awsimages.detik.net.id/community/media/visual/2020/07/06/nasi-padang.jpeg?w=1200",
     },
     {
-      id: 2,
+      pesanan_detail_id: 22,
+      menu_id: 2,
       name: "Nasi Pecel",
       price: 16800,
-      quantity: 1,
+      pesanan_detail_jumlah: 1,
+      pesanan_id: 1,
       image: "https://assets.unileversolutions.com/recipes-v2/258082.jpg",
     },
   ]);
 
   const [form, setForm] = useState({
-    lokasi: "",
-    nama: "",
-    tanggalPengiriman: "",
+    pesanan_nama: "",
+    pesanan_lokasi: "",
+    pesanan_tanggal_pengiriman: "",
   });
 
-  const handleQuantityChange = (id, delta) => {
+  const handleQuantityChange = (pesanan_detail_id, delta) => {
     setCartItems((items) => {
       const updatedItems = items.map((item) =>
-        item.id === id
+        item.pesanan_detail_id === pesanan_detail_id
           ? {
               ...item,
-              quantity: Math.max(0, item.quantity + delta),
+              pesanan_detail_jumlah: Math.max(
+                0,
+                item.pesanan_detail_jumlah + delta
+              ),
             }
           : item
       );
-      // Remove items with quantity 0
-      return updatedItems.filter((item) => item.quantity > 0);
+      return updatedItems.filter((item) => item.pesanan_detail_jumlah > 0);
     });
   };
 
-  const handleCheckOut = () => {
-    console.log("Cart Items:", cartItems);
-    console.log("Form Data:", form);
+  const handleFormChange = (field, value) => {
+    setForm((prevForm) => ({
+      ...prevForm,
+      [field]: value,
+    }));
   };
 
+  const handleCheckOut = async () => {
+    try {
+      setLoading(true);
+
+      if (
+        !form.pesanan_nama.trim() ||
+        !form.pesanan_lokasi.trim() ||
+        !form.pesanan_tanggal_pengiriman
+      ) {
+        alert("Semua field harus diisi");
+        setLoading(false);
+        return;
+      }
+
+      if (cartItems.length === 0) {
+        alert("Keranjang tidak boleh kosong");
+        setLoading(false);
+        return;
+      }
+
+      const pesananResponse = await axios.post(
+        "http://localhost:3000/api/menu_management/detail/header",
+        {
+          pesanan_nama: form.pesanan_nama,
+          pesanan_lokasi: form.pesanan_lokasi,
+          pesanan_tanggal: new Date().toISOString().split("T")[0],
+          pesanan_tanggal_pengiriman: form.pesanan_tanggal_pengiriman,
+        }
+      );
+
+      const pesanan_id =
+        pesananResponse.data.data?.id || pesananResponse.data.data?.pesanan_id;
+
+      if (!pesanan_id) {
+        throw new Error("Failed to get pesanan ID from response");
+      }
+
+      console.log("Pesanan created with ID:", pesanan_id);
+
+      const detailPromises = cartItems.map((item) =>
+        axios.post("http://localhost:3000/api/menu_management/detail/detail", {
+          menu_id: item.menu_id,
+          pesanan_detail_jumlah: item.pesanan_detail_jumlah,
+          pesanan_id: pesanan_id,
+        })
+      );
+
+      const detailResponses = await Promise.all(detailPromises);
+      console.log("All pesanan details created:", detailResponses);
+
+      alert("Pesanan berhasil dibuat!");
+      setCartItems([]);
+      setForm({
+        pesanan_nama: "",
+        pesanan_lokasi: "",
+        pesanan_tanggal_pengiriman: "",
+      });
+    } catch (error) {
+      console.error("Error during checkout:", error);
+      const errorMessage =
+        error.response?.data?.message || error.message || "Terjadi kesalahan";
+      alert(`Error: ${errorMessage}`);
+    } finally {
+      setLoading(false);
+    }
+  };
   const totalHarga = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + item.price * item.pesanan_detail_jumlah,
     0
   );
 
@@ -106,31 +182,35 @@ const CartPage = () => {
               <Paper shadow="sm" p="md" radius="md">
                 <Stack gap="md">
                   <TextInput
-                    label="Lokasi"
-                    placeholder="Masukkan lokasi pengiriman"
-                    value={form.lokasi}
+                    label="Nama Penerima"
+                    placeholder="Masukkan nama penerima"
+                    value={form.pesanan_nama}
                     onChange={(e) =>
-                      setForm((f) => ({ ...f, lokasi: e.currentTarget.value }))
+                      handleFormChange("pesanan_nama", e.target.value)
                     }
+                    required
                   />
                   <TextInput
-                    label="Nama"
-                    placeholder="Masukkan nama penerima"
-                    value={form.nama}
+                    label="Lokasi Pengiriman"
+                    placeholder="Masukkan lokasi pengiriman"
+                    value={form.pesanan_lokasi}
                     onChange={(e) =>
-                      setForm((f) => ({ ...f, nama: e.currentTarget.value }))
+                      handleFormChange("pesanan_lokasi", e.target.value)
                     }
+                    required
                   />
                   <TextInput
                     label="Tanggal Pengiriman"
                     placeholder="YYYY-MM-DD"
-                    value={form.tanggalPengiriman}
+                    type="date"
+                    value={form.pesanan_tanggal_pengiriman}
                     onChange={(e) =>
-                      setForm((f) => ({
-                        ...f,
-                        tanggalPengiriman: e.currentTarget.value,
-                      }))
+                      handleFormChange(
+                        "pesanan_tanggal_pengiriman",
+                        e.target.value
+                      )
                     }
+                    required
                   />
                 </Stack>
               </Paper>
@@ -140,19 +220,19 @@ const CartPage = () => {
                   {cartItems.length > 0 ? (
                     <>
                       {cartItems.map((item) => (
-                        <Box key={item.id}>
+                        <Box key={item.pesanan_detail_id}>
                           <Group
                             justify="space-between"
                             align="flex-start"
                             pb="md">
-                            <Box>
+                            <Box style={{ flex: 1 }}>
                               <Text fw={500}>{item.name}</Text>
                               <Text size="sm">
                                 Rp {item.price.toLocaleString()}
                               </Text>
                             </Box>
 
-                            <Box style={{ width: 100, flexShrink: 0 }}>
+                            <Box style={{ width: 120, flexShrink: 0 }}>
                               <Image
                                 src={item.image}
                                 alt={item.name}
@@ -169,23 +249,31 @@ const CartPage = () => {
                                   size="xs"
                                   color="red"
                                   onClick={() =>
-                                    handleQuantityChange(item.id, -1)
+                                    handleQuantityChange(
+                                      item.pesanan_detail_id,
+                                      -1
+                                    )
                                   }
                                   style={{ flex: 1 }}>
                                   -
                                 </Button>
                                 <Text
                                   size="sm"
-                                  w={24}
                                   ta="center"
-                                  style={{ flex: 1, minWidth: 24 }}>
-                                  {item.quantity}
+                                  style={{
+                                    flex: 1,
+                                    minWidth: 24,
+                                  }}>
+                                  {item.pesanan_detail_jumlah}
                                 </Text>
                                 <Button
                                   size="xs"
                                   color="green"
                                   onClick={() =>
-                                    handleQuantityChange(item.id, 1)
+                                    handleQuantityChange(
+                                      item.pesanan_detail_id,
+                                      1
+                                    )
                                   }
                                   style={{ flex: 1 }}>
                                   +
@@ -199,15 +287,24 @@ const CartPage = () => {
 
                       <Group justify="space-between" pt="md">
                         <Text fw={600}>Total</Text>
-                        <Text fw={600}>Rp {totalHarga.toLocaleString()}</Text>
+                        <Text fw={600}>
+                          Rp {totalHarga.toLocaleString("id-ID")}
+                        </Text>
                       </Group>
 
-                      <Button fullWidth color="red" onClick={handleCheckOut}>
-                        Check Out
+                      <Button
+                        fullWidth
+                        color="red"
+                        onClick={handleCheckOut}
+                        loading={loading}
+                        disabled={loading}>
+                        {loading ? "Processing..." : "Check Out"}
                       </Button>
                     </>
                   ) : (
-                    <Text ta="center">Keranjang Anda kosong</Text>
+                    <Text ta="center" py="xl">
+                      Keranjang Anda kosong
+                    </Text>
                   )}
                 </Stack>
               </Paper>
