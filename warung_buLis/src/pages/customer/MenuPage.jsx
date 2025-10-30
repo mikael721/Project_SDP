@@ -6,10 +6,15 @@ import logo from '../../asset/logo.png'
 import CardMenu from "../../component/CardMenu/CardMenu";
 import { useEffect, useState } from "react";
 import axios from 'axios'
+import { useNavigate } from "react-router-dom";
+import menuSlice from '../../slice + storage/menuSlice'
 
 const MenuPage = () => {
 
   // === VARIABEL ===
+  let navigate = useNavigate();
+  let dispatch = useDispatch();
+  let menuTerpesan = useSelector((state) => state.menu.menuTerpilih)
 
   // === USE EFFECT ===
   useEffect(() => {
@@ -18,7 +23,6 @@ const MenuPage = () => {
 
   // === USE STATE ===
   const [menu, setmenu] = useState([]);
-
 
   // === FUNCTION ===
   const getMenu = async () => {
@@ -31,13 +35,28 @@ const MenuPage = () => {
     }
   };
 
+  const goToCart = () => {
+    // klo cart masih kosong suruh pilih dulu !! klo ada isinya baru navigate ke detail
+    if(menuTerpesan.length == 0){
+      window.alert('Anda Belum Memilih Menu');
+    }
+    else{
+      navigate('/customer/cart');
+    }
+
+    //console.log('go to cart');
+    //console.log("Isi Slice Menu :", menuTerpesan); // bukak ini lek mau liat waktu ke cart isi slicenya apa
+  }
+
   return (
     <AppShell header={{ height: 0 }} padding="md">
       <AppShell.Main>
         <div className="menuPage">
           <nav className="navMenuCuto">
             <img src={logo} alt="" className="gambarlogo"/>
-            <button className="cartCusto">Cart</button>
+            <button className="cartCusto" onClick={() => goToCart()}>
+              Cart
+            </button>
           </nav>
           <div className="menuList">
             {menu.map((d,i) => {
