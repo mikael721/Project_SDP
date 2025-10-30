@@ -5,8 +5,11 @@ const { sequelize } = require("./config/sequelize");
 const bahanBakuRoutes = require("./routes/bahanBakuRoutes");
 const login = require("./routes/loginRoutes");
 const menuManagement = require("./routes/menuManagement");
-const detailMenuRoutes = require("./routes/detailMenuRoutes")
-const pesananDetailRoutes = require("./routes/pesananDetailRoutes")
+const detailMenuRoutes = require("./routes/detailMenuRoutes");
+const pesananDetailRoutes = require("./routes/pesananDetailRoutes");
+const mainPenjualanRoutes = require("./routes/mainPenjualanRoutes");
+const detailPenjualanRoutes = require("./routes/detailPenjualanRoutes");
+const laporanKeuanganRoutes = require("./routes/laporanKeuanganRoutes");
 
 const app = express();
 app.use(cors());
@@ -19,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // ini biar bisa terima body
 app.use("/api/login", login);
 
 // menu
-app.use("/api/menu_management" , menuManagement);
+app.use("/api/menu_management", menuManagement);
 
 // menu detail
 app.use("/api/menu_management/detail", detailMenuRoutes);
@@ -30,6 +33,15 @@ app.use("/api/bahan_Baku", bahanBakuRoutes);
 // pesanan detail
 app.use("/api/menu_management/detail", pesananDetailRoutes);
 // ====================================================================
+
+// main penjualan (header penjualan)
+app.use("/api/main_penjualan", mainPenjualanRoutes);
+
+// detail penjualan
+app.use("/api/detail_penjualan", detailPenjualanRoutes);
+
+// laporan keuangan
+app.use("/api/laporan_keuangan", laporanKeuanganRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
