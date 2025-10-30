@@ -5,11 +5,16 @@ const { sequelize } = require("./config/sequelize");
 const bahanBakuRoutes = require("./routes/bahanBakuRoutes");
 const login = require("./routes/loginRoutes");
 const menuManagement = require("./routes/menuManagement");
+<<<<<<< HEAD
 const detailMenuRoutes = require("./routes/detailMenuRoutes")
 const pesananDetailRoutes = require("./routes/pesananDetailRoutes")
 
 const { isAuthenticate } = require("./middleware/middleware")
 
+=======
+const detailMenuRoutes = require("./routes/detailMenuRoutes");
+const pesananDetailRoutes = require("./routes/pesananDetailRoutes");
+>>>>>>> b44023d56b95168677286ae85b345ef4599479f5
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
