@@ -22,7 +22,7 @@ const DetailMenu = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    detail_menu_total_harga: {
+    detail_menu_harga: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

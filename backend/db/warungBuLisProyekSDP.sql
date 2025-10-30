@@ -56,7 +56,7 @@ CREATE TABLE `detail_menu` (
   `detail_menu_nama_bahan` varchar(255) NOT NULL,
   `detail_menu_jumlah` float NOT NULL,
   `detail_menu_satuan` varchar(255) NOT NULL,
-  `detail_menu_total_harga` int(11) NOT NULL,
+  `detail_menu_harga` int(11) NOT NULL,
   `menu_id` int(11) NOT NULL,
   `createdAt` datetime DEFAULT current_timestamp(),
   `updatedAt` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -68,7 +68,7 @@ CREATE TABLE `detail_menu` (
 
 /*Data for the table `detail_menu` */
 
-insert  into `detail_menu`(`detail_menu_id`,`detail_menu_nama_bahan`,`detail_menu_jumlah`,`detail_menu_satuan`,`detail_menu_total_harga`,`menu_id`,`createdAt`,`updatedAt`,`deletedAt`) values 
+INSERT INTO `detail_menu` (`detail_menu_id`,`detail_menu_nama_bahan`,`detail_menu_jumlah`,`detail_menu_satuan`,`detail_menu_harga`,`menu_id`,`createdAt`,`updatedAt`,`deletedAt`) VALUES
 (1,'Ayam',1,'ekor',20000,1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
 (2,'Telur',2,'butir',12000,2,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
 (3,'Ikan',1,'ekor',15000,3,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
@@ -79,7 +79,6 @@ insert  into `detail_menu`(`detail_menu_id`,`detail_menu_nama_bahan`,`detail_men
 (8,'Lele',1,'ekor',12000,8,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
 (9,'Daging sapi',0.2,'kg',15000,9,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
 (10,'Daging sapi',0.3,'kg',18000,10,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL);
-
 
 /*Table structure for table `header_penjualan` */
 
@@ -130,18 +129,17 @@ CREATE TABLE `menu` (
 
 /*Data for the table `menu` */
 
-insert  into `menu`(`menu_id`,`menu_nama`,`menu_harga`,`menu_gambar`,`menu_status_aktif`,`createdAt`,`updatedAt`,`deletedAt`) values 
-(1,'Ayam Goreng',25000,'https://muchbutter.com/indonesian-fried-chicken-ayam-goreng/',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(2,'Telur Balado',20000,'https://poshjournal.com/telur-balado-recipe',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(3,'Ikan Bakar',30000,'https://www.thespruceeats.com/ikan-bakar-charcoal-grilled-fish-recipe-3030209',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(4,'Nasi Goreng',22000,'https://takestwoeggs.com/nasi-goreng-indonesian-fried-rice/',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(5,'Mie Goreng',21000,'https://www.recipetineats.com/mie-goreng/',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(6,'Sate Ayam',27000,'https://theplatedscene.com/sate-ayam-chicken-satay/',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(7,'Soto Ayam',23000,'https://glebekitchen.com/soto-ayam-indonesian-chicken-noodle-soup/',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(8,'Pecel Lele',24000,'https://www.cookmeindonesian.com/pecel-lele-deep-fried-catfish-with-sambal-and-salad/',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(9,'Bakso',20000,'https://www.wandercooks.com/bakso-indonesian-meatball-soup/',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(10,'Rawon',28000,'https://www.cookmeindonesian.com/rawon-east-javanese-beef-stew-with-keluak/',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL);
-
+INSERT INTO `menu` (`menu_id`,`menu_nama`,`menu_harga`,`menu_gambar`,`menu_status_aktif`,`createdAt`,`updatedAt`,`deletedAt`) VALUES
+(1,'Ayam Goreng',25000,'https://asset.kompas.com/crops/z9tXehGd66Vio4CPWi0aQJ6uzMY=/100x67:900x600/1200x800/data/photo/2023/05/04/64533129bf231.jpg',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
+(2,'Telur Balado',20000,'https://awsimages.detik.net.id/community/media/visual/2020/10/08/ikan-nila-bakar-pedas-manis-2_11.jpeg?w=600&q=90',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
+(3,'Ikan Bakar',30000,'https://ik.imagekit.io/dcjlghyytp1/https://sayurbox-blog-stage.s3.amazonaws.com/uploads/2020/07/fried-2509089_1920.jpg?tr=f-auto',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
+(4,'Nasi Goreng',22000,'https://awsimages.detik.net.id/community/media/visual/2024/08/14/resep-mie-goreng-udang-teriyaki_43.jpeg?w=1200',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
+(5,'Mie Goreng',21000,'https://img-global.cpcdn.com/recipes/a6ca9f36b02b089b/400x400cq80/photo.jpg',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
+(6,'Sate Ayam',27000,'https://awsimages.detik.net.id/community/media/visual/2017/03/22/d3cb3b7a-aa3a-4e0a-a0d4-83828a40b5d5_43.jpg?w=1200',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
+(7,'Soto Ayam',23000,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7RZjijaD70B6LqIGKFpQxi7PdJBKqBnvoDA&s',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
+(8,'Pecel Lele',24000,'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Bakso_mi_bihun.jpg/250px-Bakso_mi_bihun.jpg',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
+(9,'Bakso',20000,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqdmLtNl68Lf0FW877vlSYkG-uFuZCPS_ziqQ44STtPHki2FEjmv24kYlzl7xkfeplQtKJsEjXrMscpgYjQeGz_GcaoXIXF1soXPjvfA&s=10',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
+(10,'Rawon',28000,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqdmLtNl68Lf0FW877vlSYkG-uFuZCPS_ziqQ44STtPHki2FEjmv24kYlzl7xkfeplQtKJsEjXrMscpgYjQeGz_GcaoXIXF1soXPjvfA&s=10',1,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL);
 /*Table structure for table `pegawai` */
 
 DROP TABLE IF EXISTS `pegawai`;
