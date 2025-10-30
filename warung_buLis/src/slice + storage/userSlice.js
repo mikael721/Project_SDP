@@ -14,6 +14,7 @@ export const userSlice = new createSlice({
     },
     setLogout: (state,action) => {
         state.userToken = null;
+        //console.log('dari slice, token udah direset');
     }
   }
 });

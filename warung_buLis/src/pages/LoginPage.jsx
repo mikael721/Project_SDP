@@ -1,11 +1,11 @@
 import { AppShell } from "@mantine/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./css/LoginPage.css";
 import logoGambar from "../asset/logo.png";
 import { useForm } from "react-hook-form";
 import axios from 'axios';
 import { useSelector, useDispatch } from "react-redux";
-import { setLogin } from '../slice + storage/userSlice'
+import { setLogin, setLogout } from '../slice + storage/userSlice'
 import { useNavigate } from "react-router-dom";
 
 
@@ -24,16 +24,27 @@ const LoginPage = () => {
     doLogin(data.id,data.password);
   };
 
+  // === use effect ===
+  useEffect(() => {
+    resetToken()
+  },[])
+
   // === USE STATE ====
   const [errMsg, seterrMsg] = useState(null);
 
   // === FUNCTION ===
   let dispatch = useDispatch();
   let navigate = useNavigate();
+  
+  let userToken = useSelector((state) => state.user.userToken)
 
   const simpanTokenSlice = (token) => {
-    dispatch( setLogin(token) );
+    dispatch(setLogin(token) );
+  }
 
+  const resetToken = () => {
+    dispatch(setLogout());
+    // console.log('Token Set To Null');
   }
   
   const doLogin = async (pegawai_id, password) => {
@@ -80,6 +91,7 @@ const LoginPage = () => {
       <AppShell.Main>
         <div className="loginPage">
           <div className="panel1">
+
             {/* buat login */}
             <img src={logoGambar} alt="" className="logo" />
             <p className="judulLogin">Login Karyawan</p>

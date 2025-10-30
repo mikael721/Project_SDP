@@ -1,10 +1,14 @@
-import { Link, Outlet } from "react-router-dom";
-import { AppShell, Burger, Container, Group, Image, Menu } from "@mantine/core";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { AppShell, Burger, Button, Container, Group, Image, Menu } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import logo from "../asset/logo.png";
 
 const PageLayoutPegawai = () => {
   const [opened, { toggle, close }] = useDisclosure(false);
+
+  const doLogOut = () => {
+    console.log('log out: ');
+  }
 
   return (
     <AppShell header={{ height: 70 }} padding="md">
@@ -18,7 +22,7 @@ const PageLayoutPegawai = () => {
               <Image src={logo} alt="Logo" h={65} fit="contain" />
             </Link>
 
-            <Group gap="lg" visibleFrom="sm">
+            <Group>
               <Link
                 to="/pegawai/penjualan"
                 style={{ textDecoration: "none", color: "white" }}>
@@ -39,6 +43,21 @@ const PageLayoutPegawai = () => {
                 style={{ textDecoration: "none", color: "white" }}>
                 Laporan
               </Link>
+              <Link
+              to="/pegawai" 
+              onClick={() => doLogOut()}
+              style={{
+                backgroundColor:'red',
+                borderRadius:'10PX',
+                border:'1px solid black',
+                color:'white',
+                fontWeight:'bolder',
+                padding:'5px 10px',
+                textDecoration:'none'
+              }}>
+                Log Out
+              </Link>
+
             </Group>
 
             <Menu
