@@ -5,6 +5,10 @@ const { sequelize } = require("./config/sequelize");
 const bahanBakuRoutes = require("./routes/bahanBakuRoutes");
 const login = require("./routes/loginRoutes");
 const menuManagement = require("./routes/menuManagement");
+const detailMenuRoutes = require("./routes/detailMenuRoutes")
+const pesananDetailRoutes = require("./routes/pesananDetailRoutes")
+
+const { isAuthenticate } = require("./middleware/middleware")
 
 const app = express();
 app.use(cors());
