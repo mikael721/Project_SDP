@@ -80,34 +80,6 @@ insert  into `detail_menu`(`detail_menu_id`,`detail_menu_nama_bahan`,`detail_men
 (9,'Daging sapi',0.2,'kg',15000,9,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
 (10,'Daging sapi',0.3,'kg',18000,10,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL);
 
-/*Table structure for table `header_pembelian` */
-
-DROP TABLE IF EXISTS `header_pembelian`;
-
-CREATE TABLE `header_pembelian` (
-  `header_pembelian_id` int(11) NOT NULL AUTO_INCREMENT,
-  `header_pembelian_tanggal` datetime NOT NULL,
-  `header_pembelian_keterangan` varchar(255) NOT NULL,
-  `header_pembelian_biaya_tambahan` int(11) NOT NULL,
-  `createdAt` datetime DEFAULT current_timestamp(),
-  `updatedAt` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `deletedAt` datetime DEFAULT NULL,
-  PRIMARY KEY (`header_pembelian_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-/*Data for the table `header_pembelian` */
-
-insert  into `header_pembelian`(`header_pembelian_id`,`header_pembelian_tanggal`,`header_pembelian_keterangan`,`header_pembelian_biaya_tambahan`,`createdAt`,`updatedAt`,`deletedAt`) values 
-(1,'2025-10-01 09:00:00','Pembelian bahan baku',0,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(2,'2025-10-02 11:00:00','Pembelian tambahan',0,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(3,'2025-10-03 10:00:00','Pembelian bahan pelengkap',0,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(4,'2025-10-04 12:00:00','Pembelian bahan baku',0,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(5,'2025-10-05 14:00:00','Pembelian bahan pokok',0,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(6,'2025-10-06 09:30:00','Pembelian tambahan',0,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(7,'2025-10-07 11:00:00','Pembelian bahan baku',0,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(8,'2025-10-08 10:30:00','Pembelian bahan pelengkap',0,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(9,'2025-10-09 12:30:00','Pembelian bahan baku',0,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(10,'2025-10-10 14:00:00','Pembelian bahan pokok',0,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL);
 
 /*Table structure for table `header_penjualan` */
 
@@ -203,36 +175,34 @@ insert  into `pegawai`(`pegawai_id`,`pegawai_nama`,`pegawai_email`,`pegawai_pass
 
 DROP TABLE IF EXISTS `pembelian`;
 
+-- Tabel pembelian
 CREATE TABLE `pembelian` (
-  `pembelian_id` int(11) NOT NULL AUTO_INCREMENT,
-  `header_pembelian_id` int(11) NOT NULL,
-  `bahan_baku_id` int(11) NOT NULL,
-  `pembelian_jumlah` float NOT NULL,
-  `pembelian_satuan` varchar(255) NOT NULL,
-  `pembelian_harga_satuan` int(11) NOT NULL,
-  `createdAt` datetime DEFAULT current_timestamp(),
-  `updatedAt` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `deletedAt` datetime DEFAULT NULL,
+  `pembelian_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `bahan_baku_id` INT(11) NOT NULL,
+  `pembelian_jumlah` FLOAT NOT NULL,
+  `pembelian_satuan` VARCHAR(255) NOT NULL,
+  `pembelian_harga_satuan` INT(11) NOT NULL,
+  `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deletedAt` DATETIME DEFAULT NULL,
   PRIMARY KEY (`pembelian_id`),
-  KEY `bahan_baku_id` (`bahan_baku_id`),
-  KEY `header_pembelian_id` (`header_pembelian_id`),
-  CONSTRAINT `pembelian_ibfk_1` FOREIGN KEY (`bahan_baku_id`) REFERENCES `bahan_baku` (`bahan_baku_id`),
-  CONSTRAINT `pembelian_ibfk_2` FOREIGN KEY (`header_pembelian_id`) REFERENCES `header_pembelian` (`header_pembelian_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  KEY `bahan_baku_id` (`bahan_baku_id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-/*Data for the table `pembelian` */
+/* Data for the table `pembelian` */
 
-insert  into `pembelian`(`pembelian_id`,`header_pembelian_id`,`bahan_baku_id`,`pembelian_jumlah`,`pembelian_satuan`,`pembelian_harga_satuan`,`createdAt`,`updatedAt`,`deletedAt`) values 
-(1,1,1,10,'ekor',20000,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(2,1,2,20,'butir',6000,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(3,1,3,10,'ekor',15000,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(4,2,4,5,'kg',5000,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(5,2,5,5,'kg',6000,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(6,3,6,2,'kg',15000,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(7,4,7,5,'liter',14000,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(8,4,8,2,'kg',2000,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(9,5,9,5,'kg',13000,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL),
-(10,5,10,2,'botol',10000,'2025-10-19 15:43:05','2025-10-19 15:43:05',NULL);
+-- Data dummy untuk tabel pembelian
+INSERT INTO `pembelian` (`bahan_baku_id`, `pembelian_jumlah`, `pembelian_satuan`, `pembelian_harga_satuan`) VALUES
+(1, 10, 'ekor', 20000),
+(2, 20, 'butir', 6000),
+(3, 10, 'ekor', 15000),
+(4, 5, 'kg', 5000),
+(5, 5, 'kg', 6000),
+(6, 2, 'kg', 15000),
+(7, 5, 'liter', 14000),
+(8, 2, 'kg', 2000),
+(9, 5, 'kg', 13000),
+(10, 2, 'botol', 10000);
 
 /*Table structure for table `penjualan` */
 

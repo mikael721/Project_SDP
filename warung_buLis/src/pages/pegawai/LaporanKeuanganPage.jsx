@@ -217,8 +217,7 @@ export const LaporanKeuanganPage = () => {
         minHeight: "100vh",
         paddingTop: 24,
         paddingBottom: 24,
-      }}
-    >
+      }}>
       <Container size="lg">
         <Stack spacing="lg">
           {/* Filter Section */}
@@ -232,8 +231,7 @@ export const LaporanKeuanganPage = () => {
                 <Radio.Group
                   value={jenisLaporan}
                   onChange={setJenisLaporan}
-                  name="jenisLaporan"
-                >
+                  name="jenisLaporan">
                   <Group spacing="md">
                     <Radio value="penjualan" label="Penjualan" />
                     <Radio value="pembelian" label="Pembelian" />
@@ -294,8 +292,7 @@ export const LaporanKeuanganPage = () => {
                 <Button
                   color="red"
                   onClick={handleSubmit(onApplyFilter)}
-                  style={{ borderRadius: "20px" }}
-                >
+                  style={{ borderRadius: "20px" }}>
                   Apply Filter
                 </Button>
               </Group>
@@ -312,8 +309,7 @@ export const LaporanKeuanganPage = () => {
                 style={{
                   borderBottom: "2px solid rgba(255,255,255,0.3)",
                   paddingBottom: "10px",
-                }}
-              >
+                }}>
                 Penjualan
               </Title>
 
@@ -323,8 +319,7 @@ export const LaporanKeuanganPage = () => {
                 style={{
                   backgroundColor: "rgba(139, 98, 60, 0.3)",
                   borderRadius: "8px",
-                }}
-              >
+                }}>
                 <thead>
                   <tr style={{ backgroundColor: "rgba(139, 98, 60, 0.5)" }}>
                     <th style={{ padding: "12px", textAlign: "center" }}>No</th>
@@ -375,8 +370,7 @@ export const LaporanKeuanganPage = () => {
                         padding: "10px",
                         textAlign: "center",
                         fontWeight: "bold",
-                      }}
-                    >
+                      }}>
                       SubTotal
                     </td>
                     <td
@@ -384,8 +378,7 @@ export const LaporanKeuanganPage = () => {
                         padding: "10px",
                         textAlign: "center",
                         fontWeight: "bold",
-                      }}
-                    >
+                      }}>
                       {totalPenjualan.toLocaleString()}
                     </td>
                   </tr>
@@ -404,8 +397,7 @@ export const LaporanKeuanganPage = () => {
                 style={{
                   borderBottom: "2px solid rgba(255,255,255,0.3)",
                   paddingBottom: "10px",
-                }}
-              >
+                }}>
                 Pembelian
               </Title>
 
@@ -415,8 +407,7 @@ export const LaporanKeuanganPage = () => {
                 style={{
                   backgroundColor: "rgba(139, 98, 60, 0.3)",
                   borderRadius: "8px",
-                }}
-              >
+                }}>
                 <thead>
                   <tr style={{ backgroundColor: "rgba(139, 98, 60, 0.5)" }}>
                     <th style={{ padding: "12px", textAlign: "center" }}>
@@ -469,8 +460,7 @@ export const LaporanKeuanganPage = () => {
                         padding: "10px",
                         textAlign: "center",
                         fontWeight: "bold",
-                      }}
-                    >
+                      }}>
                       Total
                     </td>
                     <td
@@ -478,8 +468,7 @@ export const LaporanKeuanganPage = () => {
                         padding: "10px",
                         textAlign: "center",
                         fontWeight: "bold",
-                      }}
-                    >
+                      }}>
                       {totalPembelian.toLocaleString()}
                     </td>
                   </tr>

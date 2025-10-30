@@ -1,7 +1,6 @@
 const HeaderPenjualan = require("../models/headerPenjualanModel");
 const Penjualan = require("../models/penjualanModel");
 const Menu = require("../models/menuModels");
-const HeaderPembelian = require("../models/headerPembelianModel");
 const Pembelian = require("../models/pembelianModel");
 const { Op } = require("sequelize");
 const {
@@ -193,55 +192,54 @@ exports.getLaporanPenjualanDetail = async (req, res) => {
 // GET LAPORAN PEMBELIAN DETAIL
 exports.getLaporanPembelianDetail = async (req, res) => {
   try {
-    const { error } = laporanKeuanganSchema.validate(req.query);
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
-    }
+    const { tanggal_awal, tanggal_akhir } = req.param;
 
-    const { tanggal_awal, tanggal_akhir } = req.query;
+    let whereCondition = {};
 
-    const dataPembelian = await HeaderPembelian.findAll({
-      where: {
-        header_pembelian_tanggal: {
+    // Jika kedua tanggal ada, gunakan filter range
+    if (tanggal_awal && tanggal_akhir) {
+      whereCondition = {
+        createdAt: {
           [Op.between]: [tanggal_awal, tanggal_akhir],
         },
-      },
-      include: [
-        {
-          model: Pembelian,
-          as: "detailPembelian",
+      };
+    }
+    // Jika hanya tanggal_awal yang ada
+    else if (tanggal_awal) {
+      whereCondition = {
+        createdAt: {
+          [Op.gte]: tanggal_awal,
         },
-      ],
-      order: [["header_pembelian_tanggal", "DESC"]],
+      };
+    }
+    // Jika hanya tanggal_akhir yang ada
+    else if (tanggal_akhir) {
+      whereCondition = {
+        createdAt: {
+          [Op.lte]: tanggal_akhir,
+        },
+      };
+    }
+    // Jika kedua tanggal tidak ada, return semua data pembelian
+
+    const dataPembelian = await Pembelian.findAll({
+      where: whereCondition,
+      order: [["createdAt", "DESC"]],
     });
 
-    // Format data dengan total per transaksi
-    const laporanDetail = dataPembelian.map((header) => {
-      let totalTransaksi = 0;
-
-      const details = header.detailPembelian.map((detail) => {
-        const subtotal =
-          detail.pembelian_harga_satuan * detail.pembelian_jumlah;
-        totalTransaksi += subtotal;
-
-        return {
-          bahan_baku_id: detail.bahan_baku_id,
-          jumlah: detail.pembelian_jumlah,
-          satuan: detail.pembelian_satuan,
-          harga_satuan: detail.pembelian_harga_satuan,
-          subtotal,
-        };
-      });
-
-      totalTransaksi += header.header_pembelian_biaya_tambahan;
+    // Format data
+    const laporanDetail = dataPembelian.map((pembelian) => {
+      const subtotal =
+        pembelian.pembelian_harga_satuan * pembelian.pembelian_jumlah;
 
       return {
-        header_pembelian_id: header.header_pembelian_id,
-        tanggal: header.header_pembelian_tanggal,
-        keterangan: header.header_pembelian_keterangan,
-        biaya_tambahan: header.header_pembelian_biaya_tambahan,
-        detail: details,
-        total_transaksi: totalTransaksi,
+        pembelian_id: pembelian.pembelian_id,
+        tanggal: pembelian.createdAt,
+        bahan_baku_id: pembelian.bahan_baku_id,
+        jumlah: pembelian.pembelian_jumlah,
+        satuan: pembelian.pembelian_satuan,
+        harga_satuan: pembelian.pembelian_harga_satuan,
+        subtotal,
       };
     });
 
@@ -250,6 +248,6 @@ exports.getLaporanPembelianDetail = async (req, res) => {
       data: laporanDetail,
     });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message + " sas" });
   }
 };

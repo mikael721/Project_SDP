@@ -1,6 +1,5 @@
 const { sequelize } = require("../config/sequelize");
 const { DataTypes } = require("sequelize");
-const HeaderPembelian = require("./headerPembelianModel");
 
 const Pembelian = sequelize.define(
   "pembelian",
@@ -13,10 +12,6 @@ const Pembelian = sequelize.define(
     header_pembelian_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: "header_pembelian",
-        key: "header_pembelian_id",
-      },
     },
     bahan_baku_id: {
       type: DataTypes.INTEGER,
@@ -57,16 +52,5 @@ const Pembelian = sequelize.define(
     paranoid: true,
   }
 );
-
-// Relasi
-Pembelian.belongsTo(HeaderPembelian, {
-  foreignKey: "header_pembelian_id",
-  as: "headerPembelian",
-});
-
-HeaderPembelian.hasMany(Pembelian, {
-  foreignKey: "header_pembelian_id",
-  as: "detailPembelian",
-});
 
 module.exports = Pembelian;
