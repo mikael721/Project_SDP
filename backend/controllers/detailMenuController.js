@@ -6,7 +6,7 @@ exports.createDetailMenu = async (req, res) => {
       detail_menu_nama_bahan,
       detail_menu_jumlah,
       detail_menu_satuan,
-      detail_menu_total_harga,
+      detail_menu_harga,
       menu_id,
     } = req.body;
 
@@ -14,7 +14,7 @@ exports.createDetailMenu = async (req, res) => {
       detail_menu_nama_bahan,
       detail_menu_jumlah,
       detail_menu_satuan,
-      detail_menu_total_harga,
+      detail_menu_harga,
       menu_id,
     });
 
@@ -46,15 +46,17 @@ exports.getDetailMenuById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const detailMenu = await DetailMenu.findByPk(id);
+    const detailMenus = await DetailMenu.findAll({
+      where: { menu_id: id },
+    });
 
-    if (!detailMenu) {
-      return res.status(404).json({ message: "Detail menu tidak ditemukan!" });
+    if (!detailMenus.length) {
+      return res.status(404).json({ message: "Detail pada menu ini kosong" });
     }
 
     return res.status(200).json({
       message: "Detail menu berhasil diambil.",
-      data: detailMenu,
+      data: detailMenus,
     });
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -68,7 +70,7 @@ exports.updateDetailMenu = async (req, res) => {
       detail_menu_nama_bahan,
       detail_menu_jumlah,
       detail_menu_satuan,
-      detail_menu_total_harga,
+      detail_menu_harga,
     } = req.body;
 
     const detailMenu = await DetailMenu.findByPk(id);
@@ -81,7 +83,7 @@ exports.updateDetailMenu = async (req, res) => {
       detail_menu_nama_bahan,
       detail_menu_jumlah,
       detail_menu_satuan,
-      detail_menu_total_harga,
+      detail_menu_harga,
     });
 
     return res.status(200).json({

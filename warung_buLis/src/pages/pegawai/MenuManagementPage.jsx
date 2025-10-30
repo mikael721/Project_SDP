@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import "../css/pegawai/MenuManagementPageCss.css";
-import { NumberInput, TextInput, Table } from "@mantine/core";
+import { NumberInput, TextInput, Table, Button } from "@mantine/core";
 import { Controller, useForm } from "react-hook-form";
-
 import { useNavigate } from "react-router-dom";
+<<<<<<< HEAD
+import { useSelector } from "react-redux";
+=======
 import { useSelector, useDispatch } from "react-redux";
-import axios from 'axios';
+>>>>>>> 79b6cdf52b2ccf7e936c893bc32af8db1a1a5b93
+import axios from "axios";
 
 export const MenuManagementPage = () => {
-  // === USE FORM ===
+  // === React Hook Form ===
   const {
     control,
     handleSubmit,
@@ -16,82 +19,145 @@ export const MenuManagementPage = () => {
     reset,
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-  };
+  const navigate = useNavigate();
+  const userToken = useSelector((state) => state.user.userToken);
+  const [menu, setMenu] = useState([]);
 
-  // === Use Effect ===
+  // === Lifecycle ===
   useEffect(() => {
-      cekSudahLogin();
-    },[])
+    cekSudahLogin();
+  }, []);
 
+  // === Cek login dan ambil data menu ===
   const cekSudahLogin = () => {
-    if(!userToken){
-      navigate('/pegawai')
+    if (!userToken) {
+      navigate("/pegawai");
+    } else {
+<<<<<<< HEAD
+      getMenu();
     }
-    else{
+  };
+=======
       // semua  use effect taruh sini
       getMenu();
     }
-  }
+  };
   let navigate = useNavigate();
   let dispatch = useDispatch();
   let userToken = useSelector((state) => state.user.userToken);
+>>>>>>> 79b6cdf52b2ccf7e936c893bc32af8db1a1a5b93
 
-  // === USE STATE ===
-  const [menu, setmenu] = useState([]);
+  // === GET Menu ===
+  const getMenu = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/api/menu_management/getall", {
+        headers: { "x-auth-token": userToken },
+      });
+      setMenu(res.data);
+      console.log("Data menu:", res.data);
+    } catch (err) {
+      console.error("Gagal get menu:", err.response?.data || err.message);
+    }
+  };
 
+<<<<<<< HEAD
+  // === ADD Menu ===
+  const addMenu = async (nama, harga, img) => {
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/menu_management",
+        {
+          menu_nama: nama,
+          menu_harga: harga,
+          menu_gambar: img,
+        },
+        {
+          headers: { "x-auth-token": userToken },
+        }
+      );
+      console.log("Berhasil Add Menu:", res.data);
+      getMenu();
+    } catch (err) {
+      console.error("Gagal Add Menu:", err.response?.data || err.message);
+    }
+  };
+
+  // === Change Status Menu ===
+  const changeStatus = async (id) => {
+    try {
+      console.log("Ubah status menu dengan ID:", id);
+      const res = await axios.put(
+        `http://localhost:3000/api/menu_management/status/${id}`,
+        {},
+        {
+          headers: { "x-auth-token": userToken },
+        }
+      );
+      console.log("Berhasil ubah status:", res.data);
+      getMenu();
+    } catch (err) {
+      console.error("Gagal ubah status:", err.response?.data || err.message);
+    }
+  };
+
+  // === Handle form submit ===
+  const onSubmit = (data) => {
+    addMenu(data.nama, data.harga, data.img);
+    reset();
+=======
   // === FUNCTION ===
-  const getMenu = async(req,res) => {
-    await axios.get('http://localhost:3000/api/menu_management/getall',{
-      headers: {
-        'x-auth-token': userToken
-      }
-    }).then((res) => {
-      setmenu(res.data);
-      console.log(res.data);
-    })
-  }
+  const getMenu = async (req, res) => {
+    await axios
+      .get("http://localhost:3000/api/menu_management/getall", {
+        headers: {
+          "x-auth-token": userToken,
+        },
+      })
+      .then((res) => {
+        setmenu(res.data);
+        console.log(res.data);
+      });
+  };
 
-  const addMenu = async (nama,harga,img) => {
-    await axios.post('http://localhost:3000/api/menu_management',
-      {
-        menu_nama: nama,
-        menu_harga: harga,
-        menu_gambar: img
-      },
-      {
-      headers:{
-        'x-auth-token': userToken
-      }},
-    ).then((res) => {
-      console.log('Berhasil Add Menu');
-    })
-  }
+  const addMenu = async (nama, harga, img) => {
+    await axios
+      .post(
+        "http://localhost:3000/api/menu_management",
+        {
+          menu_nama: nama,
+          menu_harga: harga,
+          menu_gambar: img,
+        },
+        {
+          headers: {
+            "x-auth-token": userToken,
+          },
+        }
+      )
+      .then((res) => {
+        console.log("Berhasil Add Menu");
+      });
+  };
 
-  const chanegSatatus = async(status,id) => {
+  const chanegSatatus = async (status, id) => {
     // console.log('tes');
-  }
+>>>>>>> 79b6cdf52b2ccf7e936c893bc32af8db1a1a5b93
+  };
 
+  // === RENDER ===
   return (
     <div className="utamaMMP">
+      {/* === FORM INPUT === */}
       <div className="inputField">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div style={{ textAlign: "center" }}>
-            <h3 style={{ fontSize: "40px", fontWeight: "bold" }}>
-              Add New Menu
-            </h3>
+            <h3 style={{ fontSize: "40px", fontWeight: "bold" }}>Add New Menu</h3>
             <br />
           </div>
 
           {/* === Nama === */}
           <div className="inputField">
-            <div
-              style={{
-                minWidth: "50px",
-                textAlign: "right",
-                marginRight: "10px",
-              }}>
+            <div style={{ minWidth: "50px", textAlign: "right", marginRight: "10px" }}>
               Name:
             </div>
             <Controller
@@ -110,12 +176,7 @@ export const MenuManagementPage = () => {
 
           {/* === Harga === */}
           <div className="inputField">
-            <div
-              style={{
-                minWidth: "50px",
-                textAlign: "right",
-                marginRight: "10px",
-              }}>
+            <div style={{ minWidth: "50px", textAlign: "right", marginRight: "10px" }}>
               Harga:
             </div>
             <Controller
@@ -135,12 +196,7 @@ export const MenuManagementPage = () => {
 
           {/* === Img === */}
           <div className="inputField">
-            <div
-              style={{
-                minWidth: "50px",
-                textAlign: "right",
-                marginRight: "10px",
-              }}>
+            <div style={{ minWidth: "50px", textAlign: "right", marginRight: "10px" }}>
               Img:
             </div>
             <Controller
@@ -158,12 +214,14 @@ export const MenuManagementPage = () => {
           </div>
 
           <div style={{ textAlign: "center" }}>
-            <button className="btnSubmitMMP">Submit</button>
+            <button type="submit" className="btnSubmitMMP">
+              Submit
+            </button>
           </div>
         </form>
       </div>
 
-      {/* === Table === */}
+      {/* === TABEL MENU === */}
       <div className="utamaTabelMMP">
         <div className="tabelMMP">
           <div
@@ -172,23 +230,60 @@ export const MenuManagementPage = () => {
               borderBottom: "3px solid white",
               padding: "10px",
               marginBottom: "20px",
-            }}>
+            }}
+          >
             <h2>Menu</h2>
           </div>
           <Table>
             <thead>
               <tr className="tableSet">
-                <th className="tableSet">ID Bahan</th>
+                <th className="tableSet">ID</th>
                 <th className="tableSet">Nama</th>
                 <th className="tableSet">Harga</th>
                 <th className="tableSet">Gambar</th>
-                <th className="tableSet">lihat_detail</th>
-                <th className="tableSet">activation</th>
+                <th className="tableSet">Detail</th>
+                <th className="tableSet">Status</th>
               </tr>
             </thead>
             <tbody>
-              {menu.map((d,i) => {
-                return(
+<<<<<<< HEAD
+              {menu.map((d) => (
+                <tr key={d.menu_id} className="tableSet">
+                  <td className="tableSet">{d.menu_id}</td>
+                  <td className="tableSet">{d.menu_nama}</td>
+                  <td className="tableSet">{d.menu_harga}</td>
+                  <td className="tableSet">
+                    <img src={d.menu_gambar} alt="Tidak Tersedia" width="80" />
+                  </td>
+                  <td className="tableSet">
+                    <Button
+                      color="blue"
+                      onClick={() => navigate(`/pegawai/menu/detail/${d.menu_id}`)}
+                    >
+                      DETAIL MENU
+                    </Button>
+                  </td>
+
+                  {d.menu_status_aktif !== 1 ? (
+                    <td
+                      className="tableSet iR isHV"
+                      onClick={() => changeStatus(d.menu_id)}
+                    >
+                      DEACTIVE
+                    </td>
+                  ) : (
+                    <td
+                      className="tableSet iG isHV"
+                      onClick={() => changeStatus(d.menu_id)}
+                    >
+                      ACTIVE
+                    </td>
+                  )}
+                </tr>
+              ))}
+=======
+              {menu.map((d, i) => {
+                return (
                   <tr className="tableSet">
                     <td className="tableSet">{d.menu_id}</td>
                     <td className="tableSet">{d.menu_nama}</td>
@@ -196,21 +291,37 @@ export const MenuManagementPage = () => {
                     <td className="tableSet">
                       <img src={d.menu_gambar} alt="Tidak Tersedia !!!" />
                     </td>
-                    <td className="tableSet">DETAIL MENU</td>
-                    
+                    <td className="tableSet">
+                      <Button
+                        color="blue"
+                        onClick={() =>
+                          navigate(`/pegawai/menu/detail/${d.menu_id}`)
+                        }>
+                        DETAIL MENU
+                      </Button>
+                    </td>
+
                     {d.menu_status_aktif != 1 ? (
-                      <td className="tableSet iR isHV" onClick={() => { chanegSatatus(d.menu_status_aktif,d.menu_id) }}>
+                      <td
+                        className="tableSet iR isHV"
+                        onClick={() => {
+                          chanegSatatus(d.menu_status_aktif, d.menu_id);
+                        }}>
                         DEACTIVE
                       </td>
                     ) : (
-                      <td className="tableSet iG isHV"  onClick={() => { chanegSatatus(d.menu_status_aktif,d.menu_id) }} >
+                      <td
+                        className="tableSet iG isHV"
+                        onClick={() => {
+                          chanegSatatus(d.menu_status_aktif, d.menu_id);
+                        }}>
                         ACTIVE
                       </td>
                     )}
-
                   </tr>
-                )
+                );
               })}
+>>>>>>> 79b6cdf52b2ccf7e936c893bc32af8db1a1a5b93
             </tbody>
           </Table>
         </div>

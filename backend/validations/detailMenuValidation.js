@@ -16,16 +16,12 @@ const detailMenuValidation = {
         "string.empty": "Satuan is required",
         "any.required": "Satuan is required",
       }),
-      detail_menu_total_harga: Joi.number()
-        .integer()
-        .min(1)
-        .required()
-        .messages({
-          "number.base": "Total harga must be a number",
-          "number.integer": "Total harga must be an integer",
-          "number.min": "Total harga cannot be negative",
-          "any.required": "Total harga is required",
-        }),
+      detail_menu_harga: Joi.number().integer().min(1).required().messages({
+        "number.base": "Total harga must be a number",
+        "number.integer": "Total harga must be an integer",
+        "number.min": "Total harga cannot be negative",
+        "any.required": "Total harga is required",
+      }),
       menu_id: Joi.number().integer().positive().required().messages({
         "number.base": "Menu ID must be a number",
         "number.integer": "Menu ID must be an integer",
@@ -58,15 +54,11 @@ const detailMenuValidation = {
       detail_menu_satuan: Joi.string().optional().messages({
         "string.empty": "Satuan cannot be empty",
       }),
-      detail_menu_total_harga: Joi.number()
-        .integer()
-        .min(1)
-        .optional()
-        .messages({
-          "number.base": "Total harga must be a number",
-          "number.integer": "Total harga must be an integer",
-          "number.min": "Total harga cannot be negative",
-        }),
+      detail_menu_harga: Joi.number().integer().min(1).optional().messages({
+        "number.base": "Total harga must be a number",
+        "number.integer": "Total harga must be an integer",
+        "number.min": "Total harga cannot be negative",
+      }),
     });
 
     const { error } = schema.validate(req.body);
