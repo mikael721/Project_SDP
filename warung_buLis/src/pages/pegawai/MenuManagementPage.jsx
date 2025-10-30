@@ -40,7 +40,7 @@ export const MenuManagementPage = () => {
         headers: { "x-auth-token": userToken },
       });
       setMenu(res.data);
-      console.log("Data menu:", res.data);
+      //console.log("Data menu:", res.data);
     } catch (err) {
       console.error("Gagal get menu:", err.response?.data || err.message);
     }
@@ -70,7 +70,6 @@ export const MenuManagementPage = () => {
   // === Change Status Menu ===
   const changeStatus = async (id) => {
     try {
-      console.log("Ubah status menu dengan ID:", id);
       const res = await axios.put(
         `http://localhost:3000/api/menu_management/status/${id}`,
         {},
@@ -78,7 +77,7 @@ export const MenuManagementPage = () => {
           headers: { "x-auth-token": userToken },
         }
       );
-      console.log("Berhasil ubah status:", res.data);
+      console.log("Berhasil Ubah status menu dengan ID:", id);
       getMenu();
     } catch (err) {
       console.error("Gagal ubah status:", err.response?.data || err.message);
