@@ -30,3 +30,17 @@ exports.addMenu = async(req,res) => {
         });
     }
 }
+
+exports.getMenu = async (req,res) => {
+    try {
+        
+        let getAllMenu = await MenuManagement.findAll();
+        return res.status(200).json(getAllMenu);
+
+    } catch (error) {
+        return res.status(500).send({
+            messages: 'Internal Server Error',
+            error: error.messages
+        });
+    }
+}

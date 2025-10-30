@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../css/pegawai/MenuManagementPageCss.css";
 import { NumberInput, TextInput, Table } from "@mantine/core";
 import { Controller, useForm } from "react-hook-form";
 
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import axios from 'axios';
+
 export const MenuManagementPage = () => {
+  // === USE FORM ===
   const {
     control,
     handleSubmit,
@@ -14,6 +19,59 @@ export const MenuManagementPage = () => {
   const onSubmit = (data) => {
     console.log(data);
   };
+
+  // === Use Effect ===
+  useEffect(() => {
+      cekSudahLogin();
+    },[])
+
+  const cekSudahLogin = () => {
+    if(!userToken){
+      navigate('/pegawai')
+    }
+    else{
+      // semua  use effect taruh sini
+      getMenu();
+    }
+  }
+  let navigate = useNavigate();
+  let dispatch = useDispatch();
+  let userToken = useSelector((state) => state.user.userToken);
+
+  // === USE STATE ===
+  const [menu, setmenu] = useState([]);
+
+  // === FUNCTION ===
+  const getMenu = async(req,res) => {
+    await axios.get('http://localhost:3000/api/menu_management/getall',{
+      headers: {
+        'x-auth-token': userToken
+      }
+    }).then((res) => {
+      setmenu(res.data);
+      console.log(res.data);
+    })
+  }
+
+  const addMenu = async (nama,harga,img) => {
+    await axios.post('http://localhost:3000/api/menu_management',
+      {
+        menu_nama: nama,
+        menu_harga: harga,
+        menu_gambar: img
+      },
+      {
+      headers:{
+        'x-auth-token': userToken
+      }},
+    ).then((res) => {
+      console.log('Berhasil Add Menu');
+    })
+  }
+
+  const chanegSatatus = async(status,id) => {
+    // console.log('tes');
+  }
 
   return (
     <div className="utamaMMP">
@@ -122,23 +180,37 @@ export const MenuManagementPage = () => {
               <tr className="tableSet">
                 <th className="tableSet">ID Bahan</th>
                 <th className="tableSet">Nama</th>
-                <th className="tableSet">Jumlah</th>
-                <th className="tableSet">Satuan</th>
-                <th className="tableSet">Harga/Satuan</th>
+                <th className="tableSet">Harga</th>
+                <th className="tableSet">Gambar</th>
                 <th className="tableSet">lihat_detail</th>
                 <th className="tableSet">activation</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="tableSet">
-                <td className="tableSet">1</td>
-                <td className="tableSet">bandeng_goreng</td>
-                <td className="tableSet">3000</td>
-                <td className="tableSet">url</td>
-                <td className="tableSet">TRUE</td>
-                <td className="tableSet">DETAIL MENU</td>
-                <td className="tableSet iR isHV">ACTIVATION</td>
-              </tr>
+              {menu.map((d,i) => {
+                return(
+                  <tr className="tableSet">
+                    <td className="tableSet">{d.menu_id}</td>
+                    <td className="tableSet">{d.menu_nama}</td>
+                    <td className="tableSet">{d.menu_harga}</td>
+                    <td className="tableSet">
+                      <img src={d.menu_gambar} alt="Tidak Tersedia !!!" />
+                    </td>
+                    <td className="tableSet">DETAIL MENU</td>
+                    
+                    {d.menu_status_aktif != 1 ? (
+                      <td className="tableSet iR isHV" onClick={() => { chanegSatatus(d.menu_status_aktif,d.menu_id) }}>
+                        DEACTIVE
+                      </td>
+                    ) : (
+                      <td className="tableSet iG isHV"  onClick={() => { chanegSatatus(d.menu_status_aktif,d.menu_id) }} >
+                        ACTIVE
+                      </td>
+                    )}
+
+                  </tr>
+                )
+              })}
             </tbody>
           </Table>
         </div>

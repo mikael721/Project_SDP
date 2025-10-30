@@ -1,5 +1,5 @@
 import { AppShell } from "@mantine/core";
-import React, { useState } from "react";
+import { useState } from "react";
 import "./css/LoginPage.css";
 import logoGambar from "../asset/logo.png";
 import { useForm } from "react-hook-form";

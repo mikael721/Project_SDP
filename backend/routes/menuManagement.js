@@ -5,4 +5,7 @@ const { isAuthenticate } = require("../middleware/middleware");
 
 router.post("/", isAuthenticate  , menuManagement.addMenu);
 
+router.get("/getall", isAuthenticate  , menuManagement.getMenu);
+
+
 module.exports = router;
