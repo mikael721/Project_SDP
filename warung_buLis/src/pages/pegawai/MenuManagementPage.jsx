@@ -13,7 +13,13 @@ export const MenuManagementPage = () => {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      nama: "",
+      harga: 0,
+      img: "",
+    },
+  });
 
   const navigate = useNavigate();
   const userToken = useSelector((state) => state.user.userToken);
