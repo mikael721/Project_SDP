@@ -1,39 +1,39 @@
-.menuPage{
-    width: 100%;
-    height: 100%;
+.menuPage {
+  width: 100%;
+  height: 100%;
 }
 
-.navMenuCuto{
-    width: 100%;
-    height: 80px;
-    background-color: rgb(139, 34, 34);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 5px 10px;
+.navMenuCuto {
+  width: 100%;
+  height: 80px;
+  background-color: rgb(139, 34, 34);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
 }
 
-.navMenuCuto .gambarlogo{
-    width: 70px;
-    height: 70px;
+.navMenuCuto .gambarlogo {
+  width: 70px;
+  height: 70px;
 }
-.navMenuCuto .cartCusto{
-    padding: 5px 10px;
-    background-color: red;
-    color: white;
-    font-weight: bolder;
-    border: 3px solid white;
-    border-radius: 30px;
-    font-size: 30px;
-    width: 130px;
-    height: 60px;
+.cartCusto {
+  padding: 5px 10px;
+  background-color: red;
+  color: white;
+  font-weight: bolder;
+  border: 3px solid white;
+  border-radius: 30px;
+  font-size: 10px;
+  width: 80px;
+  height: 50px;
 }
 
-.menuList{
-    width: 100%;
-    gap: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    padding: 20px;
-    justify-content: center;
+.menuList {
+  width: 100%;
+  gap: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 20px;
+  justify-content: center;
 }
