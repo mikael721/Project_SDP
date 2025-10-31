@@ -16,31 +16,37 @@ import {
   Image,
 } from "@mantine/core";
 import logo from "../../asset/logo.png";
+import { useDispatch, useSelector } from "react-redux";
 
 const CartPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const menuTerpilih = useSelector((state) => state.menu.menuTerpilih);
+
   const [loading, setLoading] = useState(false);
-  const [cartItems, setCartItems] = useState([
-    {
-      pesanan_detail_id: 21,
-      menu_id: 1,
-      name: "Nasi Padang Bungkus",
-      price: 18000,
-      pesanan_detail_jumlah: 1,
-      pesanan_id: 1,
-      image:
-        "https://awsimages.detik.net.id/community/media/visual/2020/07/06/nasi-padang.jpeg?w=1200",
-    },
-    {
-      pesanan_detail_id: 22,
-      menu_id: 2,
-      name: "Nasi Pecel",
-      price: 16800,
-      pesanan_detail_jumlah: 1,
-      pesanan_id: 1,
-      image: "https://assets.unileversolutions.com/recipes-v2/258082.jpg",
-    },
-  ]);
+  const [cartItems, setCartItems] = useState(menuTerpilih);
+
+  // const [cartItems, setCartItems] = useState([
+  //   {
+  //     pesanan_detail_id: 21,
+  //     menu_id: 1,
+  //     name: "Nasi Padang Bungkus",
+  //     price: 18000,
+  //     pesanan_detail_jumlah: 1,
+  //     pesanan_id: 1,
+  //     image:
+  //       "https://awsimages.detik.net.id/community/media/visual/2020/07/06/nasi-padang.jpeg?w=1200",
+  //   },
+  //   {
+  //     pesanan_detail_id: 22,
+  //     menu_id: 2,
+  //     name: "Nasi Pecel",
+  //     price: 16800,
+  //     pesanan_detail_jumlah: 1,
+  //     pesanan_id: 1,
+  //     image: "https://assets.unileversolutions.com/recipes-v2/258082.jpg",
+  //   },
+  // ]);
 
   const [form, setForm] = useState({
     pesanan_nama: "",

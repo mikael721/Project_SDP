@@ -45,7 +45,7 @@ const MenuPage = () => {
   };
 
   return (
-    <AppShell header={{ height: 70 }} padding="md">
+    <AppShell header={{ height: 70 }} padding="">
       <AppShell.Header>
         <Container
           fluid
@@ -72,15 +72,17 @@ const MenuPage = () => {
       </AppShell.Header>
       <AppShell.Main>
         <div className="menuList">
-          {menu.map((d) => (
-            <CardMenu
-              key={d.menu_id}
-              img={d.menu_gambar}
-              harga={d.menu_harga}
-              nama={d.menu_nama}
-              id={d.menu_id}
-            />
-          ))}
+          {menu
+            .filter((d) => d.menu_status_aktif === 1)
+            .map((d) => (
+              <CardMenu
+                key={d.menu_id}
+                img={d.menu_gambar}
+                harga={d.menu_harga}
+                nama={d.menu_nama}
+                id={d.menu_id}
+              />
+            ))}
         </div>
       </AppShell.Main>
     </AppShell>
