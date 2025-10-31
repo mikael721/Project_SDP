@@ -18,6 +18,18 @@ const Pesanan = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    pesanan_email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        isEmail: true,
+      },
+    },
+    pesanan_status: {
+      type: DataTypes.ENUM("pending", "diproses", "terkirim"),
+      defaultValue: "pending",
+      allowNull: false,
+    },
     pesanan_tanggal: {
       type: DataTypes.DATE,
       allowNull: true,
