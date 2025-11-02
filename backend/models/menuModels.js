@@ -1,6 +1,6 @@
 const { sequelize } = require("../config/sequelize");
 const { DataTypes } = require("sequelize");
-//     
+//
 const menu = sequelize.define(
   "menu",
   {
@@ -16,15 +16,15 @@ const menu = sequelize.define(
     menu_harga: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 0
+      defaultValue: 0,
     },
     menu_gambar: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     menu_status_aktif: {
-        type: DataTypes.INTEGER,
-        defaultValue: 1
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
     },
     createdAt: {
       type: DataTypes.DATE,

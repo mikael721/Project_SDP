@@ -10,7 +10,7 @@ const pesananDetailRoutes = require("./routes/pesananDetailRoutes");
 const mainPenjualanRoutes = require("./routes/mainPenjualanRoutes");
 const detailPenjualanRoutes = require("./routes/detailPenjualanRoutes");
 const laporanKeuanganRoutes = require("./routes/laporanKeuanganRoutes");
-
+const historyRoutes = require("./routes/historyRoutes");
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -32,6 +32,9 @@ app.use("/api/bahan_Baku", bahanBakuRoutes);
 
 // pesanan detail
 app.use("/api/menu_management/detail", pesananDetailRoutes);
+
+//history
+app.use("/api/history/", historyRoutes);
 // ====================================================================
 
 // main penjualan (header penjualan)
