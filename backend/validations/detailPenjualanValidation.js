@@ -1,29 +1,29 @@
 const Joi = require("joi");
 
-const addDetailPenjualanSchema = Joi.object({
-  header_penjualan_id: Joi.number().integer().required().messages({
-    "number.base": "ID header penjualan harus berupa angka!",
-    "any.required": "ID header penjualan harus diisi!",
-  }),
-  menu_id: Joi.number().integer().required().messages({
-    "number.base": "ID menu harus berupa angka!",
-    "any.required": "ID menu harus diisi!",
-  }),
-  penjualan_jumlah: Joi.number().integer().min(1).required().messages({
-    "number.base": "Jumlah penjualan harus berupa angka!",
-    "number.min": "Jumlah penjualan harus lebih dari 0!",
-    "any.required": "Jumlah penjualan harus diisi!",
-  }),
+const headerPenjualanSchema = Joi.object({
+  header_penjualan_tanggal: Joi.date().required(),
+  header_penjualan_jenis: Joi.string().valid("offline", "online").required(),
+  header_penjualan_keterangan: Joi.string().required(),
+  header_penjualan_biaya_tambahan: Joi.number().integer().min(0).default(0),
+  header_penjualan_uang_muka: Joi.number().integer().min(0).max(100).default(0),
 });
 
-const updateDetailPenjualanSchema = Joi.object({
-  menu_id: Joi.number().integer().optional().messages({
-    "number.base": "ID menu harus berupa angka!",
-  }),
-  penjualan_jumlah: Joi.number().integer().min(1).optional().messages({
-    "number.base": "Jumlah penjualan harus berupa angka!",
-    "number.min": "Jumlah penjualan harus lebih dari 0!",
-  }),
+const updateHeaderPenjualanSchema = Joi.object({
+  header_penjualan_tanggal: Joi.date().optional(),
+  header_penjualan_jenis: Joi.string().valid("offline", "online").optional(),
+  header_penjualan_keterangan: Joi.string().optional(),
+  header_penjualan_biaya_tambahan: Joi.number().integer().min(0).optional(),
+  header_penjualan_uang_muka: Joi.number().integer().min(0).max(100).optional(),
 });
 
-module.exports = { addDetailPenjualanSchema, updateDetailPenjualanSchema };
+const detailPenjualanSchema = Joi.object({
+  header_penjualan_id: Joi.number().integer().required(),
+  menu_id: Joi.number().integer().required(),
+  penjualan_jumlah: Joi.number().integer().min(1).required(),
+});
+
+module.exports = {
+  headerPenjualanSchema,
+  updateHeaderPenjualanSchema,
+  detailPenjualanSchema,
+};

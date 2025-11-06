@@ -1,7 +1,7 @@
 const { sequelize } = require("../config/sequelize");
 const { DataTypes } = require("sequelize");
-//
-const menu = sequelize.define(
+
+const Menu = sequelize.define(
   "menu",
   {
     menu_id: {
@@ -10,7 +10,7 @@ const menu = sequelize.define(
       primaryKey: true,
     },
     menu_nama: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255),
       allowNull: false,
     },
     menu_harga: {
@@ -19,11 +19,11 @@ const menu = sequelize.define(
       defaultValue: 0,
     },
     menu_gambar: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     menu_status_aktif: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.TINYINT,
       defaultValue: 1,
     },
     createdAt: {
@@ -46,4 +46,4 @@ const menu = sequelize.define(
   }
 );
 
-module.exports = menu;
+module.exports = Menu;
