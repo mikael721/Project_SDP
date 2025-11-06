@@ -1,6 +1,7 @@
-// models/PesananDetail.js
 const { sequelize } = require("../config/sequelize");
 const { DataTypes } = require("sequelize");
+const Menu = require("./menuModels");
+const Pesanan = require("./Pesanan");
 
 const PesananDetail = sequelize.define(
   "pesanan_detail",
@@ -30,6 +31,11 @@ const PesananDetail = sequelize.define(
         key: "pesanan_id",
       },
     },
+    status: {
+      type: DataTypes.ENUM("belum_jadi", "jadi"),
+      allowNull: true,
+      defaultValue: "belum_jadi",
+    },
     createdAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
@@ -49,5 +55,26 @@ const PesananDetail = sequelize.define(
     paranoid: true,
   }
 );
+
+// === Relasi ===
+PesananDetail.belongsTo(Menu, {
+  foreignKey: "menu_id",
+  as: "menu",
+});
+
+PesananDetail.belongsTo(Pesanan, {
+  foreignKey: "pesanan_id",
+  as: "pesanan",
+});
+
+Menu.hasMany(PesananDetail, {
+  foreignKey: "menu_id",
+  as: "detailPesanan",
+});
+
+Pesanan.hasMany(PesananDetail, {
+  foreignKey: "pesanan_id",
+  as: "detailPesanan",
+});
 
 module.exports = PesananDetail;

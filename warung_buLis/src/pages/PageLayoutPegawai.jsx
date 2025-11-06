@@ -29,6 +29,11 @@ const PageLayoutPegawai = () => {
                 Penjualan
               </Link>
               <Link
+                to="/pegawai/pesanan"
+                style={{ textDecoration: "none", color: "white" }}>
+                Pesanan
+              </Link>
+              <Link
                 to="/pegawai/menu"
                 style={{ textDecoration: "none", color: "white" }}>
                 Menu

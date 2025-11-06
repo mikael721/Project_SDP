@@ -6,6 +6,7 @@ import {
 } from "react-router";
 import MenuPage from "./pages/customer/MenuPage";
 import CartPage from "./pages/customer/CartPage";
+import HistoryPage from "./pages/customer/historyPage";
 import PageLayoutPegawai from "./pages/PageLayoutPegawai";
 import LoginPage from "./pages/LoginPage";
 import { MainPenjualanPage } from "./pages/pegawai/MainPenjualanPage";
@@ -14,7 +15,9 @@ import { DetailMenuManagementPage } from "./pages/pegawai/DetailMenuManagementPa
 import { MenuManagementPage } from "./pages/pegawai/MenuManagementPage";
 import { StokManagementPage } from "./pages/pegawai/StokManagementPage";
 import { LaporanKeuanganPage } from "./pages/pegawai/LaporanKeuanganPage";
+import Pesanan from "./pages/pegawai/Pesanan";
 import ErrorPage from "./pages/ErrorPage";
+
 import brownTheme from "./theme/theme";
 import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
@@ -22,9 +25,13 @@ import "@mantine/core/styles.css";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" errorElement={<ErrorPage />}>
+      {/* === Customer Routes === */}
       <Route index element={<MenuPage />} />
       <Route path="customer" element={<MenuPage />} />
       <Route path="customer/cart" element={<CartPage />} />
+      <Route path="customer/history" element={<HistoryPage />} />
+
+      {/* === Pegawai Routes === */}
       <Route path="pegawai" element={<LoginPage />} />
       <Route element={<PageLayoutPegawai />}>
         <Route path="pegawai/penjualan">
@@ -39,6 +46,7 @@ const router = createBrowserRouter(
             errorElement={<ErrorPage />}
           />
         </Route>
+
         <Route path="pegawai/menu">
           <Route
             index
@@ -51,6 +59,7 @@ const router = createBrowserRouter(
             errorElement={<ErrorPage />}
           />
         </Route>
+
         <Route
           path="pegawai/stok"
           element={<StokManagementPage />}
@@ -59,6 +68,11 @@ const router = createBrowserRouter(
         <Route
           path="pegawai/laporan"
           element={<LaporanKeuanganPage />}
+          errorElement={<ErrorPage />}
+        />
+        <Route
+          path="pegawai/pesanan"
+          element={<Pesanan />}
           errorElement={<ErrorPage />}
         />
       </Route>

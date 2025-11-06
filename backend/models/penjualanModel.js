@@ -1,15 +1,15 @@
-const { sequelize } = require("../config/sequelize");
 const { DataTypes } = require("sequelize");
-const HeaderPenjualan = require("./headerPenjualanModel");
+const { sequelize } = require("../config/sequelize");
 const Menu = require("./menuModels");
+const HeaderPenjualan = require("./headerPenjualanModel");
 
 const Penjualan = sequelize.define(
   "penjualan",
   {
     penjualan_id: {
       type: DataTypes.INTEGER,
-      autoIncrement: true,
       primaryKey: true,
+      autoIncrement: true,
     },
     header_penjualan_id: {
       type: DataTypes.INTEGER,
@@ -41,7 +41,7 @@ const Penjualan = sequelize.define(
     },
     deletedAt: {
       type: DataTypes.DATE,
-      allowNull: true,
+      defaultValue: null,
     },
   },
   {
@@ -51,20 +51,24 @@ const Penjualan = sequelize.define(
   }
 );
 
-// Relasi
+HeaderPenjualan.hasMany(Penjualan, {
+  foreignKey: "header_penjualan_id",
+  as: "penjualans",
+});
+
 Penjualan.belongsTo(HeaderPenjualan, {
   foreignKey: "header_penjualan_id",
-  as: "headerPenjualan",
+  as: "header",
+});
+
+Menu.hasMany(Penjualan, {
+  foreignKey: "menu_id",
+  as: "penjualans",
 });
 
 Penjualan.belongsTo(Menu, {
   foreignKey: "menu_id",
   as: "menu",
-});
-
-HeaderPenjualan.hasMany(Penjualan, {
-  foreignKey: "header_penjualan_id",
-  as: "detailPenjualan",
 });
 
 module.exports = Penjualan;

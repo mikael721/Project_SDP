@@ -1,6 +1,8 @@
 // models/Pesanan.js
 const { sequelize } = require("../config/sequelize");
 const { DataTypes } = require("sequelize");
+const PesananDetail = require("./PesananDetail");
+const Menu = require("./menuModels");
 
 const Pesanan = sequelize.define(
   "pesanan",
@@ -18,6 +20,18 @@ const Pesanan = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    pesanan_email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        isEmail: true,
+      },
+    },
+    pesanan_status: {
+      type: DataTypes.ENUM("pending", "diproses", "terkirim"),
+      defaultValue: "pending",
+      allowNull: false,
+    },
     pesanan_tanggal: {
       type: DataTypes.DATE,
       allowNull: true,
@@ -25,6 +39,11 @@ const Pesanan = sequelize.define(
     pesanan_tanggal_pengiriman: {
       type: DataTypes.DATE,
       allowNull: true,
+    },
+    status: {
+      type: DataTypes.ENUM("belum_jadi", "jadi"),
+      allowNull: true,
+      defaultValue: "belum_jadi",
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -45,5 +64,25 @@ const Pesanan = sequelize.define(
     paranoid: true,
   }
 );
+
+Pesanan.hasMany(PesananDetail, {
+  foreignKey: "pesanan_id",
+  as: "details",
+});
+
+PesananDetail.belongsTo(Pesanan, {
+  foreignKey: "pesanan_id",
+  as: "pesanan",
+});
+
+Menu.hasMany(PesananDetail, {
+  foreignKey: "menu_id",
+  as: "pesanan_details",
+});
+
+PesananDetail.belongsTo(Menu, {
+  foreignKey: "menu_id",
+  as: "menu",
+});
 
 module.exports = Pesanan;

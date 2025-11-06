@@ -7,9 +7,10 @@ const login = require("./routes/loginRoutes");
 const menuManagement = require("./routes/menuManagement");
 const detailMenuRoutes = require("./routes/detailMenuRoutes");
 const pesananDetailRoutes = require("./routes/pesananDetailRoutes");
-const mainPenjualanRoutes = require("./routes/mainPenjualanRoutes");
 const detailPenjualanRoutes = require("./routes/detailPenjualanRoutes");
+const mainPenjualanRoutes = require("./routes/mainPenjualanRoutes");
 const laporanKeuanganRoutes = require("./routes/laporanKeuanganRoutes");
+const historyRoutes = require("./routes/historyRoutes");
 
 const app = express();
 app.use(cors());
@@ -31,14 +32,26 @@ app.use("/api/menu_management/detail", detailMenuRoutes);
 app.use("/api/bahan_Baku", bahanBakuRoutes);
 
 // pesanan detail
-app.use("/api/menu_management/detail", pesananDetailRoutes);
+<<<<<<< HEAD
+app.use("/api/pesanan_detail/detail", pesananDetailRoutes);
+
 // ====================================================================
 
 // main penjualan (header penjualan)
 app.use("/api/main_penjualan", mainPenjualanRoutes);
+=======
+app.use("/api/menu_management/detail", pesananDetailRoutes);
+>>>>>>> 277ad6669800212b8a6123c9ef260f66842565e5
 
 // detail penjualan
 app.use("/api/detail_penjualan", detailPenjualanRoutes);
+
+//history
+app.use("/api/history/", historyRoutes);
+// ====================================================================
+
+// main penjualan
+app.use("/api/main_penjualan", mainPenjualanRoutes);
 
 // laporan keuangan
 app.use("/api/laporan_keuangan", laporanKeuanganRoutes);

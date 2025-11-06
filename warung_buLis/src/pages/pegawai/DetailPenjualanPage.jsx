@@ -1,260 +1,536 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Container,
   Stack,
-  Title,
-  TextInput,
-  Button,
-  Paper,
-  Group,
   Text,
-  Image,
+  Button,
+  Group,
+  Divider,
   Radio,
+  TextInput,
+  NumberInput,
+  Table,
+  Paper,
+  LoadingOverlay,
 } from "@mantine/core";
-import { useForm, Controller } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  updateCartItemQuantity,
+  removeCartItem,
+  clearCart,
+} from "../../slice + storage/cartSlice";
+import axios from "axios";
 
 export const DetailPenjualanPage = () => {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Nasi Padang Bungkus",
-      price: 18000,
-      quantity: 3,
-      image:
-        "https://awsimages.detik.net.id/community/media/visual/2020/07/06/nasi-padang.jpeg?w=1200",
-    },
-    {
-      id: 2,
-      name: "Nasi Bandeng Bakar",
-      price: 18000,
-      quantity: 5,
-      image:
-        "https://i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/95816aa7-dfd7-4a88-95bf-76fa349857e9_96678b26-ef83-4f40-a6b0-267407594e33_Go-Biz_20190713_132424.jpeg",
-    },
-  ]);
+  const { id } = useParams(); // Ambil header_penjualan_id dari URL
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userToken = useSelector((state) => state.user.userToken);
+  const cartItems = useSelector((state) => state.cart.items);
 
-  const { control, handleSubmit, reset, watch } = useForm({
-    defaultValues: {
-      penjualan: "offline",
-      biayaTambahan: "",
-      keterangan: "Masukan keterangan transaksi",
-    },
-  });
+  const [loading, setLoading] = useState(false);
+  const [headerData, setHeaderData] = useState(null);
+  const [detailData, setDetailData] = useState([]);
+  const [jenisPenjualan, setJenisPenjualan] = useState("offline");
+  const [keterangan, setKeterangan] = useState("");
+  const [biayaTambahan, setBiayaTambahan] = useState(0);
+  const [uangMuka, setUangMuka] = useState(0);
 
-  const penjualanMode = watch("penjualan");
+  // === FETCH DATA FROM DATABASE ===
+  useEffect(() => {
+    if (id) {
+      fetchPenjualanData();
+    }
+  }, [id]);
 
-  const handleQuantityChange = (id, delta) => {
-    setCartItems((items) =>
-      items
-        .map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                quantity: Math.max(0, item.quantity + delta),
-              }
-            : item
-        )
-        .filter((item) => item.quantity > 0)
+  const fetchPenjualanData = async () => {
+    try {
+      setLoading(true);
+
+      // Fetch data penjualan berdasarkan header_penjualan_id
+      const response = await axios.get(
+        `http://localhost:3000/api/detail_penjualan/${id}`,
+        {
+          headers: { "x-auth-token": userToken },
+        }
+      );
+
+      console.log("Data penjualan:", response.data);
+
+      if (response.data && response.data.data) {
+        const data = response.data.data;
+        setHeaderData(data);
+        setDetailData(data.penjualans || []);
+
+        // Set form values dari header data
+        setJenisPenjualan(data.header_penjualan_jenis);
+        setKeterangan(data.header_penjualan_keterangan);
+        setBiayaTambahan(data.header_penjualan_biaya_tambahan);
+        setUangMuka(data.header_penjualan_uang_muka);
+      }
+    } catch (err) {
+      console.error("Gagal fetch data:", err.response?.data || err.message);
+      alert("Gagal memuat data penjualan");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // === HANDLE JENIS PENJUALAN CHANGE ===
+  const handleJenisPenjualanChange = (value) => {
+    setJenisPenjualan(value);
+    // Reset fields berdasarkan jenis
+    if (value === "offline") {
+      setUangMuka(0);
+    } else {
+      setBiayaTambahan(0);
+    }
+  };
+
+  // === UPDATE QUANTITY ===
+  const updateQuantity = (menuId, newQuantity) => {
+    if (newQuantity <= 0) {
+      dispatch(removeCartItem(menuId));
+    } else {
+      dispatch(
+        updateCartItemQuantity({
+          menu_id: menuId,
+          penjualan_jumlah: newQuantity,
+        })
+      );
+    }
+  };
+
+  // === REMOVE FROM CART ===
+  const removeFromCart = (menuId) => {
+    dispatch(removeCartItem(menuId));
+  };
+
+  // === CALCULATE TOTAL FROM DATABASE ===
+  const calculateTotalFromDB = () => {
+    if (!detailData || detailData.length === 0) return 0;
+
+    return detailData.reduce((sum, item) => {
+      const harga = item.menu?.menu_harga || 0;
+      const jumlah = item.penjualan_jumlah || 0;
+      return sum + harga * jumlah;
+    }, 0);
+  };
+
+  // === CALCULATE TOTAL FROM CART ===
+  const calculateTotalFromCart = () => {
+    return cartItems.reduce(
+      (sum, item) => sum + item.menu_harga * item.penjualan_jumlah,
+      0
     );
   };
 
-  const onSave = (data) => {
-    console.log("Form Data:", data);
-    console.log("Cart Items:", cartItems);
+  // === SAVE DETAIL PENJUALAN ===
+  const handleSaveDetails = async () => {
+    try {
+      if (cartItems.length === 0) {
+        alert("Tidak ada item untuk disimpan!");
+        return;
+      }
+
+      setLoading(true);
+
+      // Save each cart item as detail penjualan
+      const detailPromises = cartItems.map((item) =>
+        axios.post(
+          "http://localhost:3000/api/detail_penjualan/detail",
+          {
+            header_penjualan_id: parseInt(id),
+            menu_id: item.menu_id,
+            penjualan_jumlah: item.penjualan_jumlah,
+          },
+          {
+            headers: { "x-auth-token": userToken },
+          }
+        )
+      );
+
+      await Promise.all(detailPromises);
+
+      alert("Detail penjualan berhasil disimpan!");
+
+      // Refresh data
+      await fetchPenjualanData();
+
+      // Clear cart
+      dispatch(clearCart());
+    } catch (err) {
+      console.error(
+        "Gagal menyimpan detail:",
+        err.response?.data || err.message
+      );
+      alert(
+        "Gagal menyimpan detail penjualan: " +
+          (err.response?.data?.message || err.message)
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const onCancel = () => {
-    reset();
+  // === UPDATE HEADER PENJUALAN ===
+  const handleUpdateHeader = async () => {
+    try {
+      setLoading(true);
+
+      const updatePayload = {
+        header_penjualan_tanggal: new Date().toISOString(),
+        header_penjualan_jenis: jenisPenjualan,
+        header_penjualan_keterangan: keterangan,
+        header_penjualan_biaya_tambahan:
+          jenisPenjualan === "offline" ? biayaTambahan || 0 : 0,
+        header_penjualan_uang_muka:
+          jenisPenjualan === "online" ? uangMuka || 0 : 0,
+      };
+
+      await axios.put(
+        `http://localhost:3000/api/detail_penjualan/header/${id}`,
+        updatePayload,
+        {
+          headers: { "x-auth-token": userToken },
+        }
+      );
+
+      alert("Header penjualan berhasil diupdate!");
+      await fetchPenjualanData();
+    } catch (err) {
+      console.error("Gagal update header:", err.response?.data || err.message);
+      alert(
+        "Gagal update header: " + (err.response?.data?.message || err.message)
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const calculateSubtotal = (item) => {
-    return item.price * item.quantity;
-  };
+  // === FINALIZE TRANSACTION ===
+  const handleFinalize = async () => {
+    try {
+      // Save cart items first if any
+      if (cartItems.length > 0) {
+        await handleSaveDetails();
+      }
 
-  const calculateTotal = () => {
-    return cartItems.reduce((sum, item) => sum + calculateSubtotal(item), 0);
+      // Update header
+      await handleUpdateHeader();
+
+      alert("Transaksi berhasil diselesaikan!");
+
+      // Clear cart and navigate back
+      dispatch(clearCart());
+      navigate("/pegawai/penjualan");
+    } catch (err) {
+      console.error("Gagal finalize:", err);
+    }
   };
 
   return (
     <Box
-      sx={{
+      style={{
         minHeight: "100vh",
-        paddingTop: 24,
-        paddingBottom: 24,
+        paddingTop: "24px",
+        paddingBottom: "24px",
+        position: "relative",
       }}
     >
-      <Container size="md">
-        <Stack spacing="lg">
-          <Paper shadow="sm" p="md" radius="md">
-            <form onSubmit={handleSubmit(onSave)}>
-              <Stack spacing="md">
-                <Group spacing="md" align="center">
-                  <Text weight={600}>Penjualan :</Text>
-                  <Controller
-                    control={control}
-                    name="penjualan"
-                    render={({ field }) => (
-                      <Radio.Group {...field}>
-                        <Group spacing="sm">
-                          <Radio value="offline" label="Offline" />
-                          <Radio value="online" label="Online" />
-                        </Group>
-                      </Radio.Group>
-                    )}
-                  />
-                </Group>
+      <LoadingOverlay visible={loading} />
 
-                {penjualanMode === "offline" && (
-                  <Group spacing="md" align="center">
-                    <Text weight={600} style={{ minWidth: "140px" }}>
-                      Biaya tambahan :
+      <Container size="lg">
+        <Stack gap="md">
+          <Group justify="space-between">
+            <Text size="xl" fw={700} style={{ color: "white" }}>
+              Detail Penjualan #{id}
+            </Text>
+            <Button
+              variant="default"
+              onClick={() => navigate("/pegawai/penjualan")}
+            >
+              Kembali
+            </Button>
+          </Group>
+
+          {/* Header Information */}
+          {headerData && (
+            <Paper shadow="sm" p="md" radius="md">
+              <Stack gap="xs">
+                <Text fw={600} size="lg">
+                  Informasi Header
+                </Text>
+                <Group gap="xl">
+                  <div>
+                    <Text size="sm" c="dimmed">
+                      Tanggal
                     </Text>
-                    <Controller
-                      control={control}
-                      name="biayaTambahan"
-                      render={({ field }) => (
-                        <TextInput
-                          placeholder="Masukan amount"
-                          style={{ flex: 1 }}
-                          {...field}
-                        />
-                      )}
-                    />
-                  </Group>
-                )}
-
-                {penjualanMode === "online" && (
-                  <Group spacing="md" align="center">
-                    <Text weight={600} style={{ minWidth: "180px" }}>
-                      Persentase uang muka :
+                    <Text fw={500}>
+                      {new Date(
+                        headerData.header_penjualan_tanggal
+                      ).toLocaleString("id-ID")}
                     </Text>
-                    <Controller
-                      control={control}
-                      name="persentaseUangMuka"
-                      render={({ field }) => (
-                        <TextInput
-                          placeholder="ex: 30"
-                          style={{ flex: 1 }}
-                          {...field}
-                        />
-                      )}
-                    />
-                  </Group>
-                )}
-
-                <Group spacing="md" align="flex-start">
-                  <Text weight={600} style={{ minWidth: "100px" }}>
-                    Keterangan :
-                  </Text>
-                  <Controller
-                    control={control}
-                    name="keterangan"
-                    render={({ field }) => (
-                      <TextInput
-                        placeholder="Masukan keterangan transaksi"
-                        style={{ flex: 1 }}
-                        {...field}
-                      />
-                    )}
-                  />
-                </Group>
-
-                <Group position="right" spacing="sm">
-                  <Button
-                    variant="filled"
-                    color="rgba(125, 125, 125, 1)"
-                    onClick={onCancel}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" variant="filled" color="red">
-                    Save
-                  </Button>
+                  </div>
+                  <div>
+                    <Text size="sm" c="dimmed">
+                      Jenis
+                    </Text>
+                    <Text fw={500} tt="capitalize">
+                      {headerData.header_penjualan_jenis}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text size="sm" c="dimmed">
+                      Status
+                    </Text>
+                    <Text fw={500}>
+                      {detailData.length > 0
+                        ? "Sudah ada detail"
+                        : "Belum ada detail"}
+                    </Text>
+                  </div>
                 </Group>
               </Stack>
-            </form>
-          </Paper>
+            </Paper>
+          )}
 
-          <Paper shadow="sm" p="md" radius="md">
-            <Title
-              order={3}
-              align="center"
-              pb="md"
-              style={{
-                borderBottom: "2px solid white",
-                marginBottom: "20px",
-              }}
-            >
-              Cart
-            </Title>
+          {/* Detail Penjualan dari Database */}
+          {detailData && detailData.length > 0 && (
+            <Paper shadow="sm" p="md" radius="md">
+              <Stack gap="md">
+                <Text fw={600} size="lg">
+                  Detail Penjualan (Database)
+                </Text>
+                <Table striped highlightOnHover>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>ID</Table.Th>
+                      <Table.Th>Nama Menu</Table.Th>
+                      <Table.Th>Harga</Table.Th>
+                      <Table.Th>Jumlah</Table.Th>
+                      <Table.Th>Subtotal</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {detailData.map((item) => (
+                      <Table.Tr key={item.penjualan_id}>
+                        <Table.Td>{item.penjualan_id}</Table.Td>
+                        <Table.Td>{item.menu?.menu_nama || "N/A"}</Table.Td>
+                        <Table.Td>
+                          Rp{" "}
+                          {(item.menu?.menu_harga || 0).toLocaleString("id-ID")}
+                        </Table.Td>
+                        <Table.Td>{item.penjualan_jumlah}</Table.Td>
+                        <Table.Td>
+                          Rp{" "}
+                          {(
+                            (item.menu?.menu_harga || 0) * item.penjualan_jumlah
+                          ).toLocaleString("id-ID")}
+                        </Table.Td>
+                      </Table.Tr>
+                    ))}
+                  </Table.Tbody>
+                </Table>
+                <Group justify="flex-end">
+                  <Text fw={600} size="lg">
+                    Total: Rp {calculateTotalFromDB().toLocaleString("id-ID")}
+                  </Text>
+                </Group>
+              </Stack>
+            </Paper>
+          )}
 
-            <Stack spacing="md">
-              {cartItems.map((item) => (
-                <Box
-                  key={item.id}
-                  style={{
-                    backgroundColor: "rgba(139, 98, 52, 0.5)",
-                    borderRadius: "8px",
-                    padding: "16px",
-                  }}
-                >
-                  <Group position="apart" align="flex-start" noWrap>
-                    <Stack spacing="xs" style={{ flex: 1 }}>
-                      <Text weight={600} size="md">
-                        {item.name}
-                      </Text>
-                      <Text size="sm">Rp. {item.price.toLocaleString()}</Text>
-                      <Text size="sm">Jumlah : {item.quantity}</Text>
-                      <Text size="sm" weight={500}>
-                        Subtotal : Rp.{" "}
-                        {calculateSubtotal(item).toLocaleString()}
-                      </Text>
-                    </Stack>
+          <Divider my="md" label="Tambah Item Baru" labelPosition="center" />
 
-                    <Stack spacing="xs" align="center">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        width={100}
-                        height={80}
-                        radius="md"
-                        fit="cover"
-                      />
-                      <Group spacing={4} noWrap>
+          {/* Cart Items (untuk menambah detail baru) */}
+          {cartItems.length > 0 && (
+            <Paper shadow="sm" p="md" radius="md">
+              <Stack gap="md">
+                <Text fw={600} size="lg">
+                  Item di Keranjang (Belum disimpan)
+                </Text>
+                {cartItems.map((item) => (
+                  <Box key={item.menu_id}>
+                    <Group justify="space-between" align="flex-start">
+                      <Box style={{ flex: 1 }}>
+                        <Text fw={500}>{item.menu_nama}</Text>
+                        <Text size="sm" c="dimmed">
+                          Rp {item.menu_harga.toLocaleString("id-ID")}
+                        </Text>
+                      </Box>
+                      <Group gap="xs">
                         <Button
                           size="xs"
                           color="red"
-                          radius="xl"
-                          style={{
-                            width: 28,
-                            height: 28,
-                            padding: 0,
-                            minWidth: 28,
-                          }}
-                          onClick={() => handleQuantityChange(item.id, -1)}
+                          onClick={() =>
+                            updateQuantity(
+                              item.menu_id,
+                              item.penjualan_jumlah - 1
+                            )
+                          }
                         >
                           -
                         </Button>
+                        <Text
+                          fw={600}
+                          style={{
+                            minWidth: "30px",
+                            textAlign: "center",
+                          }}
+                        >
+                          {item.penjualan_jumlah}
+                        </Text>
                         <Button
                           size="xs"
                           color="green"
-                          radius="xl"
-                          style={{
-                            width: 28,
-                            height: 28,
-                            padding: 0,
-                            minWidth: 28,
-                          }}
-                          onClick={() => handleQuantityChange(item.id, 1)}
+                          onClick={() =>
+                            updateQuantity(
+                              item.menu_id,
+                              item.penjualan_jumlah + 1
+                            )
+                          }
                         >
                           +
                         </Button>
+                        <Button
+                          size="xs"
+                          color="gray"
+                          onClick={() => removeFromCart(item.menu_id)}
+                        >
+                          Hapus
+                        </Button>
                       </Group>
-                    </Stack>
-                  </Group>
-                </Box>
-              ))}
+                    </Group>
+                    <Text size="sm" c="dimmed">
+                      Subtotal: Rp{" "}
+                      {(item.menu_harga * item.penjualan_jumlah).toLocaleString(
+                        "id-ID"
+                      )}
+                    </Text>
+                    <Divider my="sm" />
+                  </Box>
+                ))}
+                <Group justify="flex-end">
+                  <Text fw={600} size="lg">
+                    Total Cart: Rp{" "}
+                    {calculateTotalFromCart().toLocaleString("id-ID")}
+                  </Text>
+                </Group>
+                <Button
+                  fullWidth
+                  color="blue"
+                  onClick={handleSaveDetails}
+                  loading={loading}
+                >
+                  Simpan Item ke Detail Penjualan
+                </Button>
+              </Stack>
+            </Paper>
+          )}
+
+          <Divider my="md" />
+
+          {/* Form Edit Header */}
+          <Paper shadow="sm" p="md" radius="md">
+            <Stack gap="md">
+              <Text fw={600} size="lg">
+                Edit Informasi Transaksi
+              </Text>
+
+              <Radio.Group
+                value={jenisPenjualan}
+                onChange={handleJenisPenjualanChange}
+                label="Jenis Penjualan"
+                required
+              >
+                <Group mt="xs">
+                  <Radio value="offline" label="Offline" />
+                  <Radio value="online" label="Online" />
+                </Group>
+              </Radio.Group>
+
+              <TextInput
+                label="Keterangan Transaksi"
+                placeholder="Masukkan keterangan"
+                value={keterangan}
+                onChange={(e) => setKeterangan(e.target.value)}
+              />
+
+              {/* Conditional Fields Based on Jenis Penjualan */}
+              {jenisPenjualan === "offline" ? (
+                <NumberInput
+                  label="Biaya Tambahan"
+                  placeholder="0"
+                  min={0}
+                  value={biayaTambahan}
+                  onChange={(val) => setBiayaTambahan(val || 0)}
+                  description="Biaya tambahan untuk transaksi offline"
+                />
+              ) : (
+                <NumberInput
+                  label="Persentase Uang Muka (%)"
+                  placeholder="0"
+                  min={0}
+                  max={100}
+                  value={uangMuka}
+                  onChange={(val) => setUangMuka(val || 0)}
+                  description="Persentase uang muka untuk transaksi online"
+                />
+              )}
+
+              <Divider my="md" />
+
+              <Group justify="space-between">
+                <Text fw={600} size="lg">
+                  Total Keseluruhan
+                </Text>
+                <Text fw={700} size="xl" c="red">
+                  Rp{" "}
+                  {(
+                    calculateTotalFromDB() +
+                    calculateTotalFromCart() +
+                    (jenisPenjualan === "offline" ? biayaTambahan || 0 : 0)
+                  ).toLocaleString("id-ID")}
+                </Text>
+              </Group>
+
+              {jenisPenjualan === "online" && uangMuka > 0 && (
+                <Group justify="space-between">
+                  <Text fw={500} size="md">
+                    Uang Muka ({uangMuka}%)
+                  </Text>
+                  <Text fw={600} size="lg" c="blue">
+                    Rp{" "}
+                    {(
+                      ((calculateTotalFromDB() + calculateTotalFromCart()) *
+                        uangMuka) /
+                      100
+                    ).toLocaleString("id-ID")}
+                  </Text>
+                </Group>
+              )}
+
+              <Group grow>
+                <Button
+                  color="blue"
+                  size="lg"
+                  onClick={handleUpdateHeader}
+                  loading={loading}
+                >
+                  Update Header
+                </Button>
+                <Button
+                  color="green"
+                  size="lg"
+                  onClick={handleFinalize}
+                  loading={loading}
+                >
+                  Selesaikan Transaksi
+                </Button>
+              </Group>
             </Stack>
           </Paper>
         </Stack>
@@ -262,3 +538,5 @@ export const DetailPenjualanPage = () => {
     </Box>
   );
 };
+
+export default DetailPenjualanPage;
