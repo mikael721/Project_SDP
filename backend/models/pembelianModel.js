@@ -1,6 +1,5 @@
 const { sequelize } = require("../config/sequelize");
 const { DataTypes } = require("sequelize");
-const BahanBaku = require("./bahanBakuModel");
 
 const Pembelian = sequelize.define(
   "pembelian",
@@ -49,15 +48,5 @@ const Pembelian = sequelize.define(
     paranoid: true,
   }
 );
-
-BahanBaku.hasMany(Pembelian, {
-  foreignKey: "bahan_baku_id",
-  as: "pembelians",
-});
-
-Pembelian.belongsTo(BahanBaku, {
-  foreignKey: "bahan_baku_id",
-  as: "bahan_baku",
-});
 
 module.exports = Pembelian;

@@ -1,173 +1,196 @@
-const { Op } = require("sequelize");
-const {
-  filterLaporanSchema,
-} = require("../validations/laporanKeuanganValidation");
 const HeaderPenjualan = require("../models/headerPenjualanModel");
 const Penjualan = require("../models/penjualanModel");
 const Menu = require("../models/menuModels");
-const BahanBaku = require("../models/bahanBakuModel");
 const Pembelian = require("../models/pembelianModel");
-const Pesanan = require("../models/Pesanan");
-const PesananDetail = require("../models/PesananDetail");
+const { Op } = require("sequelize");
+const {
+  laporanKeuanganSchema,
+  laporanKeuanganSchema_tampaRange,
+} = require("../validations/laporanKeuanganValidation");
 
-// Get Laporan Penjualan
-const getLaporanPenjualan = async (req, res) => {
+// GET LAPORAN KEUANGAN BERDASARKAN PERIODE
+exports.getLaporanKeuangan = async (req, res) => {
   try {
-    const { tanggal_awal, tanggal_akhir, menu_id } = req.query;
-
-    let whereClause = {};
-    let whereHeader = {};
-
-    // Filter by date range
-    if (tanggal_awal || tanggal_akhir) {
-      whereHeader.header_penjualan_tanggal = {};
-      if (tanggal_awal) {
-        whereHeader.header_penjualan_tanggal[Op.gte] = new Date(tanggal_awal);
-      }
-      if (tanggal_akhir) {
-        whereHeader.header_penjualan_tanggal[Op.lte] = new Date(tanggal_akhir);
-      }
+    const { error } = laporanKeuanganSchema.validate(req.query);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
     }
 
-    // Filter by menu_id
-    if (menu_id) {
-      whereClause.menu_id = menu_id;
-    }
+    const { tanggal_awal, tanggal_akhir } = req.query;
 
-    const penjualan = await Penjualan.findAll({
-      where: whereClause,
+    let whereConditionPenjualan = {};
+    let whereConditionPembelian = {};
+
+    // Jika kedua tanggal ada, gunakan filter range
+    if (tanggal_awal && tanggal_akhir) {
+      whereConditionPenjualan = {
+        header_penjualan_tanggal: {
+          [Op.between]: [tanggal_awal, tanggal_akhir],
+        },
+      };
+      whereConditionPembelian = {
+        createdAt: {
+          [Op.between]: [tanggal_awal, tanggal_akhir],
+        },
+      };
+    }
+    // Jika hanya tanggal_awal yang ada
+    else if (tanggal_awal) {
+      whereConditionPenjualan = {
+        header_penjualan_tanggal: {
+          [Op.gte]: tanggal_awal,
+        },
+      };
+      whereConditionPembelian = {
+        createdAt: {
+          [Op.gte]: tanggal_awal,
+        },
+      };
+    }
+    // Jika hanya tanggal_akhir yang ada
+    else if (tanggal_akhir) {
+      whereConditionPenjualan = {
+        header_penjualan_tanggal: {
+          [Op.lte]: tanggal_akhir,
+        },
+      };
+      whereConditionPembelian = {
+        createdAt: {
+          [Op.lte]: tanggal_akhir,
+        },
+      };
+    }
+    // Jika kedua tanggal tidak ada, return semua data
+
+    // Ambil data penjualan
+    const dataPenjualan = await HeaderPenjualan.findAll({
+      where: whereConditionPenjualan,
       include: [
         {
-          model: HeaderPenjualan,
-          as: "header",
-          where: Object.keys(whereHeader).length > 0 ? whereHeader : undefined,
-        },
-        {
-          model: Menu,
-          as: "menu",
+          model: Penjualan,
+          as: "detailPenjualan",
+          include: [
+            {
+              model: Menu,
+              as: "menu",
+              attributes: ["menu_harga"],
+            },
+          ],
         },
       ],
-      order: [["createdAt", "ASC"]],
     });
 
-    // Transform data for frontend
-    const transformedData = penjualan.map((item) => ({
-      penjualan_id: item.penjualan_id,
-      header_penjualan_id: item.header_penjualan_id,
-      tanggal: item.header?.header_penjualan_tanggal,
-      jenis: item.header?.header_penjualan_jenis,
-      menu_id: item.menu_id,
-      menu_nama: item.menu?.menu_nama,
-      menu_harga: item.menu?.menu_harga,
-      penjualan_jumlah: item.penjualan_jumlah,
-      subtotal: (item.menu?.menu_harga || 0) * item.penjualan_jumlah,
-      biaya_tambahan: item.header?.header_penjualan_biaya_tambahan || 0,
-      uang_muka: item.header?.header_penjualan_uang_muka || 0,
-    }));
+    // Hitung total pendapatan
+    let totalPendapatan = 0;
+    let totalBiayaTambahan = 0;
+    let totalUangMuka = 0;
 
-    return res.status(200).json({
-      message: "Berhasil mengambil laporan penjualan",
-      data: transformedData,
+    dataPenjualan.forEach((header) => {
+      totalBiayaTambahan += header.header_penjualan_biaya_tambahan;
+      totalUangMuka += header.header_penjualan_uang_muka;
+
+      header.detailPenjualan.forEach((detail) => {
+        const subtotal = detail.menu.menu_harga * detail.penjualan_jumlah;
+        totalPendapatan += subtotal;
+      });
     });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      message: "Gagal mengambil laporan penjualan",
-      error: err.message,
+
+    totalPendapatan += totalBiayaTambahan;
+
+    // Ambil data pembelian (pengeluaran)
+    const dataPembelian = await Pembelian.findAll({
+      where: whereConditionPembelian,
     });
+
+    // Hitung total pengeluaran
+    let totalPengeluaran = 0;
+    let totalBiayaTambahanPembelian = 0;
+
+    dataPembelian.forEach((pembelian) => {
+      const subtotal =
+        pembelian.pembelian_harga_satuan * pembelian.pembelian_jumlah;
+      totalPengeluaran += subtotal;
+      totalBiayaTambahanPembelian += pembelian.pembelian_biaya_tambahan;
+    });
+
+    totalPengeluaran += totalBiayaTambahanPembelian;
+
+    // Hitung laba/rugi
+    const labaRugi = totalPendapatan - totalPengeluaran;
+
+    const laporan = {
+      periode: {
+        tanggal_awal: tanggal_awal || null,
+        tanggal_akhir: tanggal_akhir || null,
+      },
+      pendapatan: {
+        total_penjualan: totalPendapatan - totalBiayaTambahan,
+        biaya_tambahan: totalBiayaTambahan,
+        uang_muka: totalUangMuka,
+        total_pendapatan: totalPendapatan,
+      },
+      pengeluaran: {
+        total_pembelian: totalPengeluaran - totalBiayaTambahanPembelian,
+        biaya_tambahan: totalBiayaTambahanPembelian,
+        total_pengeluaran: totalPengeluaran,
+      },
+      laba_rugi: labaRugi,
+      jumlah_transaksi: {
+        penjualan: dataPenjualan.length,
+        pembelian: dataPembelian.length,
+      },
+    };
+
+    return res.status(200).json(laporan);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 };
 
-// Get Laporan Pembelian
-const getLaporanPembelian = async (req, res) => {
+// GET LAPORAN PENJUALAN DETAIL
+exports.getLaporanPenjualanDetail = async (req, res) => {
   try {
-    const { tanggal_awal, tanggal_akhir, bahan_baku_id } = req.query;
-
-    let whereClause = {};
-
-    // Filter by date range
-    if (tanggal_awal || tanggal_akhir) {
-      whereClause.createdAt = {};
-      if (tanggal_awal) {
-        whereClause.createdAt[Op.gte] = new Date(tanggal_awal);
-      }
-      if (tanggal_akhir) {
-        whereClause.createdAt[Op.lte] = new Date(tanggal_akhir);
-      }
+    const { error } = laporanKeuanganSchema.validate(req.query);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
     }
 
-    // Filter by bahan_baku_id
-    if (bahan_baku_id) {
-      whereClause.bahan_baku_id = bahan_baku_id;
-    }
+    const { tanggal_awal, tanggal_akhir } = req.query;
 
-    const pembelian = await Pembelian.findAll({
-      where: whereClause,
-      include: [
-        {
-          model: BahanBaku,
-          as: "bahan_baku",
+    let whereCondition = {};
+
+    // Jika kedua tanggal ada, gunakan filter range
+    if (tanggal_awal && tanggal_akhir) {
+      whereCondition = {
+        header_penjualan_tanggal: {
+          [Op.between]: [tanggal_awal, tanggal_akhir],
         },
-      ],
-      order: [["createdAt", "ASC"]],
-    });
-
-    // Transform data for frontend
-    const transformedData = pembelian.map((item) => ({
-      pembelian_id: item.pembelian_id,
-      tanggal: item.createdAt,
-      bahan_baku_id: item.bahan_baku_id,
-      bahan_baku_nama: item.bahan_baku?.bahan_baku_nama,
-      pembelian_jumlah: item.pembelian_jumlah,
-      pembelian_satuan: item.pembelian_satuan,
-      pembelian_harga_satuan: item.pembelian_harga_satuan,
-      subtotal: item.pembelian_jumlah * item.pembelian_harga_satuan,
-    }));
-
-    return res.status(200).json({
-      message: "Berhasil mengambil laporan pembelian",
-      data: transformedData,
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      message: "Gagal mengambil laporan pembelian",
-      error: err.message,
-    });
-  }
-};
-
-// Get Laporan Pesanan
-const getLaporanPesanan = async (req, res) => {
-  try {
-    const { tanggal_awal, tanggal_akhir, menu_id } = req.query;
-
-    let wherePesanan = {};
-    let whereDetail = {};
-
-    // Filter by date range
-    if (tanggal_awal || tanggal_akhir) {
-      wherePesanan.pesanan_tanggal = {};
-      if (tanggal_awal) {
-        wherePesanan.pesanan_tanggal[Op.gte] = new Date(tanggal_awal);
-      }
-      if (tanggal_akhir) {
-        wherePesanan.pesanan_tanggal[Op.lte] = new Date(tanggal_akhir);
-      }
+      };
     }
-
-    // Filter by menu_id
-    if (menu_id) {
-      whereDetail.menu_id = menu_id;
+    // Jika hanya tanggal_awal yang ada
+    else if (tanggal_awal) {
+      whereCondition = {
+        header_penjualan_tanggal: {
+          [Op.gte]: tanggal_awal,
+        },
+      };
     }
+    // Jika hanya tanggal_akhir yang ada
+    else if (tanggal_akhir) {
+      whereCondition = {
+        header_penjualan_tanggal: {
+          [Op.lte]: tanggal_akhir,
+        },
+      };
+    }
+    // Jika kedua tanggal tidak ada, return semua data penjualan
 
-    const pesanan = await Pesanan.findAll({
-      where: Object.keys(wherePesanan).length > 0 ? wherePesanan : undefined,
+    const dataPenjualan = await HeaderPenjualan.findAll({
+      where: whereCondition,
       include: [
         {
-          model: PesananDetail,
-          as: "details",
-          where: Object.keys(whereDetail).length > 0 ? whereDetail : undefined,
+          model: Penjualan,
+          as: "detailPenjualan",
           include: [
             {
               model: Menu,
@@ -176,228 +199,125 @@ const getLaporanPesanan = async (req, res) => {
           ],
         },
       ],
-      order: [["createdAt", "ASC"]],
+      order: [["header_penjualan_tanggal", "DESC"]],
     });
 
-    // Transform data for frontend
-    const transformedData = [];
-    pesanan.forEach((pes) => {
-      pes.details.forEach((detail) => {
-        transformedData.push({
-          pesanan_id: pes.pesanan_id,
-          pesanan_nama: pes.pesanan_nama,
-          pesanan_email: pes.pesanan_email,
-          pesanan_lokasi: pes.pesanan_lokasi,
-          pesanan_status: pes.pesanan_status,
-          tanggal: pes.pesanan_tanggal,
-          tanggal_pengiriman: pes.pesanan_tanggal_pengiriman,
-          menu_id: detail.menu_id,
-          menu_nama: detail.menu?.menu_nama,
-          menu_harga: detail.menu?.menu_harga,
-          pesanan_detail_jumlah: detail.pesanan_detail_jumlah,
-          subtotal:
-            (detail.menu?.menu_harga || 0) * detail.pesanan_detail_jumlah,
-        });
+    // Format data dengan total per transaksi
+    const laporanDetail = dataPenjualan.map((header) => {
+      let totalTransaksi = 0;
+
+      const details = header.detailPenjualan.map((detail) => {
+        const subtotal = detail.menu.menu_harga * detail.penjualan_jumlah;
+        totalTransaksi += subtotal;
+
+        return {
+          menu_nama: detail.menu.menu_nama,
+          menu_harga: detail.menu.menu_harga,
+          jumlah: detail.penjualan_jumlah,
+          subtotal,
+        };
       });
+
+      totalTransaksi += header.header_penjualan_biaya_tambahan;
+
+      return {
+        header_penjualan_id: header.header_penjualan_id,
+        tanggal: header.header_penjualan_tanggal,
+        jenis: header.header_penjualan_jenis,
+        keterangan: header.header_penjualan_keterangan,
+        biaya_tambahan: header.header_penjualan_biaya_tambahan,
+        uang_muka: header.header_penjualan_uang_muka,
+        detail: details,
+        total_transaksi: totalTransaksi,
+      };
     });
 
     return res.status(200).json({
-      message: "Berhasil mengambil laporan pesanan",
-      data: transformedData,
+      periode: {
+        tanggal_awal: tanggal_awal || null,
+        tanggal_akhir: tanggal_akhir || null,
+      },
+      data: laporanDetail,
     });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      message: "Gagal mengambil laporan pesanan",
-      error: err.message,
-    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 };
 
-// Get All Laporan
-const getAllLaporan = async (req, res) => {
+// GET LAPORAN PEMBELIAN DETAIL
+exports.getLaporanPembelianDetail = async (req, res) => {
   try {
-    const { tanggal_awal, tanggal_akhir, menu_id, bahan_baku_id } = req.query;
+    const { tanggal_awal, tanggal_akhir } = req.query;
 
-    // Get all three reports
-    const [penjualanRes, pembelianRes, pesananRes] = await Promise.all([
-      getLaporanPenjualanData(tanggal_awal, tanggal_akhir, menu_id),
-      getLaporanPembelianData(tanggal_awal, tanggal_akhir, bahan_baku_id),
-      getLaporanPesananData(tanggal_awal, tanggal_akhir, menu_id),
-    ]);
+    // Determine which schema to use based on the presence of both dates
+    let validationSchema;
+    if (tanggal_awal != null && tanggal_akhir != null) {
+      validationSchema = laporanKeuanganSchema;
+    } else {
+      validationSchema = laporanKeuanganSchema_tampaRange;
+    }
+
+    const { error } = validationSchema.validate(req.query);
+    if (error) {
+      return res.status(400).json({
+        message: error.details.map((detail) => detail.message).join(", "),
+      });
+    }
+
+    const { bahan_baku_id } = req.query;
+
+    let whereCondition = {};
+
+    // Filter tanggal
+    if (tanggal_awal && tanggal_akhir) {
+      whereCondition.createdAt = {
+        [Op.between]: [tanggal_awal, tanggal_akhir],
+      };
+    } else if (tanggal_awal) {
+      whereCondition.createdAt = {
+        [Op.gte]: tanggal_awal,
+      };
+    } else if (tanggal_akhir) {
+      whereCondition.createdAt = {
+        [Op.lte]: tanggal_akhir,
+      };
+    }
+
+    // Tambahkan filter untuk bahan_baku_id jika ada
+    if (bahan_baku_id) {
+      whereCondition.bahan_baku_id = bahan_baku_id;
+    }
+
+    // Ambil data pembelian berdasarkan kondisi
+    const dataPembelian = await Pembelian.findAll({
+      where: whereCondition,
+      order: [["createdAt", "DESC"]],
+    });
+
+    // Format data
+    const laporanDetail = dataPembelian.map((pembelian) => {
+      const subtotal =
+        pembelian.pembelian_harga_satuan * pembelian.pembelian_jumlah;
+
+      return {
+        bahan_baku_id: pembelian.bahan_baku_id,
+        tanggal: pembelian.createdAt,
+        jumlah: pembelian.pembelian_jumlah,
+        satuan: pembelian.pembelian_satuan,
+        harga_satuan: pembelian.pembelian_harga_satuan,
+        subtotal,
+        pembelian_id: pembelian.pembelian_id,
+      };
+    });
 
     return res.status(200).json({
-      message: "Berhasil mengambil semua laporan",
-      data: {
-        penjualan: penjualanRes,
-        pembelian: pembelianRes,
-        pesanan: pesananRes,
+      periode: {
+        tanggal_awal: tanggal_awal || null,
+        tanggal_akhir: tanggal_akhir || null,
       },
+      data: laporanDetail,
     });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      message: "Gagal mengambil laporan",
-      error: err.message,
-    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
-};
-
-// Helper functions
-const getLaporanPenjualanData = async (
-  tanggal_awal,
-  tanggal_akhir,
-  menu_id
-) => {
-  let whereClause = {};
-  let whereHeader = {};
-
-  if (tanggal_awal || tanggal_akhir) {
-    whereHeader.header_penjualan_tanggal = {};
-    if (tanggal_awal) {
-      whereHeader.header_penjualan_tanggal[Op.gte] = new Date(tanggal_awal);
-    }
-    if (tanggal_akhir) {
-      whereHeader.header_penjualan_tanggal[Op.lte] = new Date(tanggal_akhir);
-    }
-  }
-
-  if (menu_id) {
-    whereClause.menu_id = menu_id;
-  }
-
-  const penjualan = await Penjualan.findAll({
-    where: whereClause,
-    include: [
-      {
-        model: HeaderPenjualan,
-        as: "header",
-        where: Object.keys(whereHeader).length > 0 ? whereHeader : undefined,
-      },
-      {
-        model: Menu,
-        as: "menu",
-      },
-    ],
-    order: [["createdAt", "ASC"]],
-  });
-
-  return penjualan.map((item) => ({
-    penjualan_id: item.penjualan_id,
-    header_penjualan_id: item.header_penjualan_id,
-    tanggal: item.header?.header_penjualan_tanggal,
-    jenis: item.header?.header_penjualan_jenis,
-    menu_id: item.menu_id,
-    menu_nama: item.menu?.menu_nama,
-    menu_harga: item.menu?.menu_harga,
-    penjualan_jumlah: item.penjualan_jumlah,
-    subtotal: (item.menu?.menu_harga || 0) * item.penjualan_jumlah,
-  }));
-};
-
-const getLaporanPembelianData = async (
-  tanggal_awal,
-  tanggal_akhir,
-  bahan_baku_id
-) => {
-  let whereClause = {};
-
-  if (tanggal_awal || tanggal_akhir) {
-    whereClause.createdAt = {};
-    if (tanggal_awal) {
-      whereClause.createdAt[Op.gte] = new Date(tanggal_awal);
-    }
-    if (tanggal_akhir) {
-      whereClause.createdAt[Op.lte] = new Date(tanggal_akhir);
-    }
-  }
-
-  if (bahan_baku_id) {
-    whereClause.bahan_baku_id = bahan_baku_id;
-  }
-
-  const pembelian = await Pembelian.findAll({
-    where: whereClause,
-    include: [
-      {
-        model: BahanBaku,
-        as: "bahan_baku",
-      },
-    ],
-    order: [["createdAt", "ASC"]],
-  });
-
-  return pembelian.map((item) => ({
-    pembelian_id: item.pembelian_id,
-    tanggal: item.createdAt,
-    bahan_baku_id: item.bahan_baku_id,
-    bahan_baku_nama: item.bahan_baku?.bahan_baku_nama,
-    pembelian_jumlah: item.pembelian_jumlah,
-    pembelian_satuan: item.pembelian_satuan,
-    pembelian_harga_satuan: item.pembelian_harga_satuan,
-    subtotal: item.pembelian_jumlah * item.pembelian_harga_satuan,
-  }));
-};
-
-const getLaporanPesananData = async (tanggal_awal, tanggal_akhir, menu_id) => {
-  let wherePesanan = {};
-  let whereDetail = {};
-
-  if (tanggal_awal || tanggal_akhir) {
-    wherePesanan.pesanan_tanggal = {};
-    if (tanggal_awal) {
-      wherePesanan.pesanan_tanggal[Op.gte] = new Date(tanggal_awal);
-    }
-    if (tanggal_akhir) {
-      wherePesanan.pesanan_tanggal[Op.lte] = new Date(tanggal_akhir);
-    }
-  }
-
-  if (menu_id) {
-    whereDetail.menu_id = menu_id;
-  }
-
-  const pesanan = await Pesanan.findAll({
-    where: Object.keys(wherePesanan).length > 0 ? wherePesanan : undefined,
-    include: [
-      {
-        model: PesananDetail,
-        as: "details",
-        where: Object.keys(whereDetail).length > 0 ? whereDetail : undefined,
-        include: [
-          {
-            model: Menu,
-            as: "menu",
-          },
-        ],
-      },
-    ],
-    order: [["createdAt", "ASC"]],
-  });
-
-  const transformedData = [];
-  pesanan.forEach((pes) => {
-    pes.details.forEach((detail) => {
-      transformedData.push({
-        pesanan_id: pes.pesanan_id,
-        pesanan_nama: pes.pesanan_nama,
-        pesanan_status: pes.pesanan_status,
-        tanggal: pes.pesanan_tanggal,
-        menu_id: detail.menu_id,
-        menu_nama: detail.menu?.menu_nama,
-        menu_harga: detail.menu?.menu_harga,
-        pesanan_detail_jumlah: detail.pesanan_detail_jumlah,
-        subtotal: (detail.menu?.menu_harga || 0) * detail.pesanan_detail_jumlah,
-      });
-    });
-  });
-
-  return transformedData;
-};
-
-module.exports = {
-  getLaporanPenjualan,
-  getLaporanPembelian,
-  getLaporanPesanan,
-  getAllLaporan,
 };

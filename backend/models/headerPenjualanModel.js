@@ -1,24 +1,24 @@
-const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/sequelize");
+const { DataTypes } = require("sequelize");
 
 const HeaderPenjualan = sequelize.define(
   "header_penjualan",
   {
     header_penjualan_id: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
       autoIncrement: true,
+      primaryKey: true,
     },
     header_penjualan_tanggal: {
       type: DataTypes.DATE,
       allowNull: false,
     },
     header_penjualan_jenis: {
-      type: DataTypes.ENUM("offline", "online"),
+      type: DataTypes.ENUM('offline', 'online'),
       allowNull: false,
     },
     header_penjualan_keterangan: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.STRING,
       allowNull: false,
     },
     header_penjualan_biaya_tambahan: {
@@ -41,7 +41,7 @@ const HeaderPenjualan = sequelize.define(
     },
     deletedAt: {
       type: DataTypes.DATE,
-      defaultValue: null,
+      allowNull: true,
     },
   },
   {

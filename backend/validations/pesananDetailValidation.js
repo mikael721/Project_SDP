@@ -2,36 +2,42 @@
 const Joi = require("joi");
 
 const createPesananDetailSchema = Joi.object({
-  menu_id: Joi.number().integer().required().messages({
-    "number.base": "Menu ID harus berupa angka",
-    "any.required": "Menu ID wajib diisi",
+  menu_id: Joi.number().integer().positive().required().messages({
+    "number.base": "menu_id harus berupa angka",
+    "number.integer": "menu_id harus bilangan bulat",
+    "number.positive": "menu_id harus bernilai positif",
+    "any.required": "menu_id wajib diisi",
   }),
-  pesanan_detail_jumlah: Joi.number().integer().min(1).required().messages({
-    "number.base": "Jumlah harus berupa angka",
-    "number.min": "Jumlah minimal 1",
-    "any.required": "Jumlah wajib diisi",
-  }),
-  pesanan_id: Joi.number().integer().required().messages({
-    "number.base": "Pesanan ID harus berupa angka",
-    "any.required": "Pesanan ID wajib diisi",
+
+  pesanan_detail_jumlah: Joi.number()
+    .integer()
+    .positive()
+    .min(1)
+    .required()
+    .messages({
+      "number.base": "pesanan_detail_jumlah harus berupa angka",
+      "number.integer": "pesanan_detail_jumlah harus bilangan bulat",
+      "number.positive": "pesanan_detail_jumlah harus bernilai positif",
+      "number.min": "pesanan_detail_jumlah harus minimal 1",
+      "any.required": "pesanan_detail_jumlah wajib diisi",
+    }),
+
+  pesanan_id: Joi.number().integer().positive().required().messages({
+    "number.base": "pesanan_id harus berupa angka",
+    "number.integer": "pesanan_id harus bilangan bulat",
+    "number.positive": "pesanan_id harus bernilai positif",
+    "any.required": "pesanan_id wajib diisi",
   }),
 });
 
 const createPesananSchema = Joi.object({
-  pesanan_nama: Joi.string().min(1).max(255).required().trim().messages({
+  pesanan_nama: Joi.string().required().messages({
     "string.empty": "Nama pesanan wajib diisi",
-    "string.min": "Nama minimal 1 karakter",
     "any.required": "Nama pesanan wajib diisi",
   }),
-  pesanan_lokasi: Joi.string().min(1).max(255).required().trim().messages({
+  pesanan_lokasi: Joi.string().required().messages({
     "string.empty": "Lokasi pesanan wajib diisi",
-    "string.min": "Lokasi minimal 1 karakter",
     "any.required": "Lokasi pesanan wajib diisi",
-  }),
-  pesanan_email: Joi.string().email().required().trim().lowercase().messages({
-    "string.email": "Email harus valid",
-    "string.empty": "Email wajib diisi",
-    "any.required": "Email wajib diisi",
   }),
   pesanan_tanggal: Joi.string()
     .pattern(/^\d{4}-\d{2}-\d{2}$/)
@@ -41,6 +47,7 @@ const createPesananSchema = Joi.object({
     }),
   pesanan_tanggal_pengiriman: Joi.string()
     .pattern(/^\d{4}-\d{2}-\d{2}$/)
+    .allow(null)
     .required()
     .messages({
       "string.pattern.base": "Tanggal pengiriman harus berformat YYYY-MM-DD",
@@ -49,6 +56,6 @@ const createPesananSchema = Joi.object({
 });
 
 module.exports = {
-  createPesananDetailSchema,
   createPesananSchema,
+  createPesananDetailSchema,
 };

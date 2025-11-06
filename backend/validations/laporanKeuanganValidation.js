@@ -1,15 +1,29 @@
 const Joi = require("joi");
 
-const filterLaporanSchema = Joi.object({
-  jenis_laporan: Joi.string()
-    .valid("penjualan", "pembelian", "pesanan", "all")
-    .required(),
-  tanggal_awal: Joi.date().optional().allow(null, ""),
-  tanggal_akhir: Joi.date().optional().allow(null, ""),
-  menu_id: Joi.number().integer().optional().allow(null, ""),
-  bahan_baku_id: Joi.number().integer().optional().allow(null, ""),
+//filter range tanggal akhir-awal
+const laporanKeuanganSchema = Joi.object({
+  tanggal_awal: Joi.date().messages({
+    "date.base": "Tanggal awal harus berupa tanggal yang valid!",
+  }),
+  tanggal_akhir: Joi.date().min(Joi.ref("tanggal_awal")).messages({
+    "date.base": "Tanggal akhir harus berupa tanggal yang valid!",
+    "date.min": "Tanggal akhir tidak boleh lebih kecil dari tanggal awal!",
+  }),
+  bahan_baku_id: Joi.number().messages({
+    "date.base": "id harus berbentuk angka",
+  }),
 });
 
-module.exports = {
-  filterLaporanSchema,
-};
+const laporanKeuanganSchema_tampaRange = Joi.object({
+  tanggal_awal: Joi.date().messages({
+    "date.base": "Tanggal awal harus berupa tanggal yang valid!",
+  }),
+  tanggal_akhir: Joi.date().messages({
+    "date.base": "Tanggal akhir harus berupa tanggal yang valid!",
+  }),
+  bahan_baku_id: Joi.number().messages({
+    "date.base": "id harus berbentuk angka",
+  }),
+});
+
+module.exports = { laporanKeuanganSchema, laporanKeuanganSchema_tampaRange };
