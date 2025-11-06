@@ -2,48 +2,35 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const { sequelize } = require("./config/sequelize");
+
+// Routes
 const bahanBakuRoutes = require("./routes/bahanBakuRoutes");
-const login = require("./routes/loginRoutes");
-const menuManagement = require("./routes/menuManagement");
+const loginRoutes = require("./routes/loginRoutes");
+const menuManagementRoutes = require("./routes/menuManagement");
 const detailMenuRoutes = require("./routes/detailMenuRoutes");
 const pesananDetailRoutes = require("./routes/pesananDetailRoutes");
-const detailPenjualanRoutes = require("./routes/detailPenjualanRoutes");
 const mainPenjualanRoutes = require("./routes/mainPenjualanRoutes");
+const detailPenjualanRoutes = require("./routes/detailPenjualanRoutes");
 const laporanKeuanganRoutes = require("./routes/laporanKeuanganRoutes");
-const historyRoutes = require("./routes/historyRoutes");
 
 const app = express();
+
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// login
-app.use("/api/login", login);
-
-// menu management
-app.use("/api/menu_management", menuManagement);
-
-// menu detail
+// Routes
+app.use("/api/login", loginRoutes);
+app.use("/api/menu_management", menuManagementRoutes);
 app.use("/api/menu_management/detail", detailMenuRoutes);
-
-// bahan baku
-app.use("/api/bahan_Baku", bahanBakuRoutes);
-
-// pesanan detail
-app.use("/api/pesanan_detail/detail", pesananDetailRoutes);
-
-// detail penjualan
-app.use("/api/detail_penjualan", detailPenjualanRoutes);
-
-// history
-app.use("/api/history/", historyRoutes);
-
-// main penjualan
+app.use("/api/bahan_baku", bahanBakuRoutes);
+app.use("/api/pesanan_detail", pesananDetailRoutes); // endpoint untuk pesanan detail
 app.use("/api/main_penjualan", mainPenjualanRoutes);
-
-// laporan keuangan
+app.use("/api/detail_penjualan", detailPenjualanRoutes);
 app.use("/api/laporan_keuangan", laporanKeuanganRoutes);
 
+// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   try {

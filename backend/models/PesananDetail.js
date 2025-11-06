@@ -1,3 +1,4 @@
+// models/PesananDetail.js
 const { sequelize } = require("../config/sequelize");
 const { DataTypes } = require("sequelize");
 
@@ -20,11 +21,6 @@ const PesananDetail = sequelize.define(
     pesanan_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
-    },
-    status: {
-      type: DataTypes.ENUM("belum_jadi", "jadi"),
-      allowNull: true,
-      defaultValue: "belum_jadi",
     },
     createdAt: {
       type: DataTypes.DATE,

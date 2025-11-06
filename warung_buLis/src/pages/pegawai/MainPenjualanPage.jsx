@@ -9,156 +9,95 @@ import {
   Card,
   Image,
   Grid,
-  NumberInput,
   ActionIcon,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { setCartItems, clearCart } from "../../slice + storage/cartSlice";
-import axios from "axios";
 
 export const MainPenjualanPage = () => {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const userToken = useSelector((state) => state.user.userToken);
-  const cartItems = useSelector((state) => state.cart.items);
-
   const [searchQuery, setSearchQuery] = useState("");
-  const [menuItems, setMenuItems] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [quantities, setQuantities] = useState({});
-  const [currentHeaderId, setCurrentHeaderId] = useState(null);
+  const [jumlahOrder, setJumlahOrder] = useState("");
+  const [cartItems, setCartItems] = useState([]);
 
-  // === REDIRECT LOGIN ===
+
+  // Data menu dummy - nanti bisa diganti dengan data dari API
+  const menuItems = [
+    {
+      id: 1,
+      nama: "Lemper",
+      harga: 5200,
+      gambar:
+        "https://images.unsplash.com/photo-1626804475297-41608ea09aeb?w=400&h=300&fit=crop",
+    },
+    {
+      id: 2,
+      nama: "Lemper",
+      harga: 5200,
+      gambar:
+        "https://images.unsplash.com/photo-1626804475297-41608ea09aeb?w=400&h=300&fit=crop",
+    },
+    {
+      id: 3,
+      nama: "Lemper",
+      harga: 5200,
+      gambar:
+        "https://images.unsplash.com/photo-1626804475297-41608ea09aeb?w=400&h=300&fit=crop",
+    },
+    {
+      id: 4,
+      nama: "Lemper",
+      harga: 5200,
+      gambar:
+        "https://images.unsplash.com/photo-1626804475297-41608ea09aeb?w=400&h=300&fit=crop",
+    },
+    {
+      id: 5,
+      nama: "Lemper",
+      harga: 5200,
+      gambar:
+        "https://images.unsplash.com/photo-1626804475297-41608ea09aeb?w=400&h=300&fit=crop",
+    },
+    {
+      id: 6,
+      nama: "Lemper",
+      harga: 5200,
+      gambar:
+        "https://images.unsplash.com/photo-1626804475297-41608ea09aeb?w=400&h=300&fit=crop",
+    },
+  ];
+
+  // === REDIRECT LOGIN !!! ===
   useEffect(() => {
-    cekSudahLogin();
-  }, []);
-
+    cekSudahLogin()
+  },[])
   const cekSudahLogin = () => {
-    if (!userToken) {
-      navigate("/pegawai");
-    } else {
-      getMenu();
+    if(!userToken){
+      navigate('/pegawai')
     }
-  };
+  }
+  let navigate = useNavigate();
+  let dispatch = useDispatch();
+  let userToken = useSelector((state) => state.user.userToken);
 
-  // === GET MENU ===
-  const getMenu = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get(
-        "http://localhost:3000/api/menu_management/getall",
-        {
-          headers: { "x-auth-token": userToken },
-        }
-      );
-      setMenuItems(res.data);
-    } catch (err) {
-      console.error("Gagal get menu:", err.response?.data || err.message);
-      alert("Gagal memuat menu");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // === HANDLE SEARCH ===
-  const handleSearch = () => {
-    // Filter will be applied in filteredMenu
-  };
-
-  // === ADD TO CART ===
   const handleAddToCart = (item) => {
-    const quantity = quantities[item.menu_id] || 1;
-
-    const cartItem = {
-      menu_id: item.menu_id,
-      menu_nama: item.menu_nama,
-      menu_harga: item.menu_harga,
-      menu_gambar: item.menu_gambar,
-      penjualan_jumlah: quantity,
-    };
-
-    dispatch(setCartItems(cartItem));
-
-    // Reset quantity input
-    setQuantities((prev) => ({
-      ...prev,
-      [item.menu_id]: 1,
-    }));
+    setCartItems((prev) => {
+      const existing = prev.find((i) => i.id === item.id);
+      if (existing) {
+        return prev.map((i) =>
+          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+        );
+      }
+      return [...prev, { ...item, quantity: 1 }];
+    });
   };
 
-  // === UPDATE QUANTITY INPUT ===
-  const updateQuantityInput = (menuId, value) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [menuId]: value || 1,
-    }));
-  };
-
-  // === CALCULATE TOTAL ===
-  const calculateTotal = () => {
-    return cartItems.reduce(
-      (sum, item) => sum + item.menu_harga * item.penjualan_jumlah,
-      0
-    );
-  };
-
-  // === CREATE HEADER AND GO TO DETAIL ===
-  const goToCart = async () => {
-    if (cartItems.length === 0) {
-      alert("Keranjang masih kosong!");
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      // Create header penjualan terlebih dahulu
-      const headerPayload = {
-        header_penjualan_tanggal: new Date().toISOString(),
-        header_penjualan_jenis: "offline", // default
-        header_penjualan_keterangan: "Penjualan menu offline",
-        header_penjualan_biaya_tambahan: 0,
-        header_penjualan_uang_muka: 0,
-      };
-
-      const headerRes = await axios.post(
-        "http://localhost:3000/api/detail_penjualan/header",
-        headerPayload,
-        {
-          headers: { "x-auth-token": userToken },
-        }
-      );
-
-      const headerId = headerRes.data.data.header_penjualan_id;
-
-      // Navigate ke detail page dengan header_penjualan_id
-      navigate(`/pegawai/penjualan/detail/${headerId}`);
-    } catch (err) {
-      console.error("Gagal membuat header:", err.response?.data || err.message);
-      alert(
-        "Gagal membuat transaksi: " +
-          (err.response?.data?.message || err.message)
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // === FILTER MENU ===
-  const filteredMenu = menuItems.filter(
-    (item) =>
-      item.menu_status_aktif === 1 &&
-      item.menu_nama.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredMenu = menuItems.filter((item) =>
+    item.nama.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <Box
-      style={{
-        minHeight: "100vh",
-        paddingTop: "24px",
-        paddingBottom: "24px",
-      }}
+      style={{ minHeight: "100vh", paddingTop: "24px", paddingBottom: "24px" }}
     >
       <Container size="xl">
         {/* Header Section */}
@@ -170,15 +109,12 @@ export const MainPenjualanPage = () => {
             marginBottom: "30px",
           }}
         >
-          <Group justify="space-between" align="center">
+          <Group position="apart" align="center">
             {/* Cart Button */}
             <Button
               size="lg"
               color="red"
               radius="xl"
-              onClick={goToCart}
-              loading={loading}
-              disabled={loading}
               style={{
                 fontSize: "18px",
                 fontWeight: "bold",
@@ -186,40 +122,59 @@ export const MainPenjualanPage = () => {
                 paddingRight: "40px",
               }}
             >
-              Cart ({cartItems.length})
+              Cart
             </Button>
 
-            {/* Total and Search Section */}
-            <Group gap="xl" align="center">
-              {/* Total Display */}
-              <Group gap="md" align="center">
-                <Text size="lg" fw={500} style={{ color: "white" }}>
-                  Total:
-                </Text>
-                <Text size="xl" fw={700} style={{ color: "white" }}>
-                  Rp {calculateTotal().toLocaleString("id-ID")}
-                </Text>
-              </Group>
+            {/* Jumlah Input */}
+            <Group spacing="md" align="center">
+              <Text size="lg" weight={500} style={{ color: "white" }}>
+                Jumlah:
+              </Text>
+              <TextInput
+                value={jumlahOrder}
+                onChange={(e) => setJumlahOrder(e.target.value)}
+                placeholder="Masukan amount"
+                styles={{
+                  input: {
+                    backgroundColor: "rgba(255, 255, 255, 0.9)",
+                    color: "black",
+                    borderRadius: "10px",
+                    width: "200px",
+                  },
+                }}
+              />
+            </Group>
 
-              {/* Search Box */}
-              <Group gap="xs" wrap="nowrap">
-                <TextInput
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search..."
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") handleSearch();
-                  }}
-                  styles={{
-                    input: {
-                      backgroundColor: "white",
-                      color: "black",
-                      borderRadius: "20px",
-                      width: "200px",
-                    },
-                  }}
-                />
-              </Group>
+            {/* Search Box */}
+            <Group spacing="xs">
+              <TextInput
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search..."
+                styles={{
+                  input: {
+                    backgroundColor: "white",
+                    color: "black",
+                    borderRadius: "20px",
+                    width: "250px",
+                    paddingRight: "40px",
+                  },
+                }}
+              />
+              <Button
+                size="sm"
+                radius="xl"
+                style={{
+                  backgroundColor: "white",
+                  color: "black",
+                  minWidth: "40px",
+                  height: "40px",
+                  padding: "0",
+                  marginLeft: "-45px",
+                }}
+              >
+                🔍
+              </Button>
             </Group>
           </Group>
         </Box>
@@ -227,7 +182,7 @@ export const MainPenjualanPage = () => {
         {/* Menu Grid */}
         <Grid gutter="lg">
           {filteredMenu.map((item) => (
-            <Grid.Col key={item.menu_id} span={{ base: 12, sm: 6, md: 4 }}>
+            <Grid.Col key={item.id} span={4}>
               <Card
                 shadow="md"
                 padding="lg"
@@ -246,36 +201,21 @@ export const MainPenjualanPage = () => {
               >
                 <Card.Section>
                   <Image
-                    src={item.menu_gambar}
+                    src={item.gambar}
                     height={180}
-                    alt={item.menu_nama}
+                    alt={item.nama}
                     fit="cover"
                   />
                 </Card.Section>
 
                 <Box mt="md" mb="xs">
-                  <Text fw={700} size="xl" style={{ color: "white" }}>
-                    Rp {item.menu_harga.toLocaleString("id-ID")}
+                  <Text weight={700} size="xl" style={{ color: "white" }}>
+                    Rp {item.harga.toLocaleString()}
                   </Text>
                   <Text size="md" style={{ color: "white" }}>
-                    {item.menu_nama}
+                    {item.nama}
                   </Text>
                 </Box>
-
-                <NumberInput
-                  mt="sm"
-                  placeholder="Jumlah"
-                  min={1}
-                  value={quantities[item.menu_id] || 1}
-                  onChange={(val) => updateQuantityInput(item.menu_id, val)}
-                  styles={{
-                    input: {
-                      backgroundColor: "white",
-                      color: "black",
-                      borderRadius: "10px",
-                    },
-                  }}
-                />
 
                 <Button
                   fullWidth

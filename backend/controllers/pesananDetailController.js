@@ -59,7 +59,6 @@ exports.createPesanan = async (req, res) => {
     const {
       pesanan_nama,
       pesanan_lokasi,
-      pesanan_email,
       pesanan_tanggal,
       pesanan_tanggal_pengiriman,
     } = req.body;
@@ -67,10 +66,9 @@ exports.createPesanan = async (req, res) => {
     const newPesanan = await Pesanan.create({
       pesanan_nama,
       pesanan_lokasi,
-      pesanan_email,
       pesanan_tanggal,
       pesanan_tanggal_pengiriman,
-      status: "belum_jadi", // default sesuai model
+      status: "belum_jadi", // default status
     });
 
     return res.status(201).json({
@@ -134,15 +132,16 @@ exports.showPesananDetailSpesifik = async (req, res) => {
   }
 };
 
-// === UPDATE STATUS PESANAN DETAIL ===
+// === UPDATE STATUS PESANAN ===
 exports.updateStatusPesanan = async (req, res) => {
   const { id } = req.params;
   try {
     const findPesanan = await Pesanan.findByPk(id);
     if (!findPesanan) {
-      return res.status(404).json({ message: "Pesanan detail tidak ditemukan" });
+      return res.status(404).json({ message: "Pesanan tidak ditemukan" });
     }
 
+    // Update status secara siklus
     if (findPesanan.status === "belum_bayar") {
       findPesanan.status = "sudah_bayar";
     } else if (findPesanan.status === "sudah_bayar") {
@@ -154,20 +153,20 @@ exports.updateStatusPesanan = async (req, res) => {
     await findPesanan.save();
 
     return res.status(200).json({
-      message: "Status pesanan detail berhasil diperbarui",
+      message: "Status pesanan berhasil diperbarui",
       result: findPesanan,
     });
   } catch (error) {
     console.error("Error updating status:", error);
     return res.status(500).json({
       success: false,
-      message: "Gagal memperbarui status pesanan detail",
+      message: "Gagal memperbarui status pesanan",
       error: error.message,
     });
   }
 };
 
-// === Password vs Token ===
+// === Cek Password Pegawai dengan Token ===
 exports.cekPasswordPemesanan = async (req, res) => {
   const { password, token } = req.body;
   try {
@@ -206,7 +205,7 @@ exports.cekPasswordPemesanan = async (req, res) => {
   }
 };
 
-// === GET PESANAN BY ID ===
+// === GET PESANAN BY ID BESERTA DETAIL ===
 exports.getPesananById = async (req, res) => {
   try {
     const { pesanan_id } = req.params;
@@ -241,7 +240,7 @@ exports.getPesananById = async (req, res) => {
   }
 };
 
-// === UPDATE PESANAN STATUS ===
+// === UPDATE PESANAN STATUS (pending, diproses, terkirim) ===
 exports.updatePesananStatus = async (req, res) => {
   try {
     const { pesanan_id } = req.params;
@@ -256,7 +255,6 @@ exports.updatePesananStatus = async (req, res) => {
     }
 
     const pesanan = await Pesanan.findByPk(pesanan_id);
-
     if (!pesanan) {
       return res.status(404).json({
         success: false,
@@ -264,7 +262,7 @@ exports.updatePesananStatus = async (req, res) => {
       });
     }
 
-    await pesanan.update({ pesanan_status });
+    await pesanan.update({ status: pesanan_status });
 
     return res.status(200).json({
       success: true,

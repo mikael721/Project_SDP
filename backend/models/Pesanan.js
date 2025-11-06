@@ -17,18 +17,6 @@ const Pesanan = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    pesanan_email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        isEmail: true,
-      },
-    },
-    pesanan_status: {
-      type: DataTypes.ENUM("pending", "diproses", "terkirim"),
-      defaultValue: "pending",
-      allowNull: false,
-    },
     pesanan_tanggal: {
       type: DataTypes.DATE,
       allowNull: true,
@@ -36,11 +24,6 @@ const Pesanan = sequelize.define(
     pesanan_tanggal_pengiriman: {
       type: DataTypes.DATE,
       allowNull: true,
-    },
-    status: {
-      type: DataTypes.ENUM("belum_jadi", "jadi"),
-      allowNull: true,
-      defaultValue: "belum_jadi",
     },
     createdAt: {
       type: DataTypes.DATE,

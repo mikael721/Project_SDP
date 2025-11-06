@@ -2,128 +2,48 @@ const HeaderPenjualan = require("../models/headerPenjualanModel");
 const Penjualan = require("../models/penjualanModel");
 const Menu = require("../models/menuModels");
 const {
-  headerPenjualanSchema,
-  detailPenjualanSchema,
+  addMainPenjualanSchema,
+  updateMainPenjualanSchema,
 } = require("../validations/mainPenjualanValidation");
 
-// Create Header Penjualan
-const createHeaderPenjualan = async (req, res) => {
+// GET ALL HEADER PENJUALAN
+exports.getAllMainPenjualan = async (req, res) => {
   try {
-    const { error, value } = headerPenjualanSchema.validate(req.body);
-
-    if (error) {
-      return res.status(400).json({
-        message: "Validation error",
-        details: error.details[0].message,
-      });
-    }
-
-    const headerPenjualan = await HeaderPenjualan.create(value);
-
-    return res.status(201).json({
-      message: "Header penjualan berhasil dibuat",
-      data: headerPenjualan,
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      message: "Gagal membuat header penjualan",
-      error: err.message,
-    });
-  }
-};
-
-// Create Detail Penjualan
-const createDetailPenjualan = async (req, res) => {
-  try {
-    const { error, value } = detailPenjualanSchema.validate(req.body);
-
-    if (error) {
-      return res.status(400).json({
-        message: "Validation error",
-        details: error.details[0].message,
-      });
-    }
-
-    // Verify header penjualan exists
-    const headerExists = await HeaderPenjualan.findByPk(
-      value.header_penjualan_id
-    );
-    if (!headerExists) {
-      return res.status(404).json({
-        message: "Header penjualan tidak ditemukan",
-      });
-    }
-
-    // Verify menu exists
-    const menuExists = await Menu.findByPk(value.menu_id);
-    if (!menuExists) {
-      return res.status(404).json({
-        message: "Menu tidak ditemukan",
-      });
-    }
-
-    const penjualan = await Penjualan.create(value);
-
-    return res.status(201).json({
-      message: "Detail penjualan berhasil dibuat",
-      data: penjualan,
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      message: "Gagal membuat detail penjualan",
-      error: err.message,
-    });
-  }
-};
-
-// Get All Penjualan dengan Header
-const getAllPenjualan = async (req, res) => {
-  try {
-    const penjualan = await HeaderPenjualan.findAll({
+    const penjualanList = await HeaderPenjualan.findAll({
       include: [
         {
           model: Penjualan,
-          as: "penjualans",
+          as: "detailPenjualan",
           include: [
             {
               model: Menu,
               as: "menu",
+              attributes: ["menu_id", "menu_nama", "menu_harga"],
             },
           ],
         },
       ],
-      order: [["createdAt", "DESC"]],
+      order: [["header_penjualan_tanggal", "DESC"]],
     });
-
-    return res.status(200).json({
-      message: "Berhasil mengambil data penjualan",
-      data: penjualan,
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      message: "Gagal mengambil data penjualan",
-      error: err.message,
-    });
+    return res.status(200).json(penjualanList);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 };
 
-// Get Penjualan by ID
-const getPenjualanById = async (req, res) => {
+// GET ONE HEADER PENJUALAN BY ID
+exports.getMainPenjualanById = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const penjualan = await HeaderPenjualan.findByPk(id, {
+    const penjualan = await HeaderPenjualan.findByPk(req.params.id, {
       include: [
         {
           model: Penjualan,
-          as: "penjualans",
+          as: "detailPenjualan",
           include: [
             {
               model: Menu,
               as: "menu",
+              attributes: ["menu_id", "menu_nama", "menu_harga"],
             },
           ],
         },
@@ -131,64 +51,81 @@ const getPenjualanById = async (req, res) => {
     });
 
     if (!penjualan) {
-      return res.status(404).json({
-        message: "Penjualan tidak ditemukan",
-      });
+      return res.status(404).json({ message: "Penjualan tidak ditemukan!" });
     }
-
-    return res.status(200).json({
-      message: "Berhasil mengambil data penjualan",
-      data: penjualan,
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      message: "Gagal mengambil data penjualan",
-      error: err.message,
-    });
+    return res.status(200).json(penjualan);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 };
 
-// Update Header Penjualan
-const updateHeaderPenjualan = async (req, res) => {
+// ADD HEADER PENJUALAN
+exports.addMainPenjualan = async (req, res) => {
+  try {
+    const { error } = addMainPenjualanSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
+
+    const newPenjualan = await HeaderPenjualan.create(req.body);
+    return res
+      .status(201)
+      .json({ message: "Penjualan berhasil ditambahkan!", newPenjualan });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// UPDATE HEADER PENJUALAN
+exports.updateMainPenjualan = async (req, res) => {
+  try {
+    const { error } = updateMainPenjualanSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
+
+    const { id } = req.params;
+    const penjualan = await HeaderPenjualan.findByPk(id);
+
+    if (!penjualan) {
+      return res.status(404).json({ message: "Penjualan tidak ditemukan!" });
+    }
+
+    await penjualan.update(req.body);
+    return res
+      .status(200)
+      .json({ message: "Penjualan berhasil diperbarui!", penjualan });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// DELETE HEADER PENJUALAN
+exports.deleteMainPenjualan = async (req, res) => {
   try {
     const { id } = req.params;
-    const { error, value } = headerPenjualanSchema.validate(req.body);
 
-    if (error) {
+    // Cek apakah ada detail penjualan
+    const detailCount = await Penjualan.count({
+      where: { header_penjualan_id: id },
+    });
+
+    if (detailCount > 0) {
       return res.status(400).json({
-        message: "Validation error",
-        details: error.details[0].message,
+        message: "Tidak dapat menghapus! Masih ada detail penjualan terkait.",
       });
     }
 
-    const headerPenjualan = await HeaderPenjualan.findByPk(id);
+    const deletedPenjualan = await HeaderPenjualan.destroy({
+      where: { header_penjualan_id: id },
+    });
 
-    if (!headerPenjualan) {
-      return res.status(404).json({
-        message: "Header penjualan tidak ditemukan",
-      });
+    if (deletedPenjualan === 0) {
+      return res.status(404).json({ message: "Penjualan tidak ditemukan!" });
     }
 
-    await headerPenjualan.update(value);
-
-    return res.status(200).json({
-      message: "Header penjualan berhasil diupdate",
-      data: headerPenjualan,
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      message: "Gagal update header penjualan",
-      error: err.message,
-    });
+    return res.status(200).json({ message: "Penjualan berhasil dihapus." });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
-};
-
-module.exports = {
-  createHeaderPenjualan,
-  createDetailPenjualan,
-  getAllPenjualan,
-  getPenjualanById,
-  updateHeaderPenjualan,
 };
