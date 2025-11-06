@@ -15,9 +15,7 @@ const historyRoutes = require("./routes/historyRoutes");
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true })); // ini biar bisa terima body !!!
-
-// ===================================================================
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // login
 app.use("/api/login", login);
@@ -32,23 +30,13 @@ app.use("/api/menu_management/detail", detailMenuRoutes);
 app.use("/api/bahan_Baku", bahanBakuRoutes);
 
 // pesanan detail
-<<<<<<< HEAD
 app.use("/api/pesanan_detail/detail", pesananDetailRoutes);
-
-// ====================================================================
-
-// main penjualan (header penjualan)
-app.use("/api/main_penjualan", mainPenjualanRoutes);
-=======
-app.use("/api/menu_management/detail", pesananDetailRoutes);
->>>>>>> 277ad6669800212b8a6123c9ef260f66842565e5
 
 // detail penjualan
 app.use("/api/detail_penjualan", detailPenjualanRoutes);
 
-//history
+// history
 app.use("/api/history/", historyRoutes);
-// ====================================================================
 
 // main penjualan
 app.use("/api/main_penjualan", mainPenjualanRoutes);

@@ -1,8 +1,5 @@
-// models/Pesanan.js
 const { sequelize } = require("../config/sequelize");
 const { DataTypes } = require("sequelize");
-const PesananDetail = require("./PesananDetail");
-const Menu = require("./menuModels");
 
 const Pesanan = sequelize.define(
   "pesanan",
@@ -64,25 +61,5 @@ const Pesanan = sequelize.define(
     paranoid: true,
   }
 );
-
-Pesanan.hasMany(PesananDetail, {
-  foreignKey: "pesanan_id",
-  as: "details",
-});
-
-PesananDetail.belongsTo(Pesanan, {
-  foreignKey: "pesanan_id",
-  as: "pesanan",
-});
-
-Menu.hasMany(PesananDetail, {
-  foreignKey: "menu_id",
-  as: "pesanan_details",
-});
-
-PesananDetail.belongsTo(Menu, {
-  foreignKey: "menu_id",
-  as: "menu",
-});
 
 module.exports = Pesanan;

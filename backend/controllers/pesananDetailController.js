@@ -1,20 +1,15 @@
 // controllers/pesananDetailController.js
 const PesananDetail = require("../models/PesananDetail");
 const Pesanan = require("../models/Pesanan");
-<<<<<<< HEAD
 const Menu = require("../models/menuModels");
 const Pegawai = require("../models/pegawai");
 const bcrypt = require("bcrypt");
-
 const jwt = require("jsonwebtoken");
 
-=======
->>>>>>> 277ad6669800212b8a6123c9ef260f66842565e5
 const {
   createPesananDetailSchema,
   createPesananSchema,
 } = require("../validations/pesananDetailValidation");
-
 
 // === CREATE PESANAN DETAIL ===
 exports.createPesananDetail = async (req, res) => {
@@ -75,11 +70,7 @@ exports.createPesanan = async (req, res) => {
       pesanan_email,
       pesanan_tanggal,
       pesanan_tanggal_pengiriman,
-<<<<<<< HEAD
       status: "belum_jadi", // default sesuai model
-=======
-      pesanan_status: "pending", // Default status
->>>>>>> 277ad6669800212b8a6123c9ef260f66842565e5
     });
 
     return res.status(201).json({
@@ -97,8 +88,6 @@ exports.createPesanan = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-// =================================== TAMBAHAN ==============================
 // === SHOW PESANAN DETAIL GROUPED BY PESANAN ID ===
 exports.showPesananDetailSpesifik = async (req, res) => {
   try {
@@ -122,7 +111,7 @@ exports.showPesananDetailSpesifik = async (req, res) => {
     const grouped = details.reduce((acc, item) => {
       const pid = item.pesanan_id;
       const nama = item.pesanan?.pesanan_nama || "Tidak diketahui";
-      const status = item.pesanan?.status || "belum_jadi"; // ambil dari tabel Pesanan
+      const status = item.pesanan?.status || "belum_jadi";
 
       if (!acc[pid]) {
         acc[pid] = {
@@ -178,7 +167,7 @@ exports.updateStatusPesanan = async (req, res) => {
   }
 };
 
-// === Password vs Token
+// === Password vs Token ===
 exports.cekPasswordPemesanan = async (req, res) => {
   const { password, token } = req.body;
   try {
@@ -191,12 +180,33 @@ exports.cekPasswordPemesanan = async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(password, user.pegawai_password);
-    
+
     if (!isMatch) {
-      return res.status(200).json({ 
+      return res.status(200).json({
         message: "Password salah",
-        status: false
-=======
+        status: false,
+      });
+    }
+
+    return res.status(200).json({
+      message: "Password benar, akses diizinkan",
+      data: {
+        pegawai_id: user.pegawai_id,
+        pegawai_nama: user.pegawai_nama,
+      },
+      status: true,
+    });
+  } catch (error) {
+    console.error("Error verifying token/password:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Gagal memverifikasi password atau token tidak valid",
+      error: error.message,
+    });
+  }
+};
+
+// === GET PESANAN BY ID ===
 exports.getPesananById = async (req, res) => {
   try {
     const { pesanan_id } = req.params;
@@ -214,26 +224,10 @@ exports.getPesananById = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Pesanan not found",
->>>>>>> 277ad6669800212b8a6123c9ef260f66842565e5
       });
     }
 
     return res.status(200).json({
-<<<<<<< HEAD
-      message: "Password benar, akses diizinkan",
-      data: {
-        pegawai_id: user.pegawai_id,
-        pegawai_nama: user.pegawai_nama,
-      },
-      status: true
-    });
-
-  } catch (error) {
-    console.error("Error verifying token/password:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Gagal memverifikasi password atau token tidak valid",
-=======
       success: true,
       data: pesanan,
     });
@@ -242,14 +236,12 @@ exports.getPesananById = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to fetch pesanan",
->>>>>>> 277ad6669800212b8a6123c9ef260f66842565e5
       error: error.message,
     });
   }
 };
 
-<<<<<<< HEAD
-=======
+// === UPDATE PESANAN STATUS ===
 exports.updatePesananStatus = async (req, res) => {
   try {
     const { pesanan_id } = req.params;
@@ -288,4 +280,3 @@ exports.updatePesananStatus = async (req, res) => {
     });
   }
 };
->>>>>>> 277ad6669800212b8a6123c9ef260f66842565e5

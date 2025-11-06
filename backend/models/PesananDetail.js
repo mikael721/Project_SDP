@@ -1,7 +1,5 @@
 const { sequelize } = require("../config/sequelize");
 const { DataTypes } = require("sequelize");
-const Menu = require("./menuModels");
-const Pesanan = require("./Pesanan");
 
 const PesananDetail = sequelize.define(
   "pesanan_detail",
@@ -14,10 +12,6 @@ const PesananDetail = sequelize.define(
     menu_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: "menu",
-        key: "menu_id",
-      },
     },
     pesanan_detail_jumlah: {
       type: DataTypes.INTEGER,
@@ -26,10 +20,6 @@ const PesananDetail = sequelize.define(
     pesanan_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: "pesanan",
-        key: "pesanan_id",
-      },
     },
     status: {
       type: DataTypes.ENUM("belum_jadi", "jadi"),
@@ -55,26 +45,5 @@ const PesananDetail = sequelize.define(
     paranoid: true,
   }
 );
-
-// === Relasi ===
-PesananDetail.belongsTo(Menu, {
-  foreignKey: "menu_id",
-  as: "menu",
-});
-
-PesananDetail.belongsTo(Pesanan, {
-  foreignKey: "pesanan_id",
-  as: "pesanan",
-});
-
-Menu.hasMany(PesananDetail, {
-  foreignKey: "menu_id",
-  as: "detailPesanan",
-});
-
-Pesanan.hasMany(PesananDetail, {
-  foreignKey: "pesanan_id",
-  as: "detailPesanan",
-});
 
 module.exports = PesananDetail;
