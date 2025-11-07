@@ -21,6 +21,13 @@ const PesananDetail = sequelize.define(
     pesanan_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
+<<<<<<< Updated upstream
+=======
+      references: {
+        model: "pesanan",
+        key: "pesanan_id",
+      },
+>>>>>>> Stashed changes
     },
     createdAt: {
       type: DataTypes.DATE,

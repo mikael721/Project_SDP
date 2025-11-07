@@ -24,9 +24,26 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api/login", loginRoutes);
 app.use("/api/menu_management", menuManagementRoutes);
 app.use("/api/menu_management/detail", detailMenuRoutes);
+<<<<<<< Updated upstream
 app.use("/api/bahan_baku", bahanBakuRoutes);
 app.use("/api/pesanan_detail", pesananDetailRoutes); // endpoint untuk pesanan detail
 app.use("/api/main_penjualan", mainPenjualanRoutes);
+=======
+
+// bahan baku
+app.use("/api/bahan_Baku", bahanBakuRoutes);
+
+// pesanan detail
+app.use("/api/pesanan_detail/detail", pesananDetailRoutes);
+
+// ====================================================================
+
+// main penjualan (header penjualan)
+app.use("/api/main_penjualan", mainPenjualanRoutes);
+
+
+// detail penjualan
+>>>>>>> Stashed changes
 app.use("/api/detail_penjualan", detailPenjualanRoutes);
 app.use("/api/laporan_keuangan", laporanKeuanganRoutes);
 
