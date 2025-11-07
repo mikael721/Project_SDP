@@ -14,10 +14,6 @@ import logo from "../asset/logo.png";
 const PageLayoutPegawai = () => {
   const [opened, { toggle, close }] = useDisclosure(false);
 
-  const doLogOut = () => {
-    console.log("log out: ");
-  };
-
   return (
     <AppShell header={{ height: 70 }} padding="md">
       <AppShell.Header>
@@ -30,7 +26,7 @@ const PageLayoutPegawai = () => {
               <Image src={logo} alt="Logo" h={65} fit="contain" />
             </Link>
 
-            <Group>
+            <Group visibleFrom="sm">
               <Link
                 to="/pegawai/pesanan"
                 style={{ textDecoration: "none", color: "white" }}>
@@ -58,7 +54,6 @@ const PageLayoutPegawai = () => {
               </Link>
               <Link
                 to="/pegawai"
-                onClick={() => doLogOut()}
                 style={{
                   backgroundColor: "red",
                   borderRadius: "10PX",
@@ -94,6 +89,12 @@ const PageLayoutPegawai = () => {
               <Menu.Dropdown>
                 <Menu.Item
                   component={Link}
+                  to="/pegawai/pesanan"
+                  onClick={close}>
+                  Pesanan
+                </Menu.Item>
+                <Menu.Item
+                  component={Link}
                   to="/pegawai/penjualan"
                   onClick={close}>
                   Penjualan
@@ -109,6 +110,17 @@ const PageLayoutPegawai = () => {
                   to="/pegawai/laporan"
                   onClick={close}>
                   Laporan
+                </Menu.Item>
+                <Menu.Item
+                  component={Link}
+                  to="/pegawai"
+                  onClick={close}
+                  style={{
+                    backgroundColor: "red",
+                    color: "white",
+                    fontWeight: "bolder",
+                  }}>
+                  Log Out
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>

@@ -50,24 +50,44 @@ const MenuPage = () => {
         <Container
           fluid
           h="100%"
-          style={{ display: "flex", alignItems: "center" }}>
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}>
           <Group h="100%">
             <Link to="/" style={{ textDecoration: "none" }}>
               <Image src={logo} alt="Logo" h={65} fit="contain" />
             </Link>
           </Group>
-          <Button
-            size="lg"
-            radius="xl"
-            onClick={goToCart}
-            style={{
-              marginLeft: "auto",
-              color: "white",
-              border: `1px solid white`,
-              backgroundColor: "red",
-            }}>
-            Cart
-          </Button>
+          <Group style={{ display: "flex" }}>
+            <Button
+              size="lg"
+              radius="xl"
+              onClick={() => {
+                navigate(`/customer/history`);
+              }}
+              style={{
+                marginLeft: "auto",
+                color: "white",
+                border: `1px solid white`,
+                backgroundColor: "blue",
+              }}>
+              History
+            </Button>
+            <Button
+              size="lg"
+              radius="xl"
+              onClick={goToCart}
+              style={{
+                marginLeft: "10px", // Adjust as necessary for spacing
+                color: "white",
+                border: `1px solid white`,
+                backgroundColor: "red",
+              }}>
+              Cart
+            </Button>
+          </Group>
         </Container>
       </AppShell.Header>
       <AppShell.Main>
