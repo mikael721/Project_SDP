@@ -32,7 +32,7 @@ app.use("/api/menu_management/detail", detailMenuRoutes);
 app.use("/api/bahan_Baku", bahanBakuRoutes);
 
 // pesanan detail
-app.use("/api/menu_management/detail", pesananDetailRoutes);
+app.use("/api/pesanan_detail/detail", pesananDetailRoutes);
 
 // detail penjualan
 app.use("/api/detail_penjualan", detailPenjualanRoutes);

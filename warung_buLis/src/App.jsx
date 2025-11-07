@@ -19,7 +19,7 @@ import brownTheme from "./theme/theme";
 import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import HistoryPage from "./pages/customer/historyPage";
-
+import Pesanan from "./pages/pegawai/Pesanan";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" errorElement={<ErrorPage />}>
@@ -56,6 +56,11 @@ const router = createBrowserRouter(
         <Route
           path="pegawai/stok"
           element={<StokManagementPage />}
+          errorElement={<ErrorPage />}
+        />
+        <Route
+          path="pegawai/pesanan"
+          element={<Pesanan />}
           errorElement={<ErrorPage />}
         />
         <Route

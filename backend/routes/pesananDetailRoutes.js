@@ -5,4 +5,9 @@ const pesananDetailController = require("../controllers/pesananDetailController"
 
 router.post("/detail", pesananDetailController.createPesananDetail);
 router.post("/header", pesananDetailController.createPesanan);
+
+router.get("/showspesifik", pesananDetailController.showPesananDetailSpesifik); // udh bisa
+router.post("/update/:id", pesananDetailController.updateStatusPesanan); // udh bisa
+router.post("/passcek", pesananDetailController.cekPasswordPemesanan); // udh bisa
+
 module.exports = router;

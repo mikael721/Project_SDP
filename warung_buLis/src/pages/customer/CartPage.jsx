@@ -124,7 +124,7 @@ const CartPage = () => {
 
       // Create Pesanan Header
       const pesananResponse = await axios.post(
-        "http://localhost:3000/api/menu_management/detail/header",
+        "http://localhost:3000/api/pesanan_detail/detail/header",
         {
           pesanan_nama: form.pesanan_nama.trim(),
           pesanan_email: form.pesanan_email.trim().toLowerCase(),
@@ -145,7 +145,7 @@ const CartPage = () => {
 
       // Create Pesanan Details
       const detailPromises = cartItems.map((item) =>
-        axios.post("http://localhost:3000/api/menu_management/detail/detail", {
+        axios.post("http://localhost:3000/api/pesanan_detail/detail/detail", {
           menu_id: item.menu_id,
           pesanan_detail_jumlah: item.pesanan_detail_jumlah,
           pesanan_id: pesanan_id,

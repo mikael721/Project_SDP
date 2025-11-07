@@ -1,5 +1,13 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { AppShell, Burger, Button, Container, Group, Image, Menu } from "@mantine/core";
+import {
+  AppShell,
+  Burger,
+  Button,
+  Container,
+  Group,
+  Image,
+  Menu,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import logo from "../asset/logo.png";
 
@@ -7,8 +15,8 @@ const PageLayoutPegawai = () => {
   const [opened, { toggle, close }] = useDisclosure(false);
 
   const doLogOut = () => {
-    console.log('log out: ');
-  }
+    console.log("log out: ");
+  };
 
   return (
     <AppShell header={{ height: 70 }} padding="md">
@@ -23,6 +31,11 @@ const PageLayoutPegawai = () => {
             </Link>
 
             <Group>
+              <Link
+                to="/pegawai/pesanan"
+                style={{ textDecoration: "none", color: "white" }}>
+                Pesanan
+              </Link>
               <Link
                 to="/pegawai/penjualan"
                 style={{ textDecoration: "none", color: "white" }}>
@@ -44,20 +57,19 @@ const PageLayoutPegawai = () => {
                 Laporan
               </Link>
               <Link
-              to="/pegawai" 
-              onClick={() => doLogOut()}
-              style={{
-                backgroundColor:'red',
-                borderRadius:'10PX',
-                border:'1px solid black',
-                color:'white',
-                fontWeight:'bolder',
-                padding:'5px 10px',
-                textDecoration:'none'
-              }}>
+                to="/pegawai"
+                onClick={() => doLogOut()}
+                style={{
+                  backgroundColor: "red",
+                  borderRadius: "10PX",
+                  border: "1px solid black",
+                  color: "white",
+                  fontWeight: "bolder",
+                  padding: "5px 10px",
+                  textDecoration: "none",
+                }}>
                 Log Out
               </Link>
-
             </Group>
 
             <Menu
