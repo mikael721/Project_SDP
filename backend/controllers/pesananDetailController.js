@@ -2,6 +2,11 @@
 const PesananDetail = require("../models/PesananDetail");
 const Pesanan = require("../models/Pesanan");
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+
+// Mengambil semua required modules dari versi HEAD (Versi Anda)
+>>>>>>> Stashed changes
 =======
 
 // Mengambil semua required modules dari versi HEAD (Versi Anda)
@@ -62,6 +67,7 @@ exports.createPesanan = async (req, res) => {
     }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     const {
       pesanan_nama,
       pesanan_lokasi,
@@ -78,11 +84,23 @@ exports.createPesanan = async (req, res) => {
     });
 =======
     const {
+=======
+    const {
       pesanan_nama,
       pesanan_lokasi,
       pesanan_email,
       pesanan_tanggal,
       pesanan_tanggal_pengiriman,
+    } = req.body;
+
+    const newPesanan = await Pesanan.create({
+>>>>>>> Stashed changes
+      pesanan_nama,
+      pesanan_lokasi,
+      pesanan_email,
+      pesanan_tanggal,
+      pesanan_tanggal_pengiriman,
+<<<<<<< Updated upstream
     } = req.body;
 
     const newPesanan = await Pesanan.create({
@@ -96,6 +114,12 @@ exports.createPesanan = async (req, res) => {
     });
 >>>>>>> Stashed changes
 
+=======
+      // Menggunakan status default dari versi HEAD/Anda, dan menghapus penanda konflik
+      status: "belum_jadi", 
+    });
+
+>>>>>>> Stashed changes
     return res.status(201).json({
       success: true,
       message: "Pesanan created successfully",
@@ -112,7 +136,13 @@ exports.createPesanan = async (req, res) => {
 };
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 // === SHOW PESANAN DETAIL GROUPED BY PESANAN ID ===
+=======
+// =================================== TAMBAHAN ==============================
+
+// === SHOW PESANAN DETAIL GROUPED BY PESANAN ID === // wes isa
+>>>>>>> Stashed changes
 =======
 // =================================== TAMBAHAN ==============================
 
@@ -141,7 +171,11 @@ exports.showPesananDetailSpesifik = async (req, res) => {
       const pid = item.pesanan_id;
       const nama = item.pesanan?.pesanan_nama || "Tidak diketahui";
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       const status = item.pesanan?.status || "belum_jadi";
+=======
+      const status = item.pesanan?.pesanan_status || "pending"; // ambil dari pesanan_status
+>>>>>>> Stashed changes
 =======
       const status = item.pesanan?.pesanan_status || "pending"; // ambil dari pesanan_status
 >>>>>>> Stashed changes
@@ -177,18 +211,24 @@ exports.updateStatusPesanan = async (req, res) => {
     }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     // Update status secara siklus
     if (findPesanan.status === "belum_bayar") {
       findPesanan.status = "sudah_bayar";
     } else if (findPesanan.status === "sudah_bayar") {
       findPesanan.status = "selesai";
 =======
+=======
+>>>>>>> Stashed changes
     // Update status sesuai logika baru
     // Model terbaru pakai `pesanan_status` (pending, diproses, terkirim)
     if (findPesanan.pesanan_status === "pending") {
       findPesanan.pesanan_status = "diproses";
     } else if (findPesanan.pesanan_status === "diproses") {
       findPesanan.pesanan_status = "terkirim";
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     } else {
       findPesanan.pesanan_status = "pending"; // fallback / reset
@@ -199,6 +239,10 @@ exports.updateStatusPesanan = async (req, res) => {
 
     return res.status(200).json({
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+      success: true,
+>>>>>>> Stashed changes
 =======
       success: true,
 >>>>>>> Stashed changes
@@ -206,6 +250,7 @@ exports.updateStatusPesanan = async (req, res) => {
       result: findPesanan,
     });
   } catch (error) {
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
     console.error("Error updating status:", error);
     return res.status(500).json({
@@ -322,6 +367,8 @@ exports.updatePesananStatus = async (req, res) => {
   } catch (error) {
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
     console.error("Error updating pesanan status:", error);
     return res.status(500).json({
       success: false,
@@ -331,7 +378,10 @@ exports.updatePesananStatus = async (req, res) => {
   }
 };
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
 
 // === Password vs Token // wes isa
 exports.cekPasswordPemesanan = async (req, res) => {
@@ -447,5 +497,9 @@ exports.updatePesananStatus = async (req, res) => {
       error: error.message,
     });
   }
+<<<<<<< Updated upstream
+};
+>>>>>>> Stashed changes
+=======
 };
 >>>>>>> Stashed changes

@@ -27,6 +27,9 @@ const PesananDetail = sequelize.define(
         model: "pesanan",
         key: "pesanan_id",
       },
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     },
     createdAt: {
