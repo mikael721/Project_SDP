@@ -20,6 +20,8 @@ import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import HistoryPage from "./pages/customer/historyPage";
 import Pesanan from "./pages/pegawai/Pesanan";
+import DetailPesanan from './pages/pegawai/DetailPesanan'
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" errorElement={<ErrorPage />}>
@@ -68,6 +70,14 @@ const router = createBrowserRouter(
           element={<LaporanKeuanganPage />}
           errorElement={<ErrorPage />}
         />
+
+        {/* tambahan */}
+        <Route
+          path="pegawai/penjualan/:id"
+          element={<DetailPesanan />}
+          errorElement={<ErrorPage />}
+        />
+        
       </Route>
     </Route>
   )

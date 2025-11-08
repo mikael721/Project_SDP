@@ -234,7 +234,7 @@ export const HistoryPage = () => {
                         <Text size="xs" fw={500} c="dimmed">
                           Detail Pesanan:
                         </Text>
-                        <Table size="sm" striped>
+                        <Table size="sm">
                           <Table.Thead>
                             <Table.Tr>
                               <Table.Th>Menu</Table.Th>
