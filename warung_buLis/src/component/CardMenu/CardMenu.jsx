@@ -2,10 +2,13 @@ import { useState } from "react";
 import "./CardMenu.css";
 import { pushMenu, popMenu } from "../../slice + storage/menuSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 
-const CardMenu = ({ img, harga, nama, id }) => {
+// tambahan dari jumlah !!!
+const CardMenu = ({ img, harga, nama, id, jumlah }) => {
   // === VARIABEL ====
   let dispatch = useDispatch();
+  let navigate = useNavigate();
 
   // === USE STATE ===
   const [isChosen, setisChosen] = useState(false);
@@ -36,19 +39,40 @@ const CardMenu = ({ img, harga, nama, id }) => {
     }
   };
 
+  const goToBahan = (id) => {
+    // direct ke halaman detail bahan
+    navigate(`/pegawai/menu/detail/${id}`)
+  }
+
   return (
     <div className={`cardMenu ${isChosen ? "iYel" : "iWhi"}`}>
       <img src={img} alt="Gambar Tidak Valid" className="imgMenu" />
       <div className="infoMenu">
-        <span className="infoHargaMenu">Rp {harga}</span>
+        <span className="infoHargaMenu">Rp {harga}</span> <br/>
+        {jumlah ? (<div className="infoHargaMenu2">Jumlah : <span className="editInerJumlah">{jumlah}</span> <br/> </div>) : ('')}
         <br />
         <span className="infoNamaMenu">{nama}</span> <br />
-        <div
-          style={{ width: "100%", textAlign: "center", marginBottom: "10px" }}>
-          <button className="addToCartMenu" onClick={() => menuTerpilih()}>
-            {isChosen ? "Remove From Cart" : "Add To Cart"}
-          </button>
-        </div>
+
+        {/* Tombol Akhir Untuk To Cart */}
+        
+        {jumlah ? ( 
+          <div
+            style={{ width: "100%", textAlign: "center", marginBottom: "10px" }}>
+            <button className="addToCartMenu" onClick={() => goToBahan(id)}>
+              Lihat Resep
+            </button>
+          </div>
+        ):(
+          <div
+            style={{ width: "100%", textAlign: "center", marginBottom: "10px" }}>
+            <button className="addToCartMenu" onClick={() => menuTerpilih()}>
+              {isChosen ? "Remove From Cart" : "Add To Cart"}
+            </button>
+          </div>
+        )}
+
+        {/* Tombol Nav Ke Bahan Menu */}
+
       </div>
     </div>
   );

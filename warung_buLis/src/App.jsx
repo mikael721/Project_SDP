@@ -73,7 +73,7 @@ const router = createBrowserRouter(
 
         {/* tambahan */}
         <Route
-          path="pegawai/penjualan/:id"
+          path="pegawai/pesanan/:id"
           element={<DetailPesanan />}
           errorElement={<ErrorPage />}
         />

@@ -134,6 +134,11 @@ const Pesanan = () => {
       ? allDetailMenu
       : allDetailMenu.filter((d) => d.pesanan_status === filter);
 
+  // === lihat pesanan ====
+  const lihatDetailPesanan = (id) => {
+    navigate(`/pegawai/pesanan/${id}`);
+  }
+
   return (
     <div>
       {PasswordPanel()}
@@ -171,7 +176,7 @@ const Pesanan = () => {
                 </button>
               </td>
               <td>
-                <button className='buttonStyling sky'>
+                <button className='buttonStyling sky' onClick={() => lihatDetailPesanan(d.pesanan_id)}>
                   Lihat Detail
                 </button>
               </td>

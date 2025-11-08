@@ -288,3 +288,31 @@ exports.updatePesananStatus = async (req, res) => {
     });
   }
 };
+
+// === DAPATKAN MENU YANG ADA DI DETAIL MENU BERDASARKAN ID ===
+exports.getPesananDetailById = async (req, res) => {
+  let { id } = req.params; // id dari pesanan id !!!
+  try {
+    // ambil semnua pesanan id = ... gtampilkan hanya menu yang dipesan (pakai relasi)
+    let getMenuById = await PesananDetail.findAll({
+      where: {
+        pesanan_id : id
+      },
+      include: [
+        {
+          model: Menu,
+          as: 'menu'
+        }
+      ]
+    });
+    
+    return res.status(200).json(getMenuById);
+  } catch (error) {
+    console.error("Error fetching pesanan:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch pesanan",
+      error: error.message,
+    });
+  }
+};
