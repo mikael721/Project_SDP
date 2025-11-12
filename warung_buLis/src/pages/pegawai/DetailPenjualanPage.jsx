@@ -13,6 +13,7 @@ import {
   Table,
   Paper,
   LoadingOverlay,
+  Modal,
 } from "@mantine/core";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -37,6 +38,7 @@ export const DetailPenjualanPage = () => {
   const [keterangan, setKeterangan] = useState("");
   const [biayaTambahan, setBiayaTambahan] = useState(0);
   const [uangMuka, setUangMuka] = useState(0);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   // === FETCH DATA FROM DATABASE ===
   useEffect(() => {
@@ -237,18 +239,20 @@ export const DetailPenjualanPage = () => {
         paddingTop: "24px",
         paddingBottom: "24px",
         position: "relative",
-      }}>
+      }}
+    >
       <LoadingOverlay visible={loading} />
 
       <Container size="lg">
         <Stack gap="md">
           <Group justify="space-between">
             <Text size="xl" fw={700} style={{ color: "white" }}>
-              Detail Penjualan #{id}
+              Header Penjualan #{id}
             </Text>
             <Button
               variant="default"
-              onClick={() => navigate("/pegawai/penjualan")}>
+              onClick={() => navigate("/pegawai/penjualan")}
+            >
               Kembali
             </Button>
           </Group>
@@ -262,7 +266,7 @@ export const DetailPenjualanPage = () => {
                 </Text>
                 <Group gap="xl">
                   <div>
-                    <Text size="sm" c="dimmed">
+                    <Text size="sm" c="gold">
                       Tanggal
                     </Text>
                     <Text fw={500}>
@@ -272,7 +276,7 @@ export const DetailPenjualanPage = () => {
                     </Text>
                   </div>
                   <div>
-                    <Text size="sm" c="dimmed">
+                    <Text size="sm" c="gold">
                       Jenis
                     </Text>
                     <Text fw={500} tt="capitalize">
@@ -280,7 +284,7 @@ export const DetailPenjualanPage = () => {
                     </Text>
                   </div>
                   <div>
-                    <Text size="sm" c="dimmed">
+                    <Text size="sm" c="gold">
                       Status
                     </Text>
                     <Text fw={500}>
@@ -290,7 +294,7 @@ export const DetailPenjualanPage = () => {
                     </Text>
                   </div>
                   <div>
-                    <Text size="sm" c="dimmed">
+                    <Text size="sm" c="gold">
                       Keterangan
                     </Text>
                     <Text fw={500}>
@@ -298,7 +302,7 @@ export const DetailPenjualanPage = () => {
                     </Text>
                   </div>
                   <div>
-                    <Text size="sm" c="dimmed">
+                    <Text size="sm" c="gold">
                       Biaya Tambahan
                     </Text>
                     <Text fw={500}>
@@ -309,7 +313,7 @@ export const DetailPenjualanPage = () => {
                     </Text>
                   </div>
                   <div>
-                    <Text size="sm" c="dimmed">
+                    <Text size="sm" c="gold">
                       Uang Muka
                     </Text>
                     <Text fw={500}>
@@ -329,7 +333,7 @@ export const DetailPenjualanPage = () => {
                   Detail Penjualan (Database)
                 </Text>
                 <Table striped highlightOnHover>
-                  <Table.Thead>
+                  <Table.Thead style={{ color: "gold" }}>
                     <Table.Tr>
                       <Table.Th>ID</Table.Th>
                       <Table.Th>Nama Menu</Table.Th>
@@ -338,7 +342,7 @@ export const DetailPenjualanPage = () => {
                       <Table.Th>Subtotal</Table.Th>
                     </Table.Tr>
                   </Table.Thead>
-                  <Table.Tbody>
+                  <Table.Tbody style={{ color: "black" }}>
                     {detailData.map((item) => (
                       <Table.Tr key={item.penjualan_id}>
                         <Table.Td>{item.penjualan_id}</Table.Td>
@@ -367,8 +371,98 @@ export const DetailPenjualanPage = () => {
             </Paper>
           )}
 
-          <Divider my="md" />
+          <Divider my="md" label="Tambah Item Baru" labelPosition="center" />
 
+          {/* Cart Items (untuk menambah detail baru) */}
+          {cartItems.length > 0 && (
+            <Paper shadow="sm" p="md" radius="md">
+              <Stack gap="md">
+                <Text fw={600} size="lg">
+                  Item di Keranjang (Belum disimpan)
+                </Text>
+                {cartItems.map((item) => (
+                  <Box key={item.menu_id}>
+                    <Group justify="space-between" align="flex-start">
+                      <Box style={{ flex: 1 }}>
+                        <Text fw={500}>{item.menu_nama}</Text>
+                        <Text size="sm" c="gold">
+                          Rp {item.menu_harga.toLocaleString("id-ID")}
+                        </Text>
+                      </Box>
+                      <Group gap="xs">
+                        <Button
+                          size="xs"
+                          color="red"
+                          onClick={() =>
+                            updateQuantity(
+                              item.menu_id,
+                              item.penjualan_jumlah - 1
+                            )
+                          }
+                        >
+                          -
+                        </Button>
+                        <Text
+                          fw={600}
+                          style={{
+                            minWidth: "30px",
+                            textAlign: "center",
+                          }}
+                        >
+                          {item.penjualan_jumlah}
+                        </Text>
+                        <Button
+                          size="xs"
+                          color="green"
+                          onClick={() =>
+                            updateQuantity(
+                              item.menu_id,
+                              item.penjualan_jumlah + 1
+                            )
+                          }
+                        >
+                          +
+                        </Button>
+                        <Button
+                          size="xs"
+                          color="gray"
+                          onClick={() => removeFromCart(item.menu_id)}
+                        >
+                          Hapus
+                        </Button>
+                      </Group>
+                    </Group>
+                    <Text size="sm" c="gold">
+                      Subtotal: Rp{" "}
+                      {(item.menu_harga * item.penjualan_jumlah).toLocaleString(
+                        "id-ID"
+                      )}
+                    </Text>
+                    <Divider my="sm" />
+                  </Box>
+                ))}
+                <Group justify="flex-end">
+                  <Text fw={600} size="lg">
+                    Total Cart: Rp{" "}
+                    {calculateTotalFromCart().toLocaleString("id-ID")}
+                  </Text>
+                </Group>
+                <Button
+                  fullWidth
+                  color="blue"
+                  onClick={handleSaveDetails}
+                  loading={loading}
+                >
+                  Simpan Item ke Detail Penjualan
+                </Button>
+              </Stack>
+            </Paper>
+          )}
+          <Divider
+            my="md"
+            label="Bagian Konfirmasi Transaksi"
+            labelPosition="center"
+          />
           {/* Form Edit Header */}
           <Paper shadow="sm" p="md" radius="md">
             <Stack gap="md">
@@ -380,7 +474,8 @@ export const DetailPenjualanPage = () => {
                 value={jenisPenjualan}
                 onChange={handleJenisPenjualanChange}
                 label="Jenis Penjualan"
-                required>
+                required
+              >
                 <Group mt="xs">
                   <Radio value="offline" label="Offline" />
                   <Radio value="online" label="Online" />
@@ -452,102 +547,64 @@ export const DetailPenjualanPage = () => {
                   color="blue"
                   size="lg"
                   onClick={handleUpdateHeader}
-                  loading={loading}>
+                  loading={loading}
+                >
                   Update Header
                 </Button>
                 <Button
                   color="green"
                   size="lg"
-                  onClick={handleFinalize}
-                  loading={loading}>
+                  onClick={() => setConfirmOpen(true)}
+                  loading={loading}
+                >
                   Selesaikan Transaksi
                 </Button>
               </Group>
+
+              <Modal
+                opened={confirmOpen}
+                onClose={() => setConfirmOpen(false)}
+                title="Konfirmasi Transaksi"
+                centered
+                styles={{
+                  content: {
+                    backgroundColor: "#007bff",
+                    color: "white",
+                  },
+                  header: {
+                    backgroundColor: "#007bff",
+                    color: "white",
+                  },
+                  title: {
+                    color: "white",
+                    fontWeight: 700,
+                  },
+                }}
+              >
+                <Text mb="md" fw={500}>
+                  Apakah Anda yakin untuk menyelesaikan transaksi ini?
+                </Text>
+
+                <Group justify="flex-end">
+                  <Button
+                    variant="default"
+                    onClick={() => setConfirmOpen(false)}
+                  >
+                    Tidak
+                  </Button>
+                  <Button
+                    color="green"
+                    onClick={async () => {
+                      setConfirmOpen(false);
+                      await handleFinalize();
+                    }}
+                  >
+                    Ya
+                  </Button>
+                </Group>
+              </Modal>
             </Stack>
           </Paper>
-
-          <Divider my="md" label="Tambah Item Baru" labelPosition="center" />
-
-          {/* Cart Items (untuk menambah detail baru) */}
-          {cartItems.length > 0 && (
-            <Paper shadow="sm" p="md" radius="md">
-              <Stack gap="md">
-                <Text fw={600} size="lg">
-                  Item di Keranjang (Belum disimpan)
-                </Text>
-                {cartItems.map((item) => (
-                  <Box key={item.menu_id}>
-                    <Group justify="space-between" align="flex-start">
-                      <Box style={{ flex: 1 }}>
-                        <Text fw={500}>{item.menu_nama}</Text>
-                        <Text size="sm" c="dimmed">
-                          Rp {item.menu_harga.toLocaleString("id-ID")}
-                        </Text>
-                      </Box>
-                      <Group gap="xs">
-                        <Button
-                          size="xs"
-                          color="red"
-                          onClick={() =>
-                            updateQuantity(
-                              item.menu_id,
-                              item.penjualan_jumlah - 1
-                            )
-                          }>
-                          -
-                        </Button>
-                        <Text
-                          fw={600}
-                          style={{
-                            minWidth: "30px",
-                            textAlign: "center",
-                          }}>
-                          {item.penjualan_jumlah}
-                        </Text>
-                        <Button
-                          size="xs"
-                          color="green"
-                          onClick={() =>
-                            updateQuantity(
-                              item.menu_id,
-                              item.penjualan_jumlah + 1
-                            )
-                          }>
-                          +
-                        </Button>
-                        <Button
-                          size="xs"
-                          color="gray"
-                          onClick={() => removeFromCart(item.menu_id)}>
-                          Hapus
-                        </Button>
-                      </Group>
-                    </Group>
-                    <Text size="sm" c="dimmed">
-                      Subtotal: Rp{" "}
-                      {(item.menu_harga * item.penjualan_jumlah).toLocaleString(
-                        "id-ID"
-                      )}
-                    </Text>
-                    <Divider my="sm" />
-                  </Box>
-                ))}
-                <Group justify="flex-end">
-                  <Text fw={600} size="lg">
-                    Total Cart: Rp{" "}
-                    {calculateTotalFromCart().toLocaleString("id-ID")}
-                  </Text>
-                </Group>
-                <Button
-                  fullWidth
-                  color="blue"
-                  onClick={handleSaveDetails}
-                  loading={loading}>
-                  Simpan Item ke Detail Penjualan
-                </Button>
-              </Stack>
-            </Paper>
-          )}
         </Stack>
       </Container>
     </Box>
