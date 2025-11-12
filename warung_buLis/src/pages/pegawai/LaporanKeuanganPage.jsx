@@ -177,6 +177,20 @@ export const LaporanKeuanganPage = () => {
     return `${day}/${month}/${year}`;
   };
 
+  const cellStyle = {
+    textAlign: "center",
+    border: "1px solid #dee2e6",
+    padding: "12px",
+  };
+
+  const headerCellStyle = {
+    textAlign: "center",
+    color: "white",
+    fontWeight: 700,
+    border: "1px solid #8B7355",
+    padding: "12px",
+  };
+
   return (
     <Box
       sx={{
@@ -184,8 +198,7 @@ export const LaporanKeuanganPage = () => {
         paddingTop: 24,
         paddingBottom: 24,
         position: "relative",
-      }}
-    >
+      }}>
       <LoadingOverlay visible={loading} />
 
       <Container size="lg">
@@ -201,8 +214,7 @@ export const LaporanKeuanganPage = () => {
                 <Radio.Group
                   value={jenisLaporan}
                   onChange={setJenisLaporan}
-                  name="jenisLaporan"
-                >
+                  name="jenisLaporan">
                   <Group spacing="md">
                     <Radio value="penjualan" label="Penjualan" />
                     <Radio value="pembelian" label="Pembelian" />
@@ -282,8 +294,7 @@ export const LaporanKeuanganPage = () => {
                 <Button
                   color="red"
                   onClick={handleSubmit(onApplyFilter)}
-                  style={{ borderRadius: "20px" }}
-                >
+                  style={{ borderRadius: "20px" }}>
                   Apply Filter
                 </Button>
               </Group>
@@ -293,350 +304,194 @@ export const LaporanKeuanganPage = () => {
           {/* Penjualan Section */}
           {(jenisLaporan === "penjualan" || jenisLaporan === "all") && (
             <Paper shadow="sm" p="lg" radius="md">
-              <Title
-                order={3}
-                align="center"
-                mb="md"
-                style={{
-                  borderBottom: "2px solid rgba(255,255,255,0.3)",
-                  paddingBottom: "10px",
-                }}
-              >
-                Penjualan
-              </Title>
-
-              <Table
-                striped
-                highlightOnHover
-                style={{
-                  backgroundColor: "rgba(139, 98, 60, 0.3)",
-                  borderRadius: "8px",
-                }}
-              >
-                <thead>
-                  <tr style={{ backgroundColor: "rgba(139, 98, 60, 0.5)" }}>
-                    <th style={{ padding: "12px", textAlign: "center" }}>ID</th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Tanggal
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Menu ID
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Menu Nama
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Harga
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Jumlah
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Subtotal
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dataPenjualan.length > 0 ? (
-                    dataPenjualan.map((item, index) => (
-                      <tr key={index}>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {item.penjualan_id}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {formatDate(item.tanggal)}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {item.menu_id}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {item.menu_nama}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          Rp {(item.menu_harga || 0).toLocaleString("id-ID")}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {item.penjualan_jumlah}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          Rp {(item.subtotal || 0).toLocaleString("id-ID")}
+              <Group justify="center" pb="md">
+                <Title order={3}>Penjualan</Title>
+              </Group>
+              <Box sx={{ overflowX: "auto" }}>
+                <Table>
+                  <thead>
+                    <tr style={{ backgroundColor: "#8B7355" }}>
+                      <th style={headerCellStyle}>ID</th>
+                      <th style={headerCellStyle}>Tanggal</th>
+                      <th style={headerCellStyle}>Menu ID</th>
+                      <th style={headerCellStyle}>Menu Nama</th>
+                      <th style={headerCellStyle}>Harga</th>
+                      <th style={headerCellStyle}>Jumlah</th>
+                      <th style={headerCellStyle}>Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dataPenjualan.length > 0 ? (
+                      dataPenjualan.map((item, index) => (
+                        <tr
+                          key={index}
+                          style={{
+                            backgroundColor: "white",
+                            color: "black",
+                          }}>
+                          <td style={cellStyle}>{item.penjualan_id}</td>
+                          <td style={cellStyle}>{formatDate(item.tanggal)}</td>
+                          <td style={cellStyle}>{item.menu_id}</td>
+                          <td style={cellStyle}>{item.menu_nama}</td>
+                          <td style={cellStyle}>
+                            Rp {(item.menu_harga || 0).toLocaleString("id-ID")}
+                          </td>
+                          <td style={cellStyle}>{item.penjualan_jumlah}</td>
+                          <td style={cellStyle}>
+                            Rp {(item.subtotal || 0).toLocaleString("id-ID")}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr style={{ backgroundColor: "white", color: "black" }}>
+                        <td
+                          colSpan={7}
+                          style={{ ...cellStyle, textAlign: "center" }}>
+                          Tidak ada data penjualan
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan={7}
-                        style={{ padding: "20px", textAlign: "center" }}
-                      >
-                        Tidak ada data penjualan
-                      </td>
-                    </tr>
-                  )}
-                  <tr style={{ backgroundColor: "rgba(139, 98, 60, 0.6)" }}>
-                    <td
-                      colSpan={6}
-                      style={{
-                        padding: "10px",
-                        textAlign: "center",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Total Penjualan
-                    </td>
-                    <td
-                      style={{
-                        padding: "10px",
-                        textAlign: "center",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Rp {totalPenjualan.toLocaleString("id-ID")}
-                    </td>
-                  </tr>
-                </tbody>
-              </Table>
+                    )}
+                  </tbody>
+                </Table>
+              </Box>
+              <Group justify="flex-end" pt="md">
+                <Text size="xl" weight={700}>
+                  Total: Rp {totalPenjualan.toLocaleString("id-ID")}
+                </Text>
+              </Group>
             </Paper>
           )}
 
           {/* Pembelian Section */}
           {(jenisLaporan === "pembelian" || jenisLaporan === "all") && (
             <Paper shadow="sm" p="lg" radius="md">
-              <Title
-                order={3}
-                align="center"
-                mb="md"
-                style={{
-                  borderBottom: "2px solid rgba(255,255,255,0.3)",
-                  paddingBottom: "10px",
-                }}
-              >
-                Pembelian
-              </Title>
-
-              <Table
-                striped
-                highlightOnHover
-                style={{
-                  backgroundColor: "rgba(139, 98, 60, 0.3)",
-                  borderRadius: "8px",
-                }}
-              >
-                <thead>
-                  <tr style={{ backgroundColor: "rgba(139, 98, 60, 0.5)" }}>
-                    <th style={{ padding: "12px", textAlign: "center" }}>ID</th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Tanggal
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Bahan Baku ID
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Bahan Baku Nama
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Jumlah
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Satuan
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Harga/Satuan
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Subtotal
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dataPembelian.length > 0 ? (
-                    dataPembelian.map((item, index) => (
-                      <tr key={index}>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {item.pembelian_id}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {formatDate(item.tanggal)}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {item.bahan_baku_id}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {item.bahan_baku_nama}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {item.pembelian_jumlah}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {item.pembelian_satuan}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          Rp{" "}
-                          {(item.pembelian_harga_satuan || 0).toLocaleString(
-                            "id-ID"
-                          )}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          Rp {(item.subtotal || 0).toLocaleString("id-ID")}
+              <Group justify="center" pb="md">
+                <Title order={3}>Pembelian</Title>
+              </Group>
+              <Box sx={{ overflowX: "auto" }}>
+                <Table>
+                  <thead>
+                    <tr style={{ backgroundColor: "#8B7355" }}>
+                      <th style={headerCellStyle}>ID</th>
+                      <th style={headerCellStyle}>Tanggal</th>
+                      <th style={headerCellStyle}>Bahan Baku ID</th>
+                      <th style={headerCellStyle}>Bahan Baku Nama</th>
+                      <th style={headerCellStyle}>Jumlah</th>
+                      <th style={headerCellStyle}>Satuan</th>
+                      <th style={headerCellStyle}>Harga/Satuan</th>
+                      <th style={headerCellStyle}>Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dataPembelian.length > 0 ? (
+                      dataPembelian.map((item, index) => (
+                        <tr
+                          key={index}
+                          style={{
+                            backgroundColor: "white",
+                            color: "black",
+                          }}>
+                          <td style={cellStyle}>{item.pembelian_id}</td>
+                          <td style={cellStyle}>{formatDate(item.tanggal)}</td>
+                          <td style={cellStyle}>{item.bahan_baku_id}</td>
+                          <td style={cellStyle}>{item.bahan_baku_nama}</td>
+                          <td style={cellStyle}>{item.pembelian_jumlah}</td>
+                          <td style={cellStyle}>{item.pembelian_satuan}</td>
+                          <td style={cellStyle}>
+                            Rp{" "}
+                            {(item.pembelian_harga_satuan || 0).toLocaleString(
+                              "id-ID"
+                            )}
+                          </td>
+                          <td style={cellStyle}>
+                            Rp {(item.subtotal || 0).toLocaleString("id-ID")}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr style={{ backgroundColor: "white", color: "black" }}>
+                        <td
+                          colSpan={8}
+                          style={{ ...cellStyle, textAlign: "center" }}>
+                          Tidak ada data pembelian
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan={8}
-                        style={{ padding: "20px", textAlign: "center" }}
-                      >
-                        Tidak ada data pembelian
-                      </td>
-                    </tr>
-                  )}
-                  <tr style={{ backgroundColor: "rgba(139, 98, 60, 0.6)" }}>
-                    <td
-                      colSpan={7}
-                      style={{
-                        padding: "10px",
-                        textAlign: "center",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Total Pembelian
-                    </td>
-                    <td
-                      style={{
-                        padding: "10px",
-                        textAlign: "center",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Rp {totalPembelian.toLocaleString("id-ID")}
-                    </td>
-                  </tr>
-                </tbody>
-              </Table>
+                    )}
+                  </tbody>
+                </Table>
+              </Box>
+              <Group justify="flex-end" pt="md">
+                <Text size="xl" weight={700}>
+                  Total: Rp {totalPembelian.toLocaleString("id-ID")}
+                </Text>
+              </Group>
             </Paper>
           )}
 
           {/* Pesanan Section */}
           {(jenisLaporan === "pesanan" || jenisLaporan === "all") && (
             <Paper shadow="sm" p="lg" radius="md">
-              <Title
-                order={3}
-                align="center"
-                mb="md"
-                style={{
-                  borderBottom: "2px solid rgba(255,255,255,0.3)",
-                  paddingBottom: "10px",
-                }}
-              >
-                Pesanan
-              </Title>
-
-              <Table
-                striped
-                highlightOnHover
-                style={{
-                  backgroundColor: "rgba(139, 98, 60, 0.3)",
-                  borderRadius: "8px",
-                }}
-              >
-                <thead>
-                  <tr style={{ backgroundColor: "rgba(139, 98, 60, 0.5)" }}>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Pesanan ID
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Nama Pemesan
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Status
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Tanggal
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Menu ID
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Menu Nama
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Harga
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Jumlah
-                    </th>
-                    <th style={{ padding: "12px", textAlign: "center" }}>
-                      Subtotal
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dataPesanan.length > 0 ? (
-                    dataPesanan.map((item, index) => (
-                      <tr key={index}>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {item.pesanan_id}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {item.pesanan_nama}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {item.pesanan_status}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {formatDate(item.tanggal)}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {item.menu_id}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {item.menu_nama}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          Rp {(item.menu_harga || 0).toLocaleString("id-ID")}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          {item.pesanan_detail_jumlah}
-                        </td>
-                        <td style={{ padding: "10px", textAlign: "center" }}>
-                          Rp {(item.subtotal || 0).toLocaleString("id-ID")}
+              <Group justify="center" pb="md">
+                <Title order={3}>Pesanan</Title>
+              </Group>
+              <Box sx={{ overflowX: "auto" }}>
+                <Table>
+                  <thead>
+                    <tr style={{ backgroundColor: "#8B7355" }}>
+                      <th style={headerCellStyle}>Pesanan ID</th>
+                      <th style={headerCellStyle}>Nama Pemesan</th>
+                      <th style={headerCellStyle}>Status</th>
+                      <th style={headerCellStyle}>Tanggal</th>
+                      <th style={headerCellStyle}>Menu ID</th>
+                      <th style={headerCellStyle}>Menu Nama</th>
+                      <th style={headerCellStyle}>Harga</th>
+                      <th style={headerCellStyle}>Jumlah</th>
+                      <th style={headerCellStyle}>Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dataPesanan.length > 0 ? (
+                      dataPesanan.map((item, index) => (
+                        <tr
+                          key={index}
+                          style={{
+                            backgroundColor: "white",
+                            color: "black",
+                          }}>
+                          <td style={cellStyle}>{item.pesanan_id}</td>
+                          <td style={cellStyle}>{item.pesanan_nama}</td>
+                          <td style={cellStyle}>{item.pesanan_status}</td>
+                          <td style={cellStyle}>{formatDate(item.tanggal)}</td>
+                          <td style={cellStyle}>{item.menu_id}</td>
+                          <td style={cellStyle}>{item.menu_nama}</td>
+                          <td style={cellStyle}>
+                            Rp {(item.menu_harga || 0).toLocaleString("id-ID")}
+                          </td>
+                          <td style={cellStyle}>
+                            {item.pesanan_detail_jumlah}
+                          </td>
+                          <td style={cellStyle}>
+                            Rp {(item.subtotal || 0).toLocaleString("id-ID")}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr style={{ backgroundColor: "white", color: "black" }}>
+                        <td
+                          colSpan={9}
+                          style={{ ...cellStyle, textAlign: "center" }}>
+                          Tidak ada data pesanan
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan={9}
-                        style={{ padding: "20px", textAlign: "center" }}
-                      >
-                        Tidak ada data pesanan
-                      </td>
-                    </tr>
-                  )}
-                  <tr style={{ backgroundColor: "rgba(139, 98, 60, 0.6)" }}>
-                    <td
-                      colSpan={8}
-                      style={{
-                        padding: "10px",
-                        textAlign: "center",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Total Pesanan
-                    </td>
-                    <td
-                      style={{
-                        padding: "10px",
-                        textAlign: "center",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Rp {totalPesanan.toLocaleString("id-ID")}
-                    </td>
-                  </tr>
-                </tbody>
-              </Table>
+                    )}
+                  </tbody>
+                </Table>
+              </Box>
+              <Group justify="flex-end" pt="md">
+                <Text size="xl" weight={700}>
+                  Total: Rp {totalPesanan.toLocaleString("id-ID")}
+                </Text>
+              </Group>
             </Paper>
           )}
         </Stack>

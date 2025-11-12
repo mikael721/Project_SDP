@@ -80,10 +80,10 @@ const MenuPage = () => {
               radius="xl"
               onClick={goToCart}
               style={{
-                marginLeft: "10px", // Adjust as necessary for spacing
+                marginLeft: "10px",
                 color: "white",
                 border: `1px solid white`,
-                backgroundColor: "red",
+                backgroundColor: "#CC0000",
               }}>
               Cart
             </Button>

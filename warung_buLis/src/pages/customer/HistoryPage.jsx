@@ -141,9 +141,6 @@ export const HistoryPage = () => {
         <Container size="lg" py="xl">
           <Stack gap="lg">
             <Stack gap="sm">
-              <Text fw={500} size="sm">
-                Masukkan email untuk melihat history pesanan Anda
-              </Text>
               <Group grow>
                 <TextInput
                   placeholder="nama@email.com"
@@ -158,7 +155,11 @@ export const HistoryPage = () => {
                   }}
                   error={error && searched ? error : ""}
                 />
-                <Button onClick={handleSearch} loading={loading} mt="auto">
+                <Button
+                  onClick={handleSearch}
+                  loading={loading}
+                  mt="auto"
+                  style={{ backgroundColor: "#CC0000" }}>
                   Cari
                 </Button>
               </Group>
@@ -191,12 +192,7 @@ export const HistoryPage = () => {
                     }}>
                     <Group justify="space-between">
                       <div>
-                        <Text fw={600} size="sm">
-                          Pesanan #{pesanan.pesanan_id}
-                        </Text>
-                        <Text size="xs" c="dimmed">
-                          Nama: {pesanan.pesanan_nama}
-                        </Text>
+                        <Text size="md">Nama: {pesanan.pesanan_nama}</Text>
                       </div>
                       <Badge color={getStatusColor(pesanan.pesanan_status)}>
                         {pesanan.pesanan_status.charAt(0).toUpperCase() +
@@ -278,9 +274,7 @@ export const HistoryPage = () => {
 
             {!loading && !searched && (
               <Center py="xl">
-                <Text c="dimmed">
-                  Masukkan email untuk melihat history pesanan
-                </Text>
+                <Text>Masukkan email untuk melihat history pesanan</Text>
               </Center>
             )}
           </Stack>

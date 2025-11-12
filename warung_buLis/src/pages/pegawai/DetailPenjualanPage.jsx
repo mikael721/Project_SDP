@@ -85,7 +85,7 @@ export const DetailPenjualanPage = () => {
     if (value === "offline") {
       setUangMuka(0);
     } else {
-      setBiayaTambahan(0);
+      setUangMuka(0);
     }
   };
 
@@ -184,8 +184,7 @@ export const DetailPenjualanPage = () => {
         header_penjualan_tanggal: new Date().toISOString(),
         header_penjualan_jenis: jenisPenjualan,
         header_penjualan_keterangan: keterangan,
-        header_penjualan_biaya_tambahan:
-          jenisPenjualan === "offline" ? biayaTambahan || 0 : 0,
+        header_penjualan_biaya_tambahan: biayaTambahan || 0,
         header_penjualan_uang_muka:
           jenisPenjualan === "online" ? uangMuka || 0 : 0,
       };
@@ -238,8 +237,7 @@ export const DetailPenjualanPage = () => {
         paddingTop: "24px",
         paddingBottom: "24px",
         position: "relative",
-      }}
-    >
+      }}>
       <LoadingOverlay visible={loading} />
 
       <Container size="lg">
@@ -250,8 +248,7 @@ export const DetailPenjualanPage = () => {
             </Text>
             <Button
               variant="default"
-              onClick={() => navigate("/pegawai/penjualan")}
-            >
+              onClick={() => navigate("/pegawai/penjualan")}>
               Kembali
             </Button>
           </Group>
@@ -290,6 +287,33 @@ export const DetailPenjualanPage = () => {
                       {detailData.length > 0
                         ? "Sudah ada detail"
                         : "Belum ada detail"}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text size="sm" c="dimmed">
+                      Keterangan
+                    </Text>
+                    <Text fw={500}>
+                      {headerData.header_penjualan_keterangan || "-"}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text size="sm" c="dimmed">
+                      Biaya Tambahan
+                    </Text>
+                    <Text fw={500}>
+                      Rp{" "}
+                      {(
+                        headerData.header_penjualan_biaya_tambahan || 0
+                      ).toLocaleString("id-ID")}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text size="sm" c="dimmed">
+                      Uang Muka
+                    </Text>
+                    <Text fw={500}>
+                      {headerData.header_penjualan_uang_muka || 0}%
                     </Text>
                   </div>
                 </Group>
@@ -343,6 +367,105 @@ export const DetailPenjualanPage = () => {
             </Paper>
           )}
 
+          <Divider my="md" />
+
+          {/* Form Edit Header */}
+          <Paper shadow="sm" p="md" radius="md">
+            <Stack gap="md">
+              <Text fw={600} size="lg">
+                Edit Informasi Transaksi
+              </Text>
+
+              <Radio.Group
+                value={jenisPenjualan}
+                onChange={handleJenisPenjualanChange}
+                label="Jenis Penjualan"
+                required>
+                <Group mt="xs">
+                  <Radio value="offline" label="Offline" />
+                  <Radio value="online" label="Online" />
+                </Group>
+              </Radio.Group>
+
+              <TextInput
+                label="Keterangan Transaksi"
+                placeholder="Masukkan keterangan"
+                value={keterangan}
+                onChange={(e) => setKeterangan(e.target.value)}
+              />
+
+              <NumberInput
+                label="Biaya Tambahan"
+                placeholder="0"
+                min={0}
+                value={biayaTambahan}
+                onChange={(val) => setBiayaTambahan(val || 0)}
+                description="Biaya tambahan untuk transaksi"
+              />
+
+              {jenisPenjualan === "online" && (
+                <NumberInput
+                  label="Persentase Uang Muka (%)"
+                  placeholder="0"
+                  min={0}
+                  max={100}
+                  value={uangMuka}
+                  onChange={(val) => setUangMuka(val || 0)}
+                  description="Persentase uang muka untuk transaksi online"
+                />
+              )}
+
+              <Divider my="md" />
+
+              <Group justify="space-between">
+                <Text fw={600} size="lg">
+                  Total Keseluruhan
+                </Text>
+                <Text fw={700} size="xl" c="red">
+                  Rp{" "}
+                  {(
+                    calculateTotalFromDB() +
+                    calculateTotalFromCart() +
+                    (biayaTambahan || 0)
+                  ).toLocaleString("id-ID")}
+                </Text>
+              </Group>
+
+              {jenisPenjualan === "online" && uangMuka > 0 && (
+                <Group justify="space-between">
+                  <Text fw={500} size="md">
+                    Uang Muka ({uangMuka}%)
+                  </Text>
+                  <Text fw={600} size="lg" c="blue">
+                    Rp{" "}
+                    {(
+                      ((calculateTotalFromDB() + calculateTotalFromCart()) *
+                        uangMuka) /
+                      100
+                    ).toLocaleString("id-ID")}
+                  </Text>
+                </Group>
+              )}
+
+              <Group grow>
+                <Button
+                  color="blue"
+                  size="lg"
+                  onClick={handleUpdateHeader}
+                  loading={loading}>
+                  Update Header
+                </Button>
+                <Button
+                  color="green"
+                  size="lg"
+                  onClick={handleFinalize}
+                  loading={loading}>
+                  Selesaikan Transaksi
+                </Button>
+              </Group>
+            </Stack>
+          </Paper>
+
           <Divider my="md" label="Tambah Item Baru" labelPosition="center" />
 
           {/* Cart Items (untuk menambah detail baru) */}
@@ -370,8 +493,7 @@ export const DetailPenjualanPage = () => {
                               item.menu_id,
                               item.penjualan_jumlah - 1
                             )
-                          }
-                        >
+                          }>
                           -
                         </Button>
                         <Text
@@ -379,8 +501,7 @@ export const DetailPenjualanPage = () => {
                           style={{
                             minWidth: "30px",
                             textAlign: "center",
-                          }}
-                        >
+                          }}>
                           {item.penjualan_jumlah}
                         </Text>
                         <Button
@@ -391,15 +512,13 @@ export const DetailPenjualanPage = () => {
                               item.menu_id,
                               item.penjualan_jumlah + 1
                             )
-                          }
-                        >
+                          }>
                           +
                         </Button>
                         <Button
                           size="xs"
                           color="gray"
-                          onClick={() => removeFromCart(item.menu_id)}
-                        >
+                          onClick={() => removeFromCart(item.menu_id)}>
                           Hapus
                         </Button>
                       </Group>
@@ -423,116 +542,12 @@ export const DetailPenjualanPage = () => {
                   fullWidth
                   color="blue"
                   onClick={handleSaveDetails}
-                  loading={loading}
-                >
+                  loading={loading}>
                   Simpan Item ke Detail Penjualan
                 </Button>
               </Stack>
             </Paper>
           )}
-
-          <Divider my="md" />
-
-          {/* Form Edit Header */}
-          <Paper shadow="sm" p="md" radius="md">
-            <Stack gap="md">
-              <Text fw={600} size="lg">
-                Edit Informasi Transaksi
-              </Text>
-
-              <Radio.Group
-                value={jenisPenjualan}
-                onChange={handleJenisPenjualanChange}
-                label="Jenis Penjualan"
-                required
-              >
-                <Group mt="xs">
-                  <Radio value="offline" label="Offline" />
-                  <Radio value="online" label="Online" />
-                </Group>
-              </Radio.Group>
-
-              <TextInput
-                label="Keterangan Transaksi"
-                placeholder="Masukkan keterangan"
-                value={keterangan}
-                onChange={(e) => setKeterangan(e.target.value)}
-              />
-
-              {/* Conditional Fields Based on Jenis Penjualan */}
-              {jenisPenjualan === "offline" ? (
-                <NumberInput
-                  label="Biaya Tambahan"
-                  placeholder="0"
-                  min={0}
-                  value={biayaTambahan}
-                  onChange={(val) => setBiayaTambahan(val || 0)}
-                  description="Biaya tambahan untuk transaksi offline"
-                />
-              ) : (
-                <NumberInput
-                  label="Persentase Uang Muka (%)"
-                  placeholder="0"
-                  min={0}
-                  max={100}
-                  value={uangMuka}
-                  onChange={(val) => setUangMuka(val || 0)}
-                  description="Persentase uang muka untuk transaksi online"
-                />
-              )}
-
-              <Divider my="md" />
-
-              <Group justify="space-between">
-                <Text fw={600} size="lg">
-                  Total Keseluruhan
-                </Text>
-                <Text fw={700} size="xl" c="red">
-                  Rp{" "}
-                  {(
-                    calculateTotalFromDB() +
-                    calculateTotalFromCart() +
-                    (jenisPenjualan === "offline" ? biayaTambahan || 0 : 0)
-                  ).toLocaleString("id-ID")}
-                </Text>
-              </Group>
-
-              {jenisPenjualan === "online" && uangMuka > 0 && (
-                <Group justify="space-between">
-                  <Text fw={500} size="md">
-                    Uang Muka ({uangMuka}%)
-                  </Text>
-                  <Text fw={600} size="lg" c="blue">
-                    Rp{" "}
-                    {(
-                      ((calculateTotalFromDB() + calculateTotalFromCart()) *
-                        uangMuka) /
-                      100
-                    ).toLocaleString("id-ID")}
-                  </Text>
-                </Group>
-              )}
-
-              <Group grow>
-                <Button
-                  color="blue"
-                  size="lg"
-                  onClick={handleUpdateHeader}
-                  loading={loading}
-                >
-                  Update Header
-                </Button>
-                <Button
-                  color="green"
-                  size="lg"
-                  onClick={handleFinalize}
-                  loading={loading}
-                >
-                  Selesaikan Transaksi
-                </Button>
-              </Group>
-            </Stack>
-          </Paper>
         </Stack>
       </Container>
     </Box>

@@ -238,9 +238,7 @@ export const StokManagementPage = () => {
   const rows = bahanBaku.map((item) => (
     <tr
       key={item.bahan_baku_id}
-      onClick={() => handleRowClick(item)}
       style={{
-        cursor: "pointer",
         backgroundColor: "white",
         color: "black",
       }}>
@@ -249,6 +247,15 @@ export const StokManagementPage = () => {
       <td style={cellStyle}>{item.bahan_baku_jumlah}</td>
       <td style={cellStyle}>{item.bahan_baku_satuan}</td>
       <td style={cellStyle}>{item.bahan_baku_harga_satuan}</td>
+      <td style={cellStyle}>
+        <Button
+          size="xs"
+          color="blue"
+          onClick={() => handleRowClick(item)}
+          disabled={loading}>
+          Edit
+        </Button>
+      </td>
     </tr>
   ));
 
@@ -328,7 +335,7 @@ export const StokManagementPage = () => {
                       label="Nama Bahan"
                       placeholder="Masukkan nama bahan"
                       {...field}
-                      disabled={loading || mode === "update"}
+                      disabled={loading}
                     />
                   )}
                 />
@@ -416,9 +423,6 @@ export const StokManagementPage = () => {
             <Group justify="center" pb="md">
               <Title order={4}>Bahan Baku</Title>
             </Group>
-            <Group justify="center" pb="md">
-              <Text order={6}>(klik untuk mengedit)</Text>
-            </Group>
             <Box sx={{ overflowX: "auto" }}>
               <Table>
                 <thead>
@@ -428,6 +432,7 @@ export const StokManagementPage = () => {
                     <th style={headerCellStyle}>Jumlah</th>
                     <th style={headerCellStyle}>Satuan</th>
                     <th style={headerCellStyle}>Harga/Satuan</th>
+                    <th style={headerCellStyle}>Aksi</th>
                   </tr>
                 </thead>
                 <tbody>{rows}</tbody>
