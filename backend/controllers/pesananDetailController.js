@@ -71,8 +71,8 @@ exports.createPesanan = async (req, res) => {
       pesanan_lokasi,
       pesanan_email,
       pesanan_tanggal,
-      pesanan_tanggal_pengiriman, // Menggunakan status default dari versi HEAD/Anda, dan menghapus penanda konflik
-      status: "belum_jadi",
+      pesanan_tanggal_pengiriman,
+      status: "pending",
     });
 
     return res.status(201).json({
@@ -296,16 +296,16 @@ exports.getPesananDetailById = async (req, res) => {
     // ambil semnua pesanan id = ... gtampilkan hanya menu yang dipesan (pakai relasi)
     let getMenuById = await PesananDetail.findAll({
       where: {
-        pesanan_id : id
+        pesanan_id: id,
       },
       include: [
         {
           model: Menu,
-          as: 'menu'
-        }
-      ]
+          as: "menu",
+        },
+      ],
     });
-    
+
     return res.status(200).json(getMenuById);
   } catch (error) {
     console.error("Error fetching pesanan:", error);
