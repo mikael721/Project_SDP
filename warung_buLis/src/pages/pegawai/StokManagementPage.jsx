@@ -193,7 +193,17 @@ export const StokManagementPage = () => {
       handleTransactionSubmit(data);
     }
   };
-
+  const handleClear = () => {
+    reset({
+      bahan_baku_id: "",
+      bahan_baku_nama: "",
+      bahan_baku_jumlah: 0,
+      bahan_baku_satuan: null,
+      bahan_baku_harga_satuan: 0,
+    });
+    setMode("tambah");
+    setTransactionType("tambah");
+  };
   const handleModeChange = (value) => {
     setMode(value);
     if (value === "tambah") {
@@ -290,11 +300,7 @@ export const StokManagementPage = () => {
                 <Button
                   variant="filled"
                   color="rgba(125, 125, 125, 1)"
-                  onClick={() => {
-                    reset();
-                    setMode("tambah");
-                    setTransactionType("tambah");
-                  }}
+                  onClick={handleClear}
                   disabled={loading}>
                   Clear
                 </Button>

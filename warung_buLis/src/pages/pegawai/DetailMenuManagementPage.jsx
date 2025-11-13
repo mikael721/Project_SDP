@@ -3,7 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import {
   Box,
   Group,
-  TextInput,
+  NumberInput,
   Button,
   Table,
   Title,
@@ -43,7 +43,6 @@ export const DetailMenuManagementPage = () => {
       const response = await axios.get(
         `http://localhost:3000/api/menu_management/detail/${id}`
       );
-      console.log("Response:", response.data.data);
 
       const dataArray = Array.isArray(response.data.data)
         ? response.data.data
@@ -63,7 +62,6 @@ export const DetailMenuManagementPage = () => {
   const fetchBahanOptions = async () => {
     try {
       const response = await axios.get(`http://localhost:3000/api/bahan_baku/`);
-      console.log("Bahan Options:", response.data);
 
       const options = Array.isArray(response.data)
         ? response.data.map((item) => ({
@@ -107,7 +105,12 @@ export const DetailMenuManagementPage = () => {
 
       if (response.data && response.data.data) {
         setBahanMenu((prev) => [...prev, response.data.data]);
-        reset();
+        reset({
+          detail_menu_nama_bahan: null,
+          detail_menu_jumlah: "",
+          detail_menu_satuan: null,
+          detail_menu_harga: "",
+        });
       }
     } catch (err) {
       console.error(err);
@@ -116,24 +119,19 @@ export const DetailMenuManagementPage = () => {
     }
   };
 
-  const onUpdate = async () => {
+  const onUpdate = async (data) => {
     try {
       setLoading(true);
-      const values = getValues();
 
       if (!editingId) {
         return;
       }
 
       const payload = {
-        detail_menu_nama_bahan: values.detail_menu_nama_bahan || undefined,
-        detail_menu_jumlah: values.detail_menu_jumlah
-          ? Number(values.detail_menu_jumlah)
-          : undefined,
-        detail_menu_satuan: values.detail_menu_satuan || undefined,
-        detail_menu_harga: values.detail_menu_harga
-          ? Number(values.detail_menu_harga)
-          : undefined,
+        detail_menu_nama_bahan: data.detail_menu_nama_bahan,
+        detail_menu_jumlah: Number(data.detail_menu_jumlah),
+        detail_menu_satuan: data.detail_menu_satuan,
+        detail_menu_harga: Number(data.detail_menu_harga),
       };
 
       const response = await axios.put(
@@ -147,7 +145,12 @@ export const DetailMenuManagementPage = () => {
             item.detail_menu_id === editingId ? response.data.data : item
           )
         );
-        reset();
+        reset({
+          detail_menu_nama_bahan: null,
+          detail_menu_jumlah: "",
+          detail_menu_satuan: null,
+          detail_menu_harga: "",
+        });
         setEditingId(null);
       }
     } catch (err) {
@@ -166,7 +169,12 @@ export const DetailMenuManagementPage = () => {
       setBahanMenu((prev) =>
         prev.filter((item) => item.detail_menu_id !== deleteId)
       );
-      reset();
+      reset({
+        detail_menu_nama_bahan: null,
+        detail_menu_jumlah: "",
+        detail_menu_satuan: null,
+        detail_menu_harga: "",
+      });
       setEditingId(null);
     } catch (err) {
       console.error(err);
@@ -175,7 +183,7 @@ export const DetailMenuManagementPage = () => {
     }
   };
 
-  const handleRowClick = (item) => {
+  const handleEdit = (item) => {
     setEditingId(item.detail_menu_id);
     setValue("detail_menu_nama_bahan", item.detail_menu_nama_bahan);
     setValue("detail_menu_jumlah", item.detail_menu_jumlah);
@@ -184,12 +192,27 @@ export const DetailMenuManagementPage = () => {
   };
 
   const handleClear = () => {
-    reset();
+    reset({
+      detail_menu_nama_bahan: null,
+      detail_menu_jumlah: "",
+      detail_menu_satuan: null,
+      detail_menu_harga: "",
+    });
     setEditingId(null);
-    setValue("detail_menu_nama_bahan", null);
-    setValue("detail_menu_jumlah", "");
-    setValue("detail_menu_satuan", null);
-    setValue("detail_menu_harga", "");
+  };
+
+  const cellStyle = {
+    textAlign: "center",
+    border: "1px solid #dee2e6",
+    padding: "12px",
+  };
+
+  const headerCellStyle = {
+    textAlign: "center",
+    color: "white",
+    fontWeight: 700,
+    border: "1px solid #8B7355",
+    padding: "12px",
   };
 
   const rows =
@@ -197,34 +220,37 @@ export const DetailMenuManagementPage = () => {
       bahanMenu.map((item) => (
         <tr
           key={item.detail_menu_id}
-          onClick={() => handleRowClick(item)}
           style={{
-            cursor: "auto",
-            backgroundColor:
-              editingId === item.detail_menu_id ? "#e0e0e0" : "transparent",
-            border: "1px solid white",
+            backgroundColor: "white",
+            color: "black",
           }}>
-          <td style={{ padding: "4% 3%" }}>{item.detail_menu_id}</td>
-          <td style={{ padding: "4% 0%" }}>{item.detail_menu_nama_bahan}</td>
-          <td style={{ padding: "4% 0%" }}>{item.detail_menu_jumlah}</td>
-          <td style={{ padding: "4% 0%" }}>{item.detail_menu_satuan}</td>
-          <td style={{ padding: "4% 0%" }}>
+          <td style={cellStyle}>{item.detail_menu_id}</td>
+          <td style={cellStyle}>{item.detail_menu_nama_bahan}</td>
+          <td style={cellStyle}>{item.detail_menu_jumlah}</td>
+          <td style={cellStyle}>{item.detail_menu_satuan}</td>
+          <td style={cellStyle}>
             {Number(item.detail_menu_harga).toLocaleString("id-ID", {
               style: "currency",
               currency: "IDR",
             })}
           </td>
-          <td style={{ padding: "4% 5%" }}>
-            <Button
-              color="red"
-              size="md"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(item.detail_menu_id);
-              }}
-              disabled={loading}>
-              Delete
-            </Button>
+          <td style={cellStyle}>
+            <Group spacing="xs" justify="center">
+              <Button
+                size="xs"
+                color="blue"
+                onClick={() => handleEdit(item)}
+                disabled={loading}>
+                Edit
+              </Button>
+              <Button
+                size="xs"
+                color="red"
+                onClick={() => handleDelete(item.detail_menu_id)}
+                disabled={loading}>
+                Delete
+              </Button>
+            </Group>
           </td>
         </tr>
       ))
@@ -237,113 +263,89 @@ export const DetailMenuManagementPage = () => {
     );
 
   return (
-    <div>
-      <Box
-        sx={{
-          minHeight: "100vh",
-          paddingTop: 24,
-          paddingBottom: 24,
-          backgroundColor: "#6b5344",
-        }}>
-        <Container size="md">
-          <Stack spacing="lg">
-            <Title order={2} align="center">
-              Detail Menu
-            </Title>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        paddingTop: 24,
+        paddingBottom: 24,
+        backgroundColor: "#6b5344",
+      }}>
+      <Container size="md">
+        <Stack spacing="lg">
+          <Title order={3}>Detail Menu Management</Title>
 
-            <Paper shadow="sm" p="md" radius="md">
-              <Box component="form" onSubmit={handleSubmit(onAdd)}>
-                <Group grow align="flex-end" spacing="xl">
-                  <Stack spacing="xs" style={{ flex: 1 }}>
-                    <Text weight={600}>Nama bahan :</Text>
-                    <Controller
-                      control={control}
-                      name="detail_menu_nama_bahan"
-                      rules={{ required: "Nama bahan is required" }}
-                      render={({ field }) => (
-                        <Select
-                          placeholder="Masukan nama"
-                          data={bahanOptions}
-                          searchable
-                          {...field}
-                        />
-                      )}
+          <Paper shadow="sm" p="md" radius="md">
+            <Box component="form" onSubmit={handleSubmit(onAdd)}>
+              <Stack>
+                <Controller
+                  control={control}
+                  name="detail_menu_nama_bahan"
+                  rules={{ required: "Nama bahan is required" }}
+                  render={({ field }) => (
+                    <Select
+                      label="Nama Bahan"
+                      placeholder="Masukan nama bahan"
+                      data={bahanOptions}
+                      searchable
+                      {...field}
+                      disabled={loading}
                     />
-                  </Stack>
+                  )}
+                />
 
-                  <Stack spacing="xs" style={{ flex: 1 }}>
-                    <Text weight={600}>Satuan :</Text>
-                    <Controller
-                      control={control}
-                      name="detail_menu_satuan"
-                      rules={{ required: "Satuan is required" }}
-                      render={({ field }) => (
-                        <Select
-                          placeholder="Masukan satuan"
-                          data={["kg", "ekor", "liter", "butir", "gram", "ml"]}
-                          searchable
-                          {...field}
-                        />
-                      )}
+                <Controller
+                  control={control}
+                  name="detail_menu_jumlah"
+                  rules={{ required: "Jumlah is required" }}
+                  render={({ field }) => (
+                    <NumberInput
+                      label="Jumlah"
+                      placeholder="Masukan jumlah"
+                      {...field}
+                      value={field.value || ""}
+                      onChange={(value) => field.onChange(value)}
+                      disabled={loading}
                     />
-                  </Stack>
-                </Group>
+                  )}
+                />
 
-                <Group grow align="flex-end" spacing="xl" mt="md">
-                  <Stack spacing="xs" style={{ flex: 1 }}>
-                    <Text weight={600}>Jumlah :</Text>
-                    <Controller
-                      control={control}
-                      name="detail_menu_jumlah"
-                      rules={{ required: "Jumlah is required" }}
-                      render={({ field }) => (
-                        <TextInput
-                          placeholder="Masukan Jumlah"
-                          type="number"
-                          {...field}
-                          value={field.value || ""}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value ? Number(e.target.value) : ""
-                            )
-                          }
-                        />
-                      )}
+                <Controller
+                  control={control}
+                  name="detail_menu_satuan"
+                  rules={{ required: "Satuan is required" }}
+                  render={({ field }) => (
+                    <Select
+                      label="Satuan"
+                      placeholder="Pilih satuan"
+                      data={["kg", "ekor", "liter", "butir", "gram", "ml"]}
+                      searchable
+                      {...field}
+                      disabled={loading}
                     />
-                  </Stack>
+                  )}
+                />
 
-                  <Stack spacing="xs" style={{ flex: 1 }}>
-                    <Text weight={600}>Harga :</Text>
-                    <Controller
-                      control={control}
-                      name="detail_menu_harga"
-                      rules={{ required: "Harga is required" }}
-                      render={({ field }) => (
-                        <TextInput
-                          placeholder="Masukan harga"
-                          type="number"
-                          {...field}
-                          value={field.value || ""}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value ? Number(e.target.value) : ""
-                            )
-                          }
-                        />
-                      )}
+                <Controller
+                  control={control}
+                  name="detail_menu_harga"
+                  rules={{ required: "Harga is required" }}
+                  render={({ field }) => (
+                    <NumberInput
+                      label="Harga"
+                      placeholder="Masukan harga"
+                      {...field}
+                      value={field.value || ""}
+                      onChange={(value) => field.onChange(value)}
+                      disabled={loading}
                     />
-                  </Stack>
-                </Group>
+                  )}
+                />
 
-                <Group
-                  position="center"
-                  mt="lg"
-                  style={{ justifyContent: "center" }}>
+                <Group justify="center" mt="lg">
                   <Button
                     type="submit"
                     color="red"
-                    size="lg"
-                    radius="xl"
+                    size="md"
                     disabled={loading}>
                     Add
                   </Button>
@@ -351,9 +353,8 @@ export const DetailMenuManagementPage = () => {
                   <Button
                     type="button"
                     color="blue"
-                    size="lg"
-                    radius="xl"
-                    onClick={onUpdate}
+                    size="md"
+                    onClick={() => handleSubmit(onUpdate)()}
                     disabled={loading || !editingId}>
                     Update
                   </Button>
@@ -361,39 +362,39 @@ export const DetailMenuManagementPage = () => {
                   <Button
                     type="button"
                     color="gray"
-                    size="lg"
-                    radius="xl"
-                    onClick={handleClear}>
+                    size="md"
+                    onClick={handleClear}
+                    disabled={loading}>
                     Clear
                   </Button>
                 </Group>
-              </Box>
-            </Paper>
+              </Stack>
+            </Box>
+          </Paper>
 
-            <Paper shadow="sm" p="md" radius="md">
-              <Title order={3} align="center" pb="md">
-                Bandeng Goreng
-              </Title>
-              <Box style={{ overflowX: "auto" }}>
-                <Table>
-                  <thead>
-                    <tr style={{ border: "1px solid white" }}>
-                      <th style={{ paddingLeft: "3%" }}>id_bahan</th>
-                      <th>nama</th>
-                      <th>jumlah</th>
-                      <th>satuan</th>
-                      <th>harga</th>
-                      <th style={{ paddingLeft: "5%" }}>action</th>
-                    </tr>
-                  </thead>
-                  <tbody>{rows}</tbody>
-                </Table>
-              </Box>
-            </Paper>
-          </Stack>
-        </Container>
-      </Box>
-    </div>
+          <Paper shadow="sm" p="md" radius="md">
+            <Group justify="center" pb="md">
+              <Title order={4}>Bandeng Goreng</Title>
+            </Group>
+            <Box sx={{ overflowX: "auto" }}>
+              <Table>
+                <thead>
+                  <tr style={{ backgroundColor: "#8B7355" }}>
+                    <th style={headerCellStyle}>ID Bahan</th>
+                    <th style={headerCellStyle}>Nama</th>
+                    <th style={headerCellStyle}>Jumlah</th>
+                    <th style={headerCellStyle}>Satuan</th>
+                    <th style={headerCellStyle}>Harga</th>
+                    <th style={headerCellStyle}>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>{rows}</tbody>
+              </Table>
+            </Box>
+          </Paper>
+        </Stack>
+      </Container>
+    </Box>
   );
 };
 
