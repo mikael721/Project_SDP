@@ -61,12 +61,14 @@ export const StokManagementPage = () => {
         bahan_baku_harga: data.bahan_baku_jumlah * data.bahan_baku_harga_satuan,
       };
       const response = await axios.post(
-        `http://localhost:3000/api/bahan_baku/`,
+        `http://localhost:3000/api/bahan_baku/new`,
         bahanBakuBaru
       );
       setBahanBaku((s) => [...s, response.data]);
       reset();
       setMode("tambah");
+
+      await getstok();
     } catch (error) {
       console.error("Error posting data:", error);
     } finally {
@@ -95,6 +97,8 @@ export const StokManagementPage = () => {
       );
       reset();
       setMode("tambah");
+
+      await getstok();
     } catch (error) {
       console.error("Error updating data:", error);
     } finally {
@@ -109,6 +113,8 @@ export const StokManagementPage = () => {
       setBahanBaku((s) => s.filter((b) => b.bahan_baku_id !== id));
       reset();
       setMode("tambah");
+
+      await getstok();
     } catch (error) {
       console.error("Error deleting data:", error);
     } finally {
@@ -128,7 +134,6 @@ export const StokManagementPage = () => {
         return;
       }
 
-      // Validate that transaction amount is provided
       if (data.bahan_baku_jumlah === 0 || !data.bahan_baku_jumlah) {
         console.error("Jumlah transaksi harus lebih dari 0");
         return;
@@ -145,7 +150,6 @@ export const StokManagementPage = () => {
         }
       }
 
-      // Post to Pembelian table
       const pembelianData = {
         bahan_baku_id: data.bahan_baku_id,
         pembelian_jumlah: data.bahan_baku_jumlah,
@@ -158,7 +162,6 @@ export const StokManagementPage = () => {
         pembelianData
       );
 
-      // Update stok using the same format as the working updateStok
       const updatedBahan = {
         bahan_baku_nama: currentBahan.bahan_baku_nama,
         bahan_baku_jumlah: newJumlah,
@@ -179,6 +182,8 @@ export const StokManagementPage = () => {
       );
 
       reset();
+
+      await getstok();
     } catch (error) {
       console.error("Error processing transaction:", error);
     } finally {
@@ -189,10 +194,13 @@ export const StokManagementPage = () => {
   const onSubmit = (data) => {
     if (mode === "tambah") {
       postStok(data);
+      handleClear();
     } else if (mode === "update") {
       handleTransactionSubmit(data);
+      handleClear();
     }
   };
+
   const handleClear = () => {
     reset({
       bahan_baku_id: "",
@@ -204,6 +212,7 @@ export const StokManagementPage = () => {
     setMode("tambah");
     setTransactionType("tambah");
   };
+
   const handleModeChange = (value) => {
     setMode(value);
     if (value === "tambah") {
@@ -245,9 +254,9 @@ export const StokManagementPage = () => {
     padding: "12px",
   };
 
-  const rows = bahanBaku.map((item) => (
+  const rows = bahanBaku.map((item, index) => (
     <tr
-      key={item.bahan_baku_id}
+      key={index}
       style={{
         backgroundColor: "white",
         color: "black",
