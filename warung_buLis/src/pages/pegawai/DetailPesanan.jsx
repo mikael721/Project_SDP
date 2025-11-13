@@ -36,16 +36,15 @@ const DetailPesanan = () => {
 
   return (
     <div className='detailMenuByIDPesanan'>
-      {allMenu.map((data,i) => {
-        let d = data.menu;
+      {allMenu.map((d,i) => {
         return(
           <CardMenu
-            key={d.menu_id}
-            img={d.menu_gambar}
-            harga={d.menu_harga}
-            nama={d.menu_nama}
-            id={d.menu_id}
-            jumlah={3} // ganti ini ntik
+            key={d.menu.menu_id}
+            img={d.menu.menu_gambar}
+            harga={d.menu.menu_harga}
+            nama={d.menu.menu_nama}
+            id={d.menu.menu_id}
+            jumlah={d.pesanan_detail_jumlah} // ganti ini ntik
           />
         )
       })}
