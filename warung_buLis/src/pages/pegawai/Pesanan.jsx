@@ -123,9 +123,14 @@ const Pesanan = () => {
   };
 
   // === Update status pesanan ===
-  const updateStatusPesanan = (id) => {
-    setShowPassPanel(true);
-    setIdRubah(id);
+  const updateStatusPesanan = (id,status) => {
+    if(status == 'terkirim'){
+      window.alert('Pesanan Telah Terkirim');
+    }
+    else{
+      setShowPassPanel(true);
+      setIdRubah(id);
+    }
   };
 
   // === Filter data sebelum tampil ===
@@ -170,7 +175,7 @@ const Pesanan = () => {
                 <button
                   className='buttonStyling'
                   style={setColor(d.pesanan_status)}
-                  onClick={() => updateStatusPesanan(d.pesanan_id)}
+                  onClick={() => updateStatusPesanan(d.pesanan_id,d.pesanan_status)}
                 >
                   {d.pesanan_status}
                 </button>
