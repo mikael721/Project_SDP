@@ -27,6 +27,7 @@ export const HistoryPage = () => {
   const [error, setError] = useState("");
 
   const handleSearch = async () => {
+    setHistory([]);
     if (!email.trim()) {
       setError("Masukkan email terlebih dahulu");
       return;
@@ -169,10 +170,6 @@ export const HistoryPage = () => {
               <Center py="xl">
                 <Loader size="md" />
               </Center>
-            )}
-
-            {!loading && searched && error && (
-              <Alert color="red">{error}</Alert>
             )}
 
             {!loading && searched && history.length > 0 && (
