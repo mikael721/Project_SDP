@@ -65,7 +65,7 @@ export const DetailMenuManagementPage = () => {
 
       const options = Array.isArray(response.data)
         ? response.data.map((item) => ({
-            value: item.bahan_baku_nama,
+            value: item.bahan_baku_id.toString(),
             label: item.bahan_baku_nama,
           }))
         : [];
@@ -90,8 +90,14 @@ export const DetailMenuManagementPage = () => {
         return;
       }
 
+      // Find the selected bahan name from options
+      const selectedBahan = bahanOptions.find(
+        (option) => option.value === data.detail_menu_nama_bahan
+      );
+
       const payload = {
-        detail_menu_nama_bahan: data.detail_menu_nama_bahan,
+        detail_menu_nama_bahan:
+          selectedBahan?.label || data.detail_menu_nama_bahan,
         detail_menu_jumlah: Number(data.detail_menu_jumlah),
         detail_menu_satuan: data.detail_menu_satuan,
         detail_menu_harga: Number(data.detail_menu_harga),
@@ -127,8 +133,14 @@ export const DetailMenuManagementPage = () => {
         return;
       }
 
+      // Find the selected bahan name from options
+      const selectedBahan = bahanOptions.find(
+        (option) => option.value === data.detail_menu_nama_bahan
+      );
+
       const payload = {
-        detail_menu_nama_bahan: data.detail_menu_nama_bahan,
+        detail_menu_nama_bahan:
+          selectedBahan?.label || data.detail_menu_nama_bahan,
         detail_menu_jumlah: Number(data.detail_menu_jumlah),
         detail_menu_satuan: data.detail_menu_satuan,
         detail_menu_harga: Number(data.detail_menu_harga),
@@ -185,7 +197,13 @@ export const DetailMenuManagementPage = () => {
 
   const handleEdit = (item) => {
     setEditingId(item.detail_menu_id);
-    setValue("detail_menu_nama_bahan", item.detail_menu_nama_bahan);
+
+    // Find the bahan_baku_id from the name
+    const selectedBahan = bahanOptions.find(
+      (option) => option.label === item.detail_menu_nama_bahan
+    );
+
+    setValue("detail_menu_nama_bahan", selectedBahan?.value || "");
     setValue("detail_menu_jumlah", item.detail_menu_jumlah);
     setValue("detail_menu_satuan", item.detail_menu_satuan);
     setValue("detail_menu_harga", item.detail_menu_harga);
@@ -305,6 +323,7 @@ export const DetailMenuManagementPage = () => {
                       value={field.value || ""}
                       onChange={(value) => field.onChange(value)}
                       disabled={loading}
+                      min={1}
                     />
                   )}
                 />
@@ -337,6 +356,7 @@ export const DetailMenuManagementPage = () => {
                       value={field.value || ""}
                       onChange={(value) => field.onChange(value)}
                       disabled={loading}
+                      min={1}
                     />
                   )}
                 />
