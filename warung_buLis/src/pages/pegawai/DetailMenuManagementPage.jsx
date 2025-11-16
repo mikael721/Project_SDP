@@ -36,6 +36,20 @@ export const DetailMenuManagementPage = () => {
     fetchDataDetailMenu();
     fetchBahanOptions();
   }, [id]);
+  const navigate = useNavigate();
+  const userToken = useSelector((state) => state.user.userToken);
+
+  // === Lifecycle ===
+  useEffect(() => {
+    cekSudahLogin();
+  }, []);
+
+  // === Cek login dan ambil data menu ===
+  const cekSudahLogin = () => {
+    if (!userToken) {
+      navigate("/pegawai");
+    }
+  };
 
   const fetchDataDetailMenu = async () => {
     try {

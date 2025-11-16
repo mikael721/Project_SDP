@@ -28,7 +28,6 @@ export const DetailPenjualanPage = () => {
   const { id } = useParams(); // Ambil header_penjualan_id dari URL
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const userToken = useSelector((state) => state.user.userToken);
   const cartItems = useSelector((state) => state.cart.items);
 
   const [loading, setLoading] = useState(false);
@@ -46,6 +45,20 @@ export const DetailPenjualanPage = () => {
       fetchPenjualanData();
     }
   }, [id]);
+
+  const userToken = useSelector((state) => state.user.userToken);
+
+  // === Lifecycle ===
+  useEffect(() => {
+    cekSudahLogin();
+  }, []);
+
+  // === Cek login dan ambil data menu ===
+  const cekSudahLogin = () => {
+    if (!userToken) {
+      navigate("/pegawai");
+    }
+  };
 
   const fetchPenjualanData = async () => {
     try {
@@ -239,8 +252,7 @@ export const DetailPenjualanPage = () => {
         paddingTop: "24px",
         paddingBottom: "24px",
         position: "relative",
-      }}
-    >
+      }}>
       <LoadingOverlay visible={loading} />
 
       <Container size="lg">
@@ -251,8 +263,7 @@ export const DetailPenjualanPage = () => {
             </Text>
             <Button
               variant="default"
-              onClick={() => navigate("/pegawai/penjualan")}
-            >
+              onClick={() => navigate("/pegawai/penjualan")}>
               Kembali
             </Button>
           </Group>
@@ -398,8 +409,7 @@ export const DetailPenjualanPage = () => {
                               item.menu_id,
                               item.penjualan_jumlah - 1
                             )
-                          }
-                        >
+                          }>
                           -
                         </Button>
                         <Text
@@ -407,8 +417,7 @@ export const DetailPenjualanPage = () => {
                           style={{
                             minWidth: "30px",
                             textAlign: "center",
-                          }}
-                        >
+                          }}>
                           {item.penjualan_jumlah}
                         </Text>
                         <Button
@@ -419,15 +428,13 @@ export const DetailPenjualanPage = () => {
                               item.menu_id,
                               item.penjualan_jumlah + 1
                             )
-                          }
-                        >
+                          }>
                           +
                         </Button>
                         <Button
                           size="xs"
                           color="gray"
-                          onClick={() => removeFromCart(item.menu_id)}
-                        >
+                          onClick={() => removeFromCart(item.menu_id)}>
                           Hapus
                         </Button>
                       </Group>
@@ -451,8 +458,7 @@ export const DetailPenjualanPage = () => {
                   fullWidth
                   color="blue"
                   onClick={handleSaveDetails}
-                  loading={loading}
-                >
+                  loading={loading}>
                   Simpan Item ke Detail Penjualan
                 </Button>
               </Stack>
@@ -474,8 +480,7 @@ export const DetailPenjualanPage = () => {
                 value={jenisPenjualan}
                 onChange={handleJenisPenjualanChange}
                 label="Jenis Penjualan"
-                required
-              >
+                required>
                 <Group mt="xs">
                   <Radio value="offline" label="Offline" />
                   <Radio value="online" label="Online" />
@@ -547,16 +552,14 @@ export const DetailPenjualanPage = () => {
                   color="blue"
                   size="lg"
                   onClick={handleUpdateHeader}
-                  loading={loading}
-                >
+                  loading={loading}>
                   Update Header
                 </Button>
                 <Button
                   color="green"
                   size="lg"
                   onClick={() => setConfirmOpen(true)}
-                  loading={loading}
-                >
+                  loading={loading}>
                   Selesaikan Transaksi
                 </Button>
               </Group>
@@ -579,8 +582,7 @@ export const DetailPenjualanPage = () => {
                     color: "white",
                     fontWeight: 700,
                   },
-                }}
-              >
+                }}>
                 <Text mb="md" fw={500}>
                   Apakah Anda yakin untuk menyelesaikan transaksi ini?
                 </Text>
@@ -588,8 +590,7 @@ export const DetailPenjualanPage = () => {
                 <Group justify="flex-end">
                   <Button
                     variant="default"
-                    onClick={() => setConfirmOpen(false)}
-                  >
+                    onClick={() => setConfirmOpen(false)}>
                     Tidak
                   </Button>
                   <Button
@@ -597,8 +598,7 @@ export const DetailPenjualanPage = () => {
                     onClick={async () => {
                       setConfirmOpen(false);
                       await handleFinalize();
-                    }}
-                  >
+                    }}>
                     Ya
                   </Button>
                 </Group>

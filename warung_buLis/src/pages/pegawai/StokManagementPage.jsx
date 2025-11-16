@@ -33,6 +33,20 @@ export const StokManagementPage = () => {
       bahan_baku_harga_satuan: 0,
     },
   });
+  const navigate = useNavigate();
+  const userToken = useSelector((state) => state.user.userToken);
+
+  // === Lifecycle ===
+  useEffect(() => {
+    cekSudahLogin();
+  }, []);
+
+  // === Cek login dan ambil data menu ===
+  const cekSudahLogin = () => {
+    if (!userToken) {
+      navigate("/pegawai");
+    }
+  };
 
   const getstok = async () => {
     try {

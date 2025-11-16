@@ -18,8 +18,6 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 
 export const LaporanKeuanganPage = () => {
-  const userToken = useSelector((state) => state.user.userToken);
-
   const [jenisLaporan, setJenisLaporan] = useState("penjualan");
   const [dataPenjualan, setDataPenjualan] = useState([]);
   const [dataPembelian, setDataPembelian] = useState([]);
@@ -34,6 +32,21 @@ export const LaporanKeuanganPage = () => {
       bahanId: "",
     },
   });
+
+  const navigate = useNavigate();
+  const userToken = useSelector((state) => state.user.userToken);
+
+  // === Lifecycle ===
+  useEffect(() => {
+    cekSudahLogin();
+  }, []);
+
+  // === Cek login dan ambil data menu ===
+  const cekSudahLogin = () => {
+    if (!userToken) {
+      navigate("/pegawai");
+    }
+  };
 
   // Fetch initial data
   useEffect(() => {
