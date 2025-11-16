@@ -84,6 +84,15 @@ export const HistoryPage = () => {
     }
   };
 
+  const getStatusTextColor = (status) => {
+    switch (status) {
+      case "pending":
+        return "black";
+      default:
+        return "white";
+    }
+  };
+
   const formatDate = (date) => {
     if (!date) return "-";
     return new Date(date).toLocaleDateString("id-ID", {
@@ -124,13 +133,13 @@ export const HistoryPage = () => {
             style={{ flexShrink: 0 }}
           />
 
-          <Title order={3} style={{ flex: 1, textAlign: "center" }}>
+          <Title order={2} style={{ flex: 1, textAlign: "center" }}>
             History Pesanan
           </Title>
 
           <Button
             variant="default"
-            size="sm"
+            size="md"
             onClick={() => navigate("/customer")}
             style={{ flexShrink: 0 }}>
             Kembali
@@ -155,11 +164,13 @@ export const HistoryPage = () => {
                     }
                   }}
                   error={error && searched ? error : ""}
+                  size="md"
                 />
                 <Button
                   onClick={handleSearch}
                   loading={loading}
                   mt="auto"
+                  size="md"
                   style={{ backgroundColor: "#CC0000" }}>
                   Cari
                 </Button>
@@ -168,13 +179,13 @@ export const HistoryPage = () => {
 
             {loading && (
               <Center py="xl">
-                <Loader size="md" />
+                <Loader size="lg" />
               </Center>
             )}
 
             {!loading && searched && history.length > 0 && (
               <Stack gap="md">
-                <Text fw={600} size="md">
+                <Text fw={600} size="lg">
                   Ditemukan {history.length} pesanan
                 </Text>
 
@@ -189,9 +200,14 @@ export const HistoryPage = () => {
                     }}>
                     <Group justify="space-between">
                       <div>
-                        <Text size="md">Nama: {pesanan.pesanan_nama}</Text>
+                        <Text size="lg">Nama: {pesanan.pesanan_nama}</Text>
                       </div>
-                      <Badge color={getStatusColor(pesanan.pesanan_status)}>
+                      <Badge
+                        color={getStatusColor(pesanan.pesanan_status)}
+                        style={{
+                          color: getStatusTextColor(pesanan.pesanan_status),
+                        }}
+                        size="lg">
                         {pesanan.pesanan_status.charAt(0).toUpperCase() +
                           pesanan.pesanan_status.slice(1)}
                       </Badge>
@@ -199,24 +215,18 @@ export const HistoryPage = () => {
 
                     <Group grow>
                       <div>
-                        <Text size="xs" c="dimmed">
-                          Lokasi
-                        </Text>
-                        <Text size="sm">{pesanan.pesanan_lokasi}</Text>
+                        <Text size="sm">Lokasi</Text>
+                        <Text size="lg">{pesanan.pesanan_lokasi}</Text>
                       </div>
                       <div>
-                        <Text size="xs" c="dimmed">
-                          Tanggal Pesanan
-                        </Text>
-                        <Text size="sm">
+                        <Text size="sm">Tanggal Pesanan</Text>
+                        <Text size="lg">
                           {formatDate(pesanan.pesanan_tanggal)}
                         </Text>
                       </div>
                       <div>
-                        <Text size="xs" c="dimmed">
-                          Tanggal Pengiriman
-                        </Text>
-                        <Text size="sm">
+                        <Text size="sm">Tanggal Pengiriman</Text>
+                        <Text size="lg">
                           {formatDate(pesanan.pesanan_tanggal_pengiriman)}
                         </Text>
                       </div>
@@ -224,29 +234,68 @@ export const HistoryPage = () => {
 
                     {pesanan.details && pesanan.details.length > 0 && (
                       <Stack gap="xs">
-                        <Text size="xs" fw={500} c="dimmed">
+                        <Text size="lg" fw={500}>
                           Detail Pesanan:
                         </Text>
-                        <Table size="sm">
+                        <Table size="md">
                           <Table.Thead>
                             <Table.Tr>
-                              <Table.Th>Menu</Table.Th>
-                              <Table.Th align="center">Harga</Table.Th>
-                              <Table.Th align="center">Jumlah</Table.Th>
-                              <Table.Th align="right">Subtotal</Table.Th>
+                              <Table.Th
+                                style={{ fontSize: "16px", textAlign: "left" }}>
+                                Menu
+                              </Table.Th>
+                              <Table.Th
+                                style={{
+                                  fontSize: "16px",
+                                  textAlign: "center",
+                                }}>
+                                Harga
+                              </Table.Th>
+                              <Table.Th
+                                style={{
+                                  fontSize: "16px",
+                                  textAlign: "center",
+                                }}>
+                                Jumlah
+                              </Table.Th>
+                              <Table.Th
+                                style={{
+                                  fontSize: "16px",
+                                  textAlign: "right",
+                                }}>
+                                Subtotal
+                              </Table.Th>
                             </Table.Tr>
                           </Table.Thead>
                           <Table.Tbody>
                             {pesanan.details.map((detail) => (
                               <Table.Tr key={detail.pesanan_detail_id}>
-                                <Table.Td>{detail.menu_nama}</Table.Td>
-                                <Table.Td align="center">
+                                <Table.Td
+                                  style={{
+                                    fontSize: "16px",
+                                    textAlign: "left",
+                                  }}>
+                                  {detail.menu_nama}
+                                </Table.Td>
+                                <Table.Td
+                                  style={{
+                                    fontSize: "16px",
+                                    textAlign: "center",
+                                  }}>
                                   {formatCurrency(detail.menu_harga)}
                                 </Table.Td>
-                                <Table.Td align="center">
+                                <Table.Td
+                                  style={{
+                                    fontSize: "16px",
+                                    textAlign: "center",
+                                  }}>
                                   {detail.pesanan_detail_jumlah}
                                 </Table.Td>
-                                <Table.Td align="right">
+                                <Table.Td
+                                  style={{
+                                    fontSize: "16px",
+                                    textAlign: "right",
+                                  }}>
                                   {formatCurrency(
                                     detail.menu_harga *
                                       detail.pesanan_detail_jumlah
@@ -257,7 +306,7 @@ export const HistoryPage = () => {
                           </Table.Tbody>
                         </Table>
                         <Group justify="flex-end">
-                          <Text fw={600}>
+                          <Text fw={600} size="lg">
                             Total:{" "}
                             {formatCurrency(calculateTotal(pesanan.details))}
                           </Text>
@@ -271,7 +320,9 @@ export const HistoryPage = () => {
 
             {!loading && !searched && (
               <Center py="xl">
-                <Text>Masukkan email untuk melihat history pesanan</Text>
+                <Text size="lg">
+                  Masukkan email untuk melihat history pesanan
+                </Text>
               </Center>
             )}
           </Stack>

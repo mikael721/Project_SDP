@@ -330,8 +330,11 @@ export const DetailMenuManagementPage = () => {
                 <Controller
                   control={control}
                   name="detail_menu_jumlah"
-                  rules={{ required: "Jumlah is required" }}
-                  render={({ field }) => (
+                  rules={{
+                    required: "Jumlah wajib diisi",
+                    min: { value: 1, message: "Jumlah minimal 1" },
+                  }}
+                  render={({ field, fieldState: { error } }) => (
                     <NumberInput
                       label="Jumlah"
                       placeholder="Masukan jumlah"
@@ -340,6 +343,7 @@ export const DetailMenuManagementPage = () => {
                       onChange={(value) => field.onChange(value)}
                       disabled={loading}
                       min={1}
+                      error={error?.message}
                     />
                   )}
                 />
@@ -347,7 +351,7 @@ export const DetailMenuManagementPage = () => {
                 <Controller
                   control={control}
                   name="detail_menu_satuan"
-                  rules={{ required: "Satuan is required" }}
+                  rules={{ required: "Satuan wajib diisi" }}
                   render={({ field }) => (
                     <Select
                       label="Satuan"
@@ -363,8 +367,11 @@ export const DetailMenuManagementPage = () => {
                 <Controller
                   control={control}
                   name="detail_menu_harga"
-                  rules={{ required: "Harga is required" }}
-                  render={({ field }) => (
+                  rules={{
+                    required: "Harga is required",
+                    min: { value: 1, message: "Harga minimal 1" },
+                  }}
+                  render={({ field, fieldState: { error } }) => (
                     <NumberInput
                       label="Harga"
                       placeholder="Masukan harga"
@@ -373,6 +380,7 @@ export const DetailMenuManagementPage = () => {
                       onChange={(value) => field.onChange(value)}
                       disabled={loading}
                       min={1}
+                      error={error?.message}
                     />
                   )}
                 />

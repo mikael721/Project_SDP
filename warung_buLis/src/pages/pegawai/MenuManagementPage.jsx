@@ -42,9 +42,12 @@ export const MenuManagementPage = () => {
   // === GET Menu ===
   const getMenu = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/menu_management/getall", {
-        headers: { "x-auth-token": userToken },
-      });
+      const res = await axios.get(
+        "http://localhost:3000/api/menu_management/getall",
+        {
+          headers: { "x-auth-token": userToken },
+        }
+      );
       setMenu(res.data);
       //console.log("Data menu:", res.data);
     } catch (err) {
@@ -103,13 +106,20 @@ export const MenuManagementPage = () => {
       <div className="inputField">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div style={{ textAlign: "center" }}>
-            <h3 style={{ fontSize: "40px", fontWeight: "bold" }}>Add New Menu</h3>
+            <h3 style={{ fontSize: "40px", fontWeight: "bold" }}>
+              Add New Menu
+            </h3>
             <br />
           </div>
 
           {/* === Nama === */}
           <div className="inputField">
-            <div style={{ minWidth: "50px", textAlign: "right", marginRight: "10px" }}>
+            <div
+              style={{
+                minWidth: "50px",
+                textAlign: "right",
+                marginRight: "10px",
+              }}>
               Name:
             </div>
             <Controller
@@ -128,19 +138,30 @@ export const MenuManagementPage = () => {
 
           {/* === Harga === */}
           <div className="inputField">
-            <div style={{ minWidth: "50px", textAlign: "right", marginRight: "10px" }}>
+            <div
+              style={{
+                minWidth: "50px",
+                textAlign: "right",
+                marginRight: "10px",
+              }}>
               Harga:
             </div>
             <Controller
               name="harga"
               control={control}
-              render={({ field }) => (
+              rules={{
+                required: "Harga is required",
+                min: { value: 1, message: "Harga minimal 1" },
+              }}
+              render={({ field, fieldState: { error } }) => (
                 <NumberInput
-                  min={0}
+                  min={1}
                   placeholder="Masukan Harga"
                   style={{ width: "250px" }}
                   {...field}
-                  required
+                  value={field.value || ""}
+                  onChange={(value) => field.onChange(value)}
+                  error={error?.message}
                 />
               )}
             />
@@ -148,7 +169,12 @@ export const MenuManagementPage = () => {
 
           {/* === Img === */}
           <div className="inputField">
-            <div style={{ minWidth: "50px", textAlign: "right", marginRight: "10px" }}>
+            <div
+              style={{
+                minWidth: "50px",
+                textAlign: "right",
+                marginRight: "10px",
+              }}>
               Img:
             </div>
             <Controller
@@ -182,8 +208,7 @@ export const MenuManagementPage = () => {
               borderBottom: "3px solid white",
               padding: "10px",
               marginBottom: "20px",
-            }}
-          >
+            }}>
             <h2>Menu</h2>
           </div>
           <Table>
@@ -209,8 +234,9 @@ export const MenuManagementPage = () => {
                   <td className="tableSet">
                     <Button
                       color="blue"
-                      onClick={() => navigate(`/pegawai/menu/detail/${d.menu_id}`)}
-                    >
+                      onClick={() =>
+                        navigate(`/pegawai/menu/detail/${d.menu_id}`)
+                      }>
                       DETAIL MENU
                     </Button>
                   </td>
@@ -218,15 +244,13 @@ export const MenuManagementPage = () => {
                   {d.menu_status_aktif !== 1 ? (
                     <td
                       className="tableSet iR isHV"
-                      onClick={() => changeStatus(d.menu_id)}
-                    >
+                      onClick={() => changeStatus(d.menu_id)}>
                       DEACTIVE
                     </td>
                   ) : (
                     <td
                       className="tableSet iG isHV"
-                      onClick={() => changeStatus(d.menu_id)}
-                    >
+                      onClick={() => changeStatus(d.menu_id)}>
                       ACTIVE
                     </td>
                   )}

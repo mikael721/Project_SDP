@@ -389,14 +389,14 @@ export const DetailPenjualanPage = () => {
             <Paper shadow="sm" p="md" radius="md">
               <Stack gap="md">
                 <Text fw={600} size="lg">
-                  Item di Keranjang (Belum disimpan)
+                  Item di Keranjang
                 </Text>
                 {cartItems.map((item) => (
                   <Box key={item.menu_id}>
                     <Group justify="space-between" align="flex-start">
                       <Box style={{ flex: 1 }}>
-                        <Text fw={500}>{item.menu_nama}</Text>
-                        <Text size="sm" c="gold">
+                        <Text fw={700}>{item.menu_nama}</Text>
+                        <Text size="lg" c="white">
                           Rp {item.menu_harga.toLocaleString("id-ID")}
                         </Text>
                       </Box>
@@ -439,7 +439,7 @@ export const DetailPenjualanPage = () => {
                         </Button>
                       </Group>
                     </Group>
-                    <Text size="sm" c="gold">
+                    <Text size="xl" c="white">
                       Subtotal: Rp{" "}
                       {(item.menu_harga * item.penjualan_jumlah).toLocaleString(
                         "id-ID"
@@ -454,13 +454,6 @@ export const DetailPenjualanPage = () => {
                     {calculateTotalFromCart().toLocaleString("id-ID")}
                   </Text>
                 </Group>
-                <Button
-                  fullWidth
-                  color="blue"
-                  onClick={handleSaveDetails}
-                  loading={loading}>
-                  Simpan Item ke Detail Penjualan
-                </Button>
               </Stack>
             </Paper>
           )}
@@ -521,7 +514,7 @@ export const DetailPenjualanPage = () => {
                 <Text fw={600} size="lg">
                   Total Keseluruhan
                 </Text>
-                <Text fw={700} size="xl" c="red">
+                <Text fw={700} style={{ fontSize: "1.5rem" }} c="white">
                   Rp{" "}
                   {(
                     calculateTotalFromDB() +

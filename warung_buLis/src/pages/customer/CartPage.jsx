@@ -367,10 +367,10 @@ const CartPage = () => {
                             pb="md">
                             <Box style={{ flex: 1 }}>
                               <Text fw={500}>{item.name}</Text>
-                              <Text size="sm">
+                              <Text size="md">
                                 Rp {item.price.toLocaleString("id-ID")}
                               </Text>
-                              <Text size="xs" c="white" mt={4}>
+                              <Text size="lg" c="white" mt={4}>
                                 Subtotal: Rp{" "}
                                 {(
                                   item.price * item.pesanan_detail_jumlah
@@ -430,7 +430,7 @@ const CartPage = () => {
                         <Text fw={600} size="lg">
                           Total
                         </Text>
-                        <Text fw={600} size="lg" c="red">
+                        <Text fw={600} size="xl" c="white">
                           Rp {totalHarga.toLocaleString("id-ID")}
                         </Text>
                       </Group>
