@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 
 const Pesanan = () => {
   const navigate = useNavigate();

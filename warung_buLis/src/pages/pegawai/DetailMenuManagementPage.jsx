@@ -16,6 +16,7 @@ import {
 } from "@mantine/core";
 import { useParams } from "react-router";
 import axios from "axios";
+import { useSelector } from "react-redux";
 
 export const DetailMenuManagementPage = () => {
   const { id } = useParams();
