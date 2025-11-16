@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Container,
@@ -158,8 +159,7 @@ export const MainPenjualanPage = () => {
         minHeight: "100vh",
         paddingTop: "24px",
         paddingBottom: "24px",
-      }}
-    >
+      }}>
       <Container size="xl">
         {/* Header Section */}
         <Box
@@ -168,8 +168,7 @@ export const MainPenjualanPage = () => {
             borderRadius: "50px",
             padding: "20px 40px",
             marginBottom: "30px",
-          }}
-        >
+          }}>
           <Group justify="space-between" align="center">
             {/* Cart Button */}
             <Button
@@ -184,8 +183,7 @@ export const MainPenjualanPage = () => {
                 fontWeight: "bold",
                 paddingLeft: "40px",
                 paddingRight: "40px",
-              }}
-            >
+              }}>
               Cart ({cartItems.length})
             </Button>
 
@@ -242,8 +240,7 @@ export const MainPenjualanPage = () => {
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = "translateY(0)";
-                }}
-              >
+                }}>
                 <Card.Section>
                   <Image
                     src={item.menu_gambar}
@@ -287,8 +284,7 @@ export const MainPenjualanPage = () => {
                   style={{
                     fontWeight: "bold",
                     fontSize: "16px",
-                  }}
-                >
+                  }}>
                   Add to cart
                 </Button>
               </Card>
