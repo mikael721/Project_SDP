@@ -161,7 +161,8 @@ export const StokManagementPage = () => {
       } else {
         newJumlah = currentBahan.bahan_baku_jumlah - data.bahan_baku_jumlah;
         if (newJumlah < 0) {
-          console.error("Jumlah stok tidak boleh negatif");
+          console.error("Jumlah stok baru tidak boleh negatif");
+          alert("Jumlah stok baru tidak boleh negatif");
           return;
         }
       }
