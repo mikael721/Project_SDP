@@ -362,12 +362,14 @@ export const StokManagementPage = () => {
                 <Controller
                   control={control}
                   name="bahan_baku_nama"
-                  render={({ field }) => (
+                  rules={{ required: "Nama bahan harus diisi" }}
+                  render={({ field, fieldState: { error } }) => (
                     <TextInput
                       label="Nama Bahan"
                       placeholder="Masukkan nama bahan"
                       {...field}
                       disabled={loading}
+                      error={error?.message}
                     />
                   )}
                 />
@@ -375,7 +377,11 @@ export const StokManagementPage = () => {
                 <Controller
                   control={control}
                   name="bahan_baku_jumlah"
-                  render={({ field }) => (
+                  rules={{
+                    required: "Jumlah harus diisi",
+                    min: { value: 1, message: "Jumlah minimal 1" },
+                  }}
+                  render={({ field, fieldState: { error } }) => (
                     <NumberInput
                       label={
                         mode === "update"
@@ -387,9 +393,10 @@ export const StokManagementPage = () => {
                       placeholder="Jumlah"
                       min={1}
                       {...field}
-                      value={field.value || 0}
-                      onChange={(val) => field.onChange(val ?? 0)}
+                      value={field.value || ""}
+                      onChange={(val) => field.onChange(val)}
                       disabled={loading}
+                      error={error?.message}
                     />
                   )}
                 />
@@ -397,7 +404,8 @@ export const StokManagementPage = () => {
                 <Controller
                   control={control}
                   name="bahan_baku_satuan"
-                  render={({ field }) => (
+                  rules={{ required: "Satuan harus diisi" }}
+                  render={({ field, fieldState: { error } }) => (
                     <Select
                       label="Satuan"
                       placeholder="Pilih satuan atau ketik"
@@ -405,6 +413,7 @@ export const StokManagementPage = () => {
                       searchable
                       {...field}
                       disabled={loading || mode === "update"}
+                      error={error?.message}
                     />
                   )}
                 />
@@ -412,15 +421,20 @@ export const StokManagementPage = () => {
                 <Controller
                   control={control}
                   name="bahan_baku_harga_satuan"
-                  render={({ field }) => (
+                  rules={{
+                    required: "Harga satuan harus diisi",
+                    min: { value: 1, message: "Harga minimal 1" },
+                  }}
+                  render={({ field, fieldState: { error } }) => (
                     <NumberInput
                       label="Harga Per Satuan"
                       placeholder="Harga per satuan"
                       min={1}
                       {...field}
-                      value={field.value || 0}
-                      onChange={(val) => field.onChange(val ?? 0)}
+                      value={field.value || ""}
+                      onChange={(val) => field.onChange(val)}
                       disabled={loading || mode === "update"}
+                      error={error?.message}
                     />
                   )}
                 />
