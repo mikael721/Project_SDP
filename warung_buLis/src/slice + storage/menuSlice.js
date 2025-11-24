@@ -18,8 +18,11 @@ export const menuSlice = createSlice({
       );
       console.log("Berhasil ! menu didelete");
     },
+    clear: (state, action) => {
+      state.menuTerpilih = [];
+    },
   },
 });
 
-export const { pushMenu, popMenu } = menuSlice.actions; // dipakai di file tujuan misal app.jsx
+export const { pushMenu, popMenu, clear } = menuSlice.actions; // dipakai di file tujuan misal app.jsx
 export default menuSlice.reducer; // untuk dipakai di storage

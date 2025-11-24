@@ -17,10 +17,11 @@ import {
 } from "@mantine/core";
 import logo from "../../asset/logo.png";
 import { useDispatch, useSelector } from "react-redux";
-
+import { clear } from "../../slice + storage/menuSlice";
 const CartPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const menuTerpilih = useSelector((state) => state.menu.menuTerpilih);
 
   const [loading, setLoading] = useState(false);
@@ -186,6 +187,10 @@ const CartPage = () => {
     0
   );
 
+  const logout = () => {
+    dispatch(clear());
+    navigate("/customer");
+  };
   return (
     <AppShell header={{ height: 70 }} padding="md">
       <AppShell.Header>
@@ -211,7 +216,7 @@ const CartPage = () => {
           <Button
             variant="default"
             size="sm"
-            onClick={() => navigate("/customer")}
+            onClick={logout}
             style={{ flexShrink: 0 }}>
             Kembali
           </Button>
