@@ -1,4 +1,4 @@
-const DetailMenu = require("../models/detailMenu");
+const DetailMenu = require("../models/DetailMenu");
 
 exports.createDetailMenu = async (req, res) => {
   try {
