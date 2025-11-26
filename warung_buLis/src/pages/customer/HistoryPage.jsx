@@ -16,6 +16,7 @@ import {
   Alert,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import logo from "../../asset/logo.png";
 
 export const HistoryPage = () => {
@@ -38,25 +39,18 @@ export const HistoryPage = () => {
     setSearched(true);
 
     try {
-      const response = await fetch(
+      const response = await axios.get(
         `http://localhost:3000/api/history/search?pesanan_email=${encodeURIComponent(
           email
         )}`,
         {
-          method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
         }
       );
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.message || "Gagal mengambil data history");
-        setHistory([]);
-        return;
-      }
+      const data = response.data;
 
       setHistory(data.data || []);
       if (data.data.length === 0) {
@@ -64,7 +58,8 @@ export const HistoryPage = () => {
       }
     } catch (err) {
       console.error("Error:", err);
-      setError("Terjadi kesalahan saat mengambil data: " + err.message);
+      const errorMessage = err.response?.data?.message || err.message;
+      setError("Terjadi kesalahan saat mengambil data: " + errorMessage);
       setHistory([]);
     } finally {
       setLoading(false);
