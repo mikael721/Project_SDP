@@ -2,7 +2,7 @@
 const { sequelize } = require("../config/sequelize");
 const { DataTypes } = require("sequelize");
 
-const DetailMenu = sequelize.define(
+const detailMenu = sequelize.define(
   "detail_menu",
   {
     detail_menu_id: {
@@ -54,4 +54,4 @@ const DetailMenu = sequelize.define(
   }
 );
 
-module.exports = DetailMenu;
+module.exports = detailMenu;
