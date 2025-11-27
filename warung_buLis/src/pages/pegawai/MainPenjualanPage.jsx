@@ -18,7 +18,7 @@ import { setCartItems, clearCart } from "../../slice + storage/cartSlice";
 import axios from "axios";
 
 export const MainPenjualanPage = () => {
-  const API_BASE = process.env.REACT_APP_API_BASE;
+  const API_BASE = import.meta.env.VITE_API_BASE;
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userToken = useSelector((state) => state.user.userToken);

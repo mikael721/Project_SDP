@@ -14,7 +14,7 @@ const MenuPage = () => {
   let navigate = useNavigate();
   let dispatch = useDispatch();
   let menuTerpesan = useSelector((state) => state.menu.menuTerpilih);
-  const API_BASE = process.env.REACT_APP_API_BASE;
+  const API_BASE = import.meta.env.VITE_API_BASE;
 
   // === USE EFFECT ===
   useEffect(() => {

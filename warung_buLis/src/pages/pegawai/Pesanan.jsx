@@ -8,7 +8,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 
 const Pesanan = () => {
-  const API_BASE = process.env.REACT_APP_API_BASE;
+  const API_BASE = import.meta.env.VITE_API_BASE;
   const navigate = useNavigate();
   const userToken = useSelector((state) => state.user.userToken);
 

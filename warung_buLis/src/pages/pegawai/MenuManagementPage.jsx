@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 
 export const MenuManagementPage = () => {
-  const API_BASE = process.env.REACT_APP_API_BASE;
+  const API_BASE = import.meta.env.VITE_API_BASE;
   // === React Hook Form ===
   const {
     control,

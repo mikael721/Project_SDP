@@ -9,7 +9,7 @@ import { setLogin, setLogout } from "../slice + storage/userSlice";
 import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
-  const API_BASE = process.env.REACT_APP_API_BASE;
+  const API_BASE = import.meta.env.VITE_API_BASE;
   // === FORM HANDELING ===
   const {
     register,

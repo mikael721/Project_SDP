@@ -19,7 +19,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 
 export const LaporanKeuanganPage = () => {
-  const API_BASE = process.env.REACT_APP_API_BASE;
+  const API_BASE = import.meta.env.VITE_API_BASE;
   const [jenisLaporan, setJenisLaporan] = useState("penjualan");
   const [dataPenjualan, setDataPenjualan] = useState([]);
   const [dataPembelian, setDataPembelian] = useState([]);

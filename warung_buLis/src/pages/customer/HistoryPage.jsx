@@ -20,6 +20,7 @@ import axios from "axios";
 import logo from "../../asset/logo.png";
 
 export const HistoryPage = () => {
+  const API_BASE = import.meta.env.VITE_API_BASE;
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [history, setHistory] = useState([]);
@@ -37,7 +38,6 @@ export const HistoryPage = () => {
     setLoading(true);
     setError("");
     setSearched(true);
-    const API_BASE = process.env.REACT_APP_API_BASE;
 
     try {
       const response = await axios.get(

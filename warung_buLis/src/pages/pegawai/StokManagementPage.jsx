@@ -37,7 +37,7 @@ export const StokManagementPage = () => {
   });
   const navigate = useNavigate();
   const userToken = useSelector((state) => state.user.userToken);
-  const API_BASE = process.env.REACT_APP_API_BASE;
+  const API_BASE = import.meta.env.VITE_API_BASE;
   // === Lifecycle ===
   useEffect(() => {
     cekSudahLogin();

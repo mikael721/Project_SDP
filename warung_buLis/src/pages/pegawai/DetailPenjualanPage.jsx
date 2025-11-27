@@ -25,7 +25,7 @@ import {
 import axios from "axios";
 
 export const DetailPenjualanPage = () => {
-  const API_BASE = process.env.REACT_APP_API_BASE;
+  const API_BASE = import.meta.env.VITE_API_BASE;
 
   const { id } = useParams(); // Ambil header_penjualan_id dari URL
   const navigate = useNavigate();
