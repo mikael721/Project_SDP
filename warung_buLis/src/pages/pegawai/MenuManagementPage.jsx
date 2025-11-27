@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 
 export const MenuManagementPage = () => {
+  const API_BASE = process.env.REACT_APP_API_BASE;
   // === React Hook Form ===
   const {
     control,
@@ -42,12 +43,9 @@ export const MenuManagementPage = () => {
   // === GET Menu ===
   const getMenu = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:3000/api/menu_management/getall",
-        {
-          headers: { "x-auth-token": userToken },
-        }
-      );
+      const res = await axios.get(`${API_BASE}/api/menu_management/getall`, {
+        headers: { "x-auth-token": userToken },
+      });
       setMenu(res.data);
       //console.log("Data menu:", res.data);
     } catch (err) {
@@ -59,7 +57,7 @@ export const MenuManagementPage = () => {
   const addMenu = async (nama, harga, img) => {
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/menu_management",
+        `${API_BASE}/api/menu_management`,
         {
           menu_nama: nama,
           menu_harga: harga,
@@ -80,7 +78,7 @@ export const MenuManagementPage = () => {
   const changeStatus = async (id) => {
     try {
       const res = await axios.put(
-        `http://localhost:3000/api/menu_management/status/${id}`,
+        `${API_BASE}/api/menu_management/status/${id}`,
         {},
         {
           headers: { "x-auth-token": userToken },

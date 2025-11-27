@@ -25,6 +25,8 @@ import {
 import axios from "axios";
 
 export const DetailPenjualanPage = () => {
+  const API_BASE = process.env.REACT_APP_API_BASE;
+
   const { id } = useParams(); // Ambil header_penjualan_id dari URL
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -66,7 +68,7 @@ export const DetailPenjualanPage = () => {
 
       // Fetch data penjualan berdasarkan header_penjualan_id
       const response = await axios.get(
-        `http://localhost:3000/api/detail_penjualan/${id}`,
+        `${API_BASE}/api/detail_penjualan/${id}`,
         {
           headers: { "x-auth-token": userToken },
         }
@@ -155,7 +157,7 @@ export const DetailPenjualanPage = () => {
       // Save each cart item as detail penjualan
       const detailPromises = cartItems.map((item) =>
         axios.post(
-          "http://localhost:3000/api/detail_penjualan/detail",
+          `${API_BASE}/api/detail_penjualan/detail`,
           {
             header_penjualan_id: parseInt(id),
             menu_id: item.menu_id,
@@ -205,7 +207,7 @@ export const DetailPenjualanPage = () => {
       };
 
       await axios.put(
-        `http://localhost:3000/api/detail_penjualan/header/${id}`,
+        `${API_BASE}/api/detail_penjualan/header/${id}`,
         updatePayload,
         {
           headers: { "x-auth-token": userToken },

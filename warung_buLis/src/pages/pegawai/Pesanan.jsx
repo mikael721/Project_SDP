@@ -8,6 +8,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 
 const Pesanan = () => {
+  const API_BASE = process.env.REACT_APP_API_BASE;
   const navigate = useNavigate();
   const userToken = useSelector((state) => state.user.userToken);
 
@@ -27,7 +28,7 @@ const Pesanan = () => {
   const cekPass = async (result) => {
     try {
       const res = await axios.post(
-        `http://localhost:3000/api/pesanan_detail/detail/passcek`,
+        `${API_BASE}/api/pesanan_detail/detail/passcek`,
         result
       );
       if (res.data.status) {
@@ -69,7 +70,7 @@ const Pesanan = () => {
   const getDataDetailPesanan = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:3000/api/pesanan_detail/detail/showspesifik"
+        `${API_BASE}/api/pesanan_detail/detail/showspesifik`
       );
       // sort biar 'terkirim' paling bawah
       const sorted = res.data.sort((a, b) => {
@@ -129,7 +130,7 @@ const Pesanan = () => {
   const nowChangePesananStatus = async () => {
     try {
       await axios.post(
-        `http://localhost:3000/api/pesanan_detail/detail/update/${idRubah}`
+        `${API_BASE}/api/pesanan_detail/detail/update/${idRubah}`
       );
       getDataDetailPesanan();
       setIdRubah(null);

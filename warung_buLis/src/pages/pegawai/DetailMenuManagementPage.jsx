@@ -19,6 +19,8 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 
 export const DetailMenuManagementPage = () => {
+  const API_BASE = process.env.REACT_APP_API_BASE;
+
   const { id } = useParams();
   const [bahanMenu, setBahanMenu] = useState([]);
   const [bahanOptions, setBahanOptions] = useState([]);
@@ -57,7 +59,7 @@ export const DetailMenuManagementPage = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:3000/api/menu_management/detail/${id}`
+        `${API_BASE}/api/menu_management/detail/${id}`
       );
 
       const dataArray = Array.isArray(response.data.data)
@@ -77,7 +79,7 @@ export const DetailMenuManagementPage = () => {
 
   const fetchBahanOptions = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/bahan_baku/`);
+      const response = await axios.get(`${API_BASE}/api/bahan_baku/`);
 
       const options = Array.isArray(response.data)
         ? response.data.map((item) => ({
@@ -121,7 +123,7 @@ export const DetailMenuManagementPage = () => {
       };
 
       const response = await axios.post(
-        `http://localhost:3000/api/menu_management/detail`,
+        `${API_BASE}/api/menu_management/detail`,
         payload
       );
 
@@ -163,7 +165,7 @@ export const DetailMenuManagementPage = () => {
       };
 
       const response = await axios.put(
-        `http://localhost:3000/api/menu_management/detail/${editingId}`,
+        `${API_BASE}/api/menu_management/detail/${editingId}`,
         payload
       );
 
@@ -191,9 +193,7 @@ export const DetailMenuManagementPage = () => {
   const handleDelete = async (deleteId) => {
     try {
       setLoading(true);
-      await axios.delete(
-        `http://localhost:3000/api/menu_management/detail/${deleteId}`
-      );
+      await axios.delete(`${API_BASE}/api/menu_management/detail/${deleteId}`);
       setBahanMenu((prev) =>
         prev.filter((item) => item.detail_menu_id !== deleteId)
       );

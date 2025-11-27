@@ -14,6 +14,7 @@ const MenuPage = () => {
   let navigate = useNavigate();
   let dispatch = useDispatch();
   let menuTerpesan = useSelector((state) => state.menu.menuTerpilih);
+  const API_BASE = process.env.REACT_APP_API_BASE;
 
   // === USE EFFECT ===
   useEffect(() => {
@@ -27,7 +28,7 @@ const MenuPage = () => {
   const getMenu = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:3000/api/menu_management/customer/getall"
+        `${API_BASE}/api/menu_management/customer/getall`
       );
       setmenu(res.data);
       console.log("Data menu:", res.data);

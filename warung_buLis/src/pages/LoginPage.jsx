@@ -9,6 +9,7 @@ import { setLogin, setLogout } from "../slice + storage/userSlice";
 import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
+  const API_BASE = process.env.REACT_APP_API_BASE;
   // === FORM HANDELING ===
   const {
     register,
@@ -48,7 +49,7 @@ const LoginPage = () => {
 
   const doLogin = async (pegawai_id, password) => {
     try {
-      const res = await axios.post("http://localhost:3000/api/login", {
+      const res = await axios.post(`${API_BASE}/api/login`, {
         pegawai_id,
         password,
       });

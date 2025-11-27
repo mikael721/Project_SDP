@@ -1,6 +1,6 @@
-import '../css/pegawai/DetailPenjualan.css' // salah nama ati ati !!!
-import CardMenu from '../../component/CardMenu/CardMenu'
-import { useEffect, useState } from 'react'
+import "../css/pegawai/DetailPenjualan.css"; // salah nama ati ati !!!
+import CardMenu from "../../component/CardMenu/CardMenu";
+import { useEffect, useState } from "react";
 
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
@@ -8,10 +8,9 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 
 const DetailPesanan = () => {
-
   const navigate = useNavigate();
   const userToken = useSelector((state) => state.user.userToken);
-  let { id }= useParams();
+  let { id } = useParams();
 
   const [allMenu, setallMenu] = useState([]);
 
@@ -24,20 +23,23 @@ const DetailPesanan = () => {
     if (!userToken) {
       navigate("/pegawai");
     } else {
-      getAllDetailMenu(id)
+      getAllDetailMenu(id);
     }
   };
+  const API_BASE = process.env.REACT_APP_API_BASE;
 
-  const getAllDetailMenu = async(id) => {
-    await axios.get(`http://localhost:3000/api/pesanan_detail/detail/showdetail/${id}`).then((res) => {
-      setallMenu(res.data);
-    });
-  }
+  const getAllDetailMenu = async (id) => {
+    await axios
+      .get(`${API_BASE}/api/pesanan_detail/detail/showdetail/${id}`)
+      .then((res) => {
+        setallMenu(res.data);
+      });
+  };
 
   return (
-    <div className='detailMenuByIDPesanan'>
-      {allMenu.map((d,i) => {
-        return(
+    <div className="detailMenuByIDPesanan">
+      {allMenu.map((d, i) => {
+        return (
           <CardMenu
             key={d.menu.menu_id}
             img={d.menu.menu_gambar}
@@ -46,10 +48,10 @@ const DetailPesanan = () => {
             id={d.menu.menu_id}
             jumlah={d.pesanan_detail_jumlah} // ganti ini ntik
           />
-        )
+        );
       })}
     </div>
-  )
-}
+  );
+};
 
-export default DetailPesanan
+export default DetailPesanan;

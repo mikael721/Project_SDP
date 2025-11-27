@@ -37,10 +37,11 @@ export const HistoryPage = () => {
     setLoading(true);
     setError("");
     setSearched(true);
+    const API_BASE = process.env.REACT_APP_API_BASE;
 
     try {
       const response = await axios.get(
-        `http://localhost:3000/api/history/search?pesanan_email=${encodeURIComponent(
+        `${API_BASE}/api/history/search?pesanan_email=${encodeURIComponent(
           email
         )}`,
         {

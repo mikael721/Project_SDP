@@ -18,6 +18,7 @@ import { setCartItems, clearCart } from "../../slice + storage/cartSlice";
 import axios from "axios";
 
 export const MainPenjualanPage = () => {
+  const API_BASE = process.env.REACT_APP_API_BASE;
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userToken = useSelector((state) => state.user.userToken);
@@ -46,12 +47,9 @@ export const MainPenjualanPage = () => {
   const getMenu = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(
-        "http://localhost:3000/api/menu_management/getall",
-        {
-          headers: { "x-auth-token": userToken },
-        }
-      );
+      const res = await axios.get(`${API_BASE}/api/menu_management/getall`, {
+        headers: { "x-auth-token": userToken },
+      });
       setMenuItems(res.data);
     } catch (err) {
       console.error("Gagal get menu:", err.response?.data || err.message);
@@ -123,7 +121,7 @@ export const MainPenjualanPage = () => {
       };
 
       const headerRes = await axios.post(
-        "http://localhost:3000/api/detail_penjualan/header",
+        `${API_BASE}/api/detail_penjualan/header`,
         headerPayload,
         {
           headers: { "x-auth-token": userToken },

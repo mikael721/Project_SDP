@@ -37,7 +37,7 @@ export const StokManagementPage = () => {
   });
   const navigate = useNavigate();
   const userToken = useSelector((state) => state.user.userToken);
-
+  const API_BASE = process.env.REACT_APP_API_BASE;
   // === Lifecycle ===
   useEffect(() => {
     cekSudahLogin();
@@ -53,7 +53,7 @@ export const StokManagementPage = () => {
   const getstok = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:3000/api/bahan_baku/`);
+      const response = await axios.get(`${API_BASE}/api/bahan_baku/`);
       setBahanBaku(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -77,7 +77,7 @@ export const StokManagementPage = () => {
         bahan_baku_harga: data.bahan_baku_jumlah * data.bahan_baku_harga_satuan,
       };
       const response = await axios.post(
-        `http://localhost:3000/api/bahan_baku/new`,
+        `${API_BASE}/api/bahan_baku/new`,
         bahanBakuBaru
       );
       setBahanBaku((s) => [...s, response.data]);
@@ -103,7 +103,7 @@ export const StokManagementPage = () => {
         bahan_baku_harga: data.bahan_baku_jumlah * data.bahan_baku_harga_satuan,
       };
       await axios.put(
-        `http://localhost:3000/api/bahan_baku/${data.bahan_baku_id}`,
+        `${API_BASE}/api/bahan_baku/${data.bahan_baku_id}`,
         updatedBahan
       );
       setBahanBaku((s) =>
@@ -125,7 +125,7 @@ export const StokManagementPage = () => {
   const deleteStok = async (id) => {
     try {
       setLoading(true);
-      await axios.delete(`http://localhost:3000/api/bahan_baku/${id}`);
+      await axios.delete(`${API_BASE}/api/bahan_baku/${id}`);
       setBahanBaku((s) => s.filter((b) => b.bahan_baku_id !== id));
       reset();
       setMode("tambah");
@@ -175,7 +175,7 @@ export const StokManagementPage = () => {
       };
 
       await axios.post(
-        `http://localhost:3000/api/bahan_baku/newPembelian`,
+        `${API_BASE}/api/bahan_baku/newPembelian`,
         pembelianData
       );
 
@@ -188,7 +188,7 @@ export const StokManagementPage = () => {
       };
 
       await axios.put(
-        `http://localhost:3000/api/bahan_baku/${data.bahan_baku_id}`,
+        `${API_BASE}/api/bahan_baku/${data.bahan_baku_id}`,
         updatedBahan
       );
 

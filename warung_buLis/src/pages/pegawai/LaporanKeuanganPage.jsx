@@ -19,6 +19,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 
 export const LaporanKeuanganPage = () => {
+  const API_BASE = process.env.REACT_APP_API_BASE;
   const [jenisLaporan, setJenisLaporan] = useState("penjualan");
   const [dataPenjualan, setDataPenjualan] = useState([]);
   const [dataPembelian, setDataPembelian] = useState([]);
@@ -76,7 +77,7 @@ export const LaporanKeuanganPage = () => {
       };
 
       const response = await axios.get(
-        "http://localhost:3000/api/laporan_keuangan/penjualan",
+        `${API_BASE}/api/laporan_keuangan/penjualan`,
         {
           params,
           headers: { "x-auth-token": userToken },
@@ -102,7 +103,7 @@ export const LaporanKeuanganPage = () => {
       };
 
       const response = await axios.get(
-        "http://localhost:3000/api/laporan_keuangan/pembelian",
+        `${API_BASE}/api/laporan_keuangan/pembelian`,
         {
           params,
           headers: { "x-auth-token": userToken },
@@ -128,7 +129,7 @@ export const LaporanKeuanganPage = () => {
       };
 
       const response = await axios.get(
-        "http://localhost:3000/api/laporan_keuangan/pesanan",
+        `${API_BASE}/api/laporan_keuangan/pesanan`,
         {
           params,
           headers: { "x-auth-token": userToken },
