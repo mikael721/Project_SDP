@@ -50,7 +50,6 @@ const getLaporanPenjualan = async (req, res) => {
       order: [["createdAt", "ASC"]],
     });
 
-    // Get pesanan data grouped by menu_id
     const pesananDataMap = {};
     const pesananDetails = await PesananDetail.findAll({
       include: [
@@ -71,7 +70,6 @@ const getLaporanPenjualan = async (req, res) => {
       });
     });
 
-    // Transform data for frontend
     const transformedData = penjualan.map((item) => {
       const pesananList = pesananDataMap[item.menu_id] || [];
       const pesananNama =
