@@ -30,8 +30,6 @@ export const LaporanKeuanganPage = () => {
     defaultValues: {
       tanggalStart: "",
       tanggalEnd: "",
-      menuId: "",
-      bahanId: "",
     },
   });
 
@@ -73,7 +71,6 @@ export const LaporanKeuanganPage = () => {
       const params = {
         tanggal_awal: filters.tanggalStart || null,
         tanggal_akhir: filters.tanggalEnd || null,
-        menu_id: filters.menuId || null,
       };
 
       const response = await axios.get(
@@ -125,7 +122,6 @@ export const LaporanKeuanganPage = () => {
       const params = {
         tanggal_awal: filters.tanggalStart || null,
         tanggal_akhir: filters.tanggalEnd || null,
-        menu_id: filters.menuId || null,
       };
 
       const response = await axios.get(
@@ -149,8 +145,6 @@ export const LaporanKeuanganPage = () => {
     const filters = {
       tanggalStart: data.tanggalStart,
       tanggalEnd: data.tanggalEnd,
-      menuId: data.menuId,
-      bahanId: data.bahanId,
     };
 
     if (jenisLaporan === "penjualan") {
@@ -213,7 +207,8 @@ export const LaporanKeuanganPage = () => {
         paddingTop: 24,
         paddingBottom: 24,
         position: "relative",
-      }}>
+      }}
+    >
       <LoadingOverlay visible={loading} />
 
       <Container size="lg">
@@ -229,7 +224,8 @@ export const LaporanKeuanganPage = () => {
                 <Radio.Group
                   value={jenisLaporan}
                   onChange={setJenisLaporan}
-                  name="jenisLaporan">
+                  name="jenisLaporan"
+                >
                   <Group spacing="md">
                     <Radio value="penjualan" label="Penjualan" />
                     <Radio value="pembelian" label="Pembelian" />
@@ -275,41 +271,12 @@ export const LaporanKeuanganPage = () => {
                 </Box>
               </Group>
 
-              {/* Menu ID Filter */}
-              <Controller
-                control={control}
-                name="menuId"
-                render={({ field }) => (
-                  <TextInput
-                    label="Menu ID"
-                    placeholder="Masukan ID menu"
-                    type="number"
-                    style={{ width: "200px" }}
-                    {...field}
-                  />
-                )}
-              />
-
-              {/* Bahan ID Filter */}
-              <Controller
-                control={control}
-                name="bahanId"
-                render={({ field }) => (
-                  <TextInput
-                    label="Bahan Baku ID"
-                    placeholder="Masukan ID bahan baku"
-                    type="number"
-                    style={{ width: "200px" }}
-                    {...field}
-                  />
-                )}
-              />
-
               <Group position="left">
                 <Button
                   color="red"
                   onClick={handleSubmit(onApplyFilter)}
-                  style={{ borderRadius: "20px" }}>
+                  style={{ borderRadius: "20px" }}
+                >
                   Apply Filter
                 </Button>
               </Group>
@@ -328,10 +295,11 @@ export const LaporanKeuanganPage = () => {
                     <tr style={{ backgroundColor: "#8B7355" }}>
                       <th style={headerCellStyle}>ID</th>
                       <th style={headerCellStyle}>Tanggal</th>
-                      <th style={headerCellStyle}>Menu ID</th>
+                      <th style={headerCellStyle}>Jenis</th>
                       <th style={headerCellStyle}>Menu Nama</th>
                       <th style={headerCellStyle}>Harga</th>
                       <th style={headerCellStyle}>Jumlah</th>
+                      <th style={headerCellStyle}>Nama Pemesan</th>
                       <th style={headerCellStyle}>Subtotal</th>
                     </tr>
                   </thead>
@@ -343,15 +311,17 @@ export const LaporanKeuanganPage = () => {
                           style={{
                             backgroundColor: "white",
                             color: "black",
-                          }}>
+                          }}
+                        >
                           <td style={cellStyle}>{item.penjualan_id}</td>
                           <td style={cellStyle}>{formatDate(item.tanggal)}</td>
-                          <td style={cellStyle}>{item.menu_id}</td>
+                          <td style={cellStyle}>{item.jenis}</td>
                           <td style={cellStyle}>{item.menu_nama}</td>
                           <td style={cellStyle}>
                             Rp {(item.menu_harga || 0).toLocaleString("id-ID")}
                           </td>
                           <td style={cellStyle}>{item.penjualan_jumlah}</td>
+                          <td style={cellStyle}>{item.pesanan_nama || "-"}</td>
                           <td style={cellStyle}>
                             Rp {(item.subtotal || 0).toLocaleString("id-ID")}
                           </td>
@@ -360,8 +330,9 @@ export const LaporanKeuanganPage = () => {
                     ) : (
                       <tr style={{ backgroundColor: "white", color: "black" }}>
                         <td
-                          colSpan={7}
-                          style={{ ...cellStyle, textAlign: "center" }}>
+                          colSpan={8}
+                          style={{ ...cellStyle, textAlign: "center" }}
+                        >
                           Tidak ada data penjualan
                         </td>
                       </tr>
@@ -389,7 +360,6 @@ export const LaporanKeuanganPage = () => {
                     <tr style={{ backgroundColor: "#8B7355" }}>
                       <th style={headerCellStyle}>ID</th>
                       <th style={headerCellStyle}>Tanggal</th>
-                      <th style={headerCellStyle}>Bahan Baku ID</th>
                       <th style={headerCellStyle}>Bahan Baku Nama</th>
                       <th style={headerCellStyle}>Jumlah</th>
                       <th style={headerCellStyle}>Satuan</th>
@@ -405,10 +375,10 @@ export const LaporanKeuanganPage = () => {
                           style={{
                             backgroundColor: "white",
                             color: "black",
-                          }}>
+                          }}
+                        >
                           <td style={cellStyle}>{item.pembelian_id}</td>
                           <td style={cellStyle}>{formatDate(item.tanggal)}</td>
-                          <td style={cellStyle}>{item.bahan_baku_id}</td>
                           <td style={cellStyle}>{item.bahan_baku_nama}</td>
                           <td style={cellStyle}>{item.pembelian_jumlah}</td>
                           <td style={cellStyle}>{item.pembelian_satuan}</td>
@@ -426,8 +396,9 @@ export const LaporanKeuanganPage = () => {
                     ) : (
                       <tr style={{ backgroundColor: "white", color: "black" }}>
                         <td
-                          colSpan={8}
-                          style={{ ...cellStyle, textAlign: "center" }}>
+                          colSpan={7}
+                          style={{ ...cellStyle, textAlign: "center" }}
+                        >
                           Tidak ada data pembelian
                         </td>
                       </tr>
@@ -457,7 +428,6 @@ export const LaporanKeuanganPage = () => {
                       <th style={headerCellStyle}>Nama Pemesan</th>
                       <th style={headerCellStyle}>Status</th>
                       <th style={headerCellStyle}>Tanggal</th>
-                      <th style={headerCellStyle}>Menu ID</th>
                       <th style={headerCellStyle}>Menu Nama</th>
                       <th style={headerCellStyle}>Harga</th>
                       <th style={headerCellStyle}>Jumlah</th>
@@ -472,12 +442,12 @@ export const LaporanKeuanganPage = () => {
                           style={{
                             backgroundColor: "white",
                             color: "black",
-                          }}>
+                          }}
+                        >
                           <td style={cellStyle}>{item.pesanan_id}</td>
                           <td style={cellStyle}>{item.pesanan_nama}</td>
                           <td style={cellStyle}>{item.pesanan_status}</td>
                           <td style={cellStyle}>{formatDate(item.tanggal)}</td>
-                          <td style={cellStyle}>{item.menu_id}</td>
                           <td style={cellStyle}>{item.menu_nama}</td>
                           <td style={cellStyle}>
                             Rp {(item.menu_harga || 0).toLocaleString("id-ID")}
@@ -493,8 +463,9 @@ export const LaporanKeuanganPage = () => {
                     ) : (
                       <tr style={{ backgroundColor: "white", color: "black" }}>
                         <td
-                          colSpan={9}
-                          style={{ ...cellStyle, textAlign: "center" }}>
+                          colSpan={8}
+                          style={{ ...cellStyle, textAlign: "center" }}
+                        >
                           Tidak ada data pesanan
                         </td>
                       </tr>

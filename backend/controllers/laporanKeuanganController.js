@@ -50,20 +50,49 @@ const getLaporanPenjualan = async (req, res) => {
       order: [["createdAt", "ASC"]],
     });
 
+    // Get pesanan data grouped by menu_id
+    const pesananDataMap = {};
+    const pesananDetails = await PesananDetail.findAll({
+      include: [
+        {
+          model: Pesanan,
+          as: "pesanan",
+        },
+      ],
+    });
+
+    pesananDetails.forEach((detail) => {
+      if (!pesananDataMap[detail.menu_id]) {
+        pesananDataMap[detail.menu_id] = [];
+      }
+      pesananDataMap[detail.menu_id].push({
+        pesanan_id: detail.pesanan?.pesanan_id,
+        pesanan_nama: detail.pesanan?.pesanan_nama,
+      });
+    });
+
     // Transform data for frontend
-    const transformedData = penjualan.map((item) => ({
-      penjualan_id: item.penjualan_id,
-      header_penjualan_id: item.header_penjualan_id,
-      tanggal: item.header?.header_penjualan_tanggal,
-      jenis: item.header?.header_penjualan_jenis,
-      menu_id: item.menu_id,
-      menu_nama: item.menu?.menu_nama,
-      menu_harga: item.menu?.menu_harga,
-      penjualan_jumlah: item.penjualan_jumlah,
-      subtotal: (item.menu?.menu_harga || 0) * item.penjualan_jumlah,
-      biaya_tambahan: item.header?.header_penjualan_biaya_tambahan || 0,
-      uang_muka: item.header?.header_penjualan_uang_muka || 0,
-    }));
+    const transformedData = penjualan.map((item) => {
+      const pesananList = pesananDataMap[item.menu_id] || [];
+      const pesananNama =
+        pesananList.length > 0 ? pesananList[0].pesanan_nama : null;
+
+      return {
+        penjualan_id: item.penjualan_id,
+        header_penjualan_id: item.header_penjualan_id,
+        header_penjualan_jenis: item.header_penjualan_jenis,
+        tanggal: item.header?.header_penjualan_tanggal,
+        jenis: item.header?.header_penjualan_jenis,
+        menu_id: item.menu_id,
+        menu_nama: item.menu?.menu_nama,
+        menu_harga: item.menu?.menu_harga,
+        penjualan_jumlah: item.penjualan_jumlah,
+        pesanan_nama: pesananNama,
+        subtotal: (item.menu?.menu_harga || 0) * item.penjualan_jumlah,
+        biaya_tambahan: item.header?.header_penjualan_biaya_tambahan || 0,
+        uang_muka: item.header?.header_penjualan_uang_muka || 0,
+      };
+    });
 
     return res.status(200).json({
       message: "Berhasil mengambil laporan penjualan",
@@ -282,17 +311,45 @@ const getLaporanPenjualanData = async (
     order: [["createdAt", "ASC"]],
   });
 
-  return penjualan.map((item) => ({
-    penjualan_id: item.penjualan_id,
-    header_penjualan_id: item.header_penjualan_id,
-    tanggal: item.header?.header_penjualan_tanggal,
-    jenis: item.header?.header_penjualan_jenis,
-    menu_id: item.menu_id,
-    menu_nama: item.menu?.menu_nama,
-    menu_harga: item.menu?.menu_harga,
-    penjualan_jumlah: item.penjualan_jumlah,
-    subtotal: (item.menu?.menu_harga || 0) * item.penjualan_jumlah,
-  }));
+  // Get pesanan data grouped by menu_id
+  const pesananDataMap = {};
+  const pesananDetails = await PesananDetail.findAll({
+    include: [
+      {
+        model: Pesanan,
+        as: "pesanan",
+      },
+    ],
+  });
+
+  pesananDetails.forEach((detail) => {
+    if (!pesananDataMap[detail.menu_id]) {
+      pesananDataMap[detail.menu_id] = [];
+    }
+    pesananDataMap[detail.menu_id].push({
+      pesanan_id: detail.pesanan?.pesanan_id,
+      pesanan_nama: detail.pesanan?.pesanan_nama,
+    });
+  });
+
+  return penjualan.map((item) => {
+    const pesananList = pesananDataMap[item.menu_id] || [];
+    const pesananNama =
+      pesananList.length > 0 ? pesananList[0].pesanan_nama : null;
+
+    return {
+      penjualan_id: item.penjualan_id,
+      header_penjualan_id: item.header_penjualan_id,
+      tanggal: item.header?.header_penjualan_tanggal,
+      jenis: item.header?.header_penjualan_jenis,
+      menu_id: item.menu_id,
+      menu_nama: item.menu?.menu_nama,
+      menu_harga: item.menu?.menu_harga,
+      penjualan_jumlah: item.penjualan_jumlah,
+      pesanan_nama: pesananNama,
+      subtotal: (item.menu?.menu_harga || 0) * item.penjualan_jumlah,
+    };
+  });
 };
 
 const getLaporanPembelianData = async (
@@ -356,24 +413,6 @@ const getLaporanPesananData = async (tanggal_awal, tanggal_akhir, menu_id) => {
   if (menu_id) {
     whereDetail.menu_id = menu_id;
   }
-
-  const pesanan = await Pesanan.findAll({
-    where: Object.keys(wherePesanan).length > 0 ? wherePesanan : undefined,
-    include: [
-      {
-        model: PesananDetail,
-        as: "details",
-        where: Object.keys(whereDetail).length > 0 ? whereDetail : undefined,
-        include: [
-          {
-            model: Menu,
-            as: "menu",
-          },
-        ],
-      },
-    ],
-    order: [["createdAt", "ASC"]],
-  });
 
   const transformedData = [];
   pesanan.forEach((pes) => {
