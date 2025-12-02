@@ -245,6 +245,7 @@ const Pesanan = () => {
           {
             accessor: "pesanan_status",
             title: "Status",
+            sortable: true,
             render: (d) => (
               <button
                 className="buttonStyling"
