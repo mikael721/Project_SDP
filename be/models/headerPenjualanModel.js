@@ -31,6 +31,14 @@ const HeaderPenjualan = sequelize.define(
       allowNull: false,
       defaultValue: 0,
     },
+    pegawai_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "pegawai",
+        key: "pegawai_id",
+      },
+    },
     createdAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

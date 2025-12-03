@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/sequelize");
 const Menu = require("./menuModels");
 const HeaderPenjualan = require("./headerPenjualanModel");
+const Pegawai = require("./pegawai");
 
 const Penjualan = sequelize.define(
   "penjualan",
@@ -59,6 +60,16 @@ HeaderPenjualan.hasMany(Penjualan, {
 Penjualan.belongsTo(HeaderPenjualan, {
   foreignKey: "header_penjualan_id",
   as: "header",
+});
+
+Pegawai.hasMany(HeaderPenjualan, {
+  foreignKey: "pegawai_id",
+  as: "penjualans",
+});
+
+HeaderPenjualan.belongsTo(Pegawai, {
+  foreignKey: "pegawai_id",
+  as: "pegawai",
 });
 
 Menu.hasMany(Penjualan, {
