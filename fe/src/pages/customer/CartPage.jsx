@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
@@ -18,6 +18,7 @@ import {
 import logo from "../../asset/logo.png";
 import { useDispatch, useSelector } from "react-redux";
 import { clear } from "../../slice + storage/menuSlice";
+
 const CartPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -43,33 +44,39 @@ const CartPage = () => {
 
   const [errors, setErrors] = useState({});
 
+  // Calculate minimum datetime (2 days from now)
+  const minDateTime = useMemo(() => {
+    const now = new Date();
+    const minDate = new Date(now);
+    minDate.setDate(minDate.getDate() + 2);
+    minDate.setHours(0, 0, 0, 0);
+    return minDate.toISOString().slice(0, 16);
+  }, []);
+
   const validateForm = () => {
     const newErrors = {};
 
-    // Validate pesanan_nama
     if (!form.pesanan_nama.trim()) {
       newErrors.pesanan_nama = "Nama penerima wajib diisi";
     } else if (form.pesanan_nama.trim().length < 3) {
       newErrors.pesanan_nama = "Nama minimal 3 karakter";
     }
 
-    // Validate pesanan_email
     if (!form.pesanan_email.trim()) {
       newErrors.pesanan_email = "Email wajib diisi";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.pesanan_email)) {
       newErrors.pesanan_email = "Email harus valid";
     }
 
-    // Validate pesanan_lokasi
     if (!form.pesanan_lokasi.trim()) {
       newErrors.pesanan_lokasi = "Lokasi pengiriman wajib diisi";
     } else if (form.pesanan_lokasi.trim().length < 5) {
       newErrors.pesanan_lokasi = "Lokasi minimal 5 karakter";
     }
 
-    // Validate pesanan_tanggal_pengiriman
     if (!form.pesanan_tanggal_pengiriman) {
-      newErrors.pesanan_tanggal_pengiriman = "Tanggal pengiriman wajib diisi";
+      newErrors.pesanan_tanggal_pengiriman =
+        "Tanggal dan waktu pengiriman wajib diisi";
     }
 
     setErrors(newErrors);
@@ -100,7 +107,6 @@ const CartPage = () => {
       ...prevForm,
       [field]: value,
     }));
-    // Clear error untuk field yang sedang diubah
     if (errors[field]) {
       setErrors((prevErrors) => ({
         ...prevErrors,
@@ -111,12 +117,10 @@ const CartPage = () => {
 
   const handleCheckOut = async () => {
     try {
-      // Validasi form
       if (!validateForm()) {
         return;
       }
 
-      // Validasi cart tidak kosong
       if (cartItems.length === 0) {
         alert("Keranjang tidak boleh kosong");
         return;
@@ -124,7 +128,10 @@ const CartPage = () => {
 
       setLoading(true);
 
-      // Create Pesanan Header
+      // Convert datetime-local format to ISO string format
+      const selectedDateTime = new Date(form.pesanan_tanggal_pengiriman);
+      const isoDateTime = selectedDateTime.toISOString();
+
       const pesananResponse = await axios.post(
         `${API_BASE}/api/pesanan_detail/detail/header`,
         {
@@ -132,7 +139,7 @@ const CartPage = () => {
           pesanan_email: form.pesanan_email.trim().toLowerCase(),
           pesanan_lokasi: form.pesanan_lokasi.trim(),
           pesanan_tanggal: new Date().toISOString().split("T")[0],
-          pesanan_tanggal_pengiriman: form.pesanan_tanggal_pengiriman,
+          pesanan_tanggal_pengiriman: isoDateTime,
         }
       );
 
@@ -145,7 +152,6 @@ const CartPage = () => {
 
       console.log("Pesanan created with ID:", pesanan_id);
 
-      // Create Pesanan Details
       const detailPromises = cartItems.map((item) =>
         axios.post(`${API_BASE}/api/pesanan_detail/detail/detail`, {
           menu_id: item.menu_id,
@@ -159,7 +165,6 @@ const CartPage = () => {
 
       alert("Pesanan berhasil dibuat! Status: Pending");
 
-      // Reset form dan cart
       setCartItems([]);
       setForm({
         pesanan_nama: "",
@@ -168,9 +173,6 @@ const CartPage = () => {
         pesanan_tanggal_pengiriman: "",
       });
       setErrors({});
-
-      // Optional: Navigate ke halaman success atau order tracking
-      // navigate(`/order/${pesanan_id}`);
     } catch (error) {
       console.error("Error during checkout:", error);
       const errorMessage =
@@ -192,6 +194,7 @@ const CartPage = () => {
     dispatch(clear());
     navigate("/customer");
   };
+
   return (
     <AppShell header={{ height: 70 }} padding="md">
       <AppShell.Header>
@@ -328,11 +331,11 @@ const CartPage = () => {
                     <TextInput
                       label={
                         <Text fw={700} size="md">
-                          Tanggal Pengiriman
+                          Tanggal dan Waktu Pengiriman
                         </Text>
                       }
-                      placeholder="YYYY-MM-DD"
-                      type="date"
+                      placeholder="Pilih tanggal dan waktu"
+                      type="datetime-local"
                       value={form.pesanan_tanggal_pengiriman}
                       onChange={(e) =>
                         handleFormChange(
@@ -341,16 +344,8 @@ const CartPage = () => {
                         )
                       }
                       error={errors.pesanan_tanggal_pengiriman ? true : false}
+                      min={minDateTime}
                       required
-                      styles={{
-                        input: {
-                          "&::placeholder": {
-                            color: "white",
-                            fontWeight: "700",
-                            opacity: "1",
-                          },
-                        },
-                      }}
                     />
                     {errors.pesanan_tanggal_pengiriman && (
                       <Text size="sm" c="red" fw={700} mt={4}>
