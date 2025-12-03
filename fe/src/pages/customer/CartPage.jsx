@@ -44,13 +44,30 @@ const CartPage = () => {
 
   const [errors, setErrors] = useState({});
 
-  // Calculate minimum datetime (2 days from now)
+  // Helper function to get Indonesian time (UTC+7)
+  const getIndonesianTime = (date = new Date()) => {
+    // Get UTC time in milliseconds
+    const utcTime = date.getTime() + date.getTimezoneOffset() * 60000;
+    // Add 7 hours for WIB (UTC+7)
+    const indonesianTime = new Date(utcTime + 7 * 60 * 60 * 1000);
+    return indonesianTime;
+  };
+
+  // Calculate minimum datetime (2 days from now) in Indonesian time (WIB/UTC+7)
   const minDateTime = useMemo(() => {
-    const now = new Date();
-    const minDate = new Date(now);
+    const indonesianNow = getIndonesianTime();
+    const minDate = new Date(indonesianNow);
     minDate.setDate(minDate.getDate() + 2);
     minDate.setHours(0, 0, 0, 0);
-    return minDate.toISOString().slice(0, 16);
+
+    // Format for datetime-local input (YYYY-MM-DDTHH:mm)
+    const year = minDate.getFullYear();
+    const month = String(minDate.getMonth() + 1).padStart(2, "0");
+    const day = String(minDate.getDate()).padStart(2, "0");
+    const hours = String(minDate.getHours()).padStart(2, "0");
+    const minutes = String(minDate.getMinutes()).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   }, []);
 
   const validateForm = () => {
@@ -128,9 +145,27 @@ const CartPage = () => {
 
       setLoading(true);
 
-      // Convert datetime-local format to ISO string format
-      const selectedDateTime = new Date(form.pesanan_tanggal_pengiriman);
-      const isoDateTime = selectedDateTime.toISOString();
+      // Convert local Indonesian time input to UTC for database storage
+      const localDateTime = form.pesanan_tanggal_pengiriman; // Format: YYYY-MM-DDTHH:mm
+      console.log(localDateTime);
+
+      // Parse the local datetime as Indonesian time (UTC+7)
+      const deliveryDate = new Date(localDateTime);
+      // Subtract 7 hours to convert to UTC
+      const deliveryDateUTC = new Date(
+        deliveryDate.getTime() + 7 * 60 * 60 * 1000
+      );
+      const isoDeliveryDateTime = deliveryDateUTC.toISOString();
+
+      // Get current time in Indonesian timezone (WIB/UTC+7)
+      const now = new Date();
+      const currentIndonesianTime = new Date(
+        now.getTime() + 7 * 60 * 60 * 1000
+      );
+      const currentIsoDateTime = currentIndonesianTime.toISOString();
+
+      console.log("sekarang (WIB as ISO): " + currentIsoDateTime);
+      console.log("nanti (UTC): " + isoDeliveryDateTime);
 
       const pesananResponse = await axios.post(
         `${API_BASE}/api/pesanan_detail/detail/header`,
@@ -138,8 +173,8 @@ const CartPage = () => {
           pesanan_nama: form.pesanan_nama.trim(),
           pesanan_email: form.pesanan_email.trim().toLowerCase(),
           pesanan_lokasi: form.pesanan_lokasi.trim(),
-          pesanan_tanggal: new Date().toISOString().split("T")[0],
-          pesanan_tanggal_pengiriman: isoDateTime,
+          pesanan_tanggal: currentIsoDateTime,
+          pesanan_tanggal_pengiriman: isoDeliveryDateTime,
         }
       );
 
@@ -331,7 +366,7 @@ const CartPage = () => {
                     <TextInput
                       label={
                         <Text fw={700} size="md">
-                          Tanggal dan Waktu Pengiriman
+                          Tanggal dan Waktu Pengiriman (WIB)
                         </Text>
                       }
                       placeholder="Pilih tanggal dan waktu"
