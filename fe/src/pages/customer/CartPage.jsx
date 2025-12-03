@@ -39,6 +39,7 @@ const CartPage = () => {
     pesanan_nama: "",
     pesanan_email: "",
     pesanan_lokasi: "",
+    nomer_telpon: "",
     pesanan_tanggal_pengiriman: "",
   });
 
@@ -89,6 +90,16 @@ const CartPage = () => {
       newErrors.pesanan_lokasi = "Lokasi pengiriman wajib diisi";
     } else if (form.pesanan_lokasi.trim().length < 5) {
       newErrors.pesanan_lokasi = "Lokasi minimal 5 karakter";
+    }
+
+    if (!form.nomer_telpon.trim()) {
+      newErrors.nomer_telpon = "Nomor telepon wajib diisi";
+    } else if (form.nomer_telpon.trim().length < 9) {
+      newErrors.nomer_telpon = "Nomor telepon minimal 9 karakter";
+    } else if (form.nomer_telpon.trim().length > 20) {
+      newErrors.nomer_telpon = "Nomor telepon maksimal 20 karakter";
+    } else if (!/^\d+$/.test(form.nomer_telpon.trim())) {
+      newErrors.nomer_telpon = "Nomor telepon hanya boleh berisi angka";
     }
 
     if (!form.pesanan_tanggal_pengiriman) {
@@ -166,13 +177,19 @@ const CartPage = () => {
 
       console.log("sekarang (WIB as ISO): " + currentIsoDateTime);
       console.log("nanti (UTC): " + isoDeliveryDateTime);
-
+      console.log("Pesanan Nama:", form.pesanan_nama.trim());
+      console.log("Pesanan Email:", form.pesanan_email.trim().toLowerCase());
+      console.log("Pesanan Lokasi:", form.pesanan_lokasi.trim());
+      console.log("Nomor Telepon:", form.nomer_telpon.trim());
+      console.log("Pesanan Tanggal:", currentIsoDateTime);
+      console.log("Pesanan Tanggal Pengiriman:", isoDeliveryDateTime);
       const pesananResponse = await axios.post(
         `${API_BASE}/api/pesanan_detail/detail/header`,
         {
           pesanan_nama: form.pesanan_nama.trim(),
-          pesanan_email: form.pesanan_email.trim().toLowerCase(),
           pesanan_lokasi: form.pesanan_lokasi.trim(),
+          pesanan_email: form.pesanan_email.trim().toLowerCase(),
+          nomer_telpon: form.nomer_telpon.trim(),
           pesanan_tanggal: currentIsoDateTime,
           pesanan_tanggal_pengiriman: isoDeliveryDateTime,
         }
@@ -187,13 +204,16 @@ const CartPage = () => {
 
       console.log("Pesanan created with ID:", pesanan_id);
 
-      const detailPromises = cartItems.map((item) =>
-        axios.post(`${API_BASE}/api/pesanan_detail/detail/detail`, {
+      const detailPromises = cartItems.map((item) => {
+        const subtotal = item.price * item.pesanan_detail_jumlah;
+        console.log(subtotal);
+        return axios.post(`${API_BASE}/api/pesanan_detail/detail/detail`, {
           menu_id: item.menu_id,
           pesanan_detail_jumlah: item.pesanan_detail_jumlah,
           pesanan_id: pesanan_id,
-        })
-      );
+          subtotal: subtotal,
+        });
+      });
 
       const detailResponses = await Promise.all(detailPromises);
       console.log("All pesanan details created:", detailResponses);
@@ -205,6 +225,7 @@ const CartPage = () => {
         pesanan_nama: "",
         pesanan_email: "",
         pesanan_lokasi: "",
+        nomer_telpon: "",
         pesanan_tanggal_pengiriman: "",
       });
       setErrors({});
@@ -327,6 +348,39 @@ const CartPage = () => {
                     {errors.pesanan_email && (
                       <Text size="sm" c="red" fw={700} mt={4}>
                         {errors.pesanan_email}
+                      </Text>
+                    )}
+                  </div>
+
+                  <div>
+                    <TextInput
+                      label={
+                        <Text fw={700} size="md">
+                          Nomor Telepon
+                        </Text>
+                      }
+                      placeholder="Masukkan nomor telepon Anda"
+                      type="tel"
+                      value={form.nomer_telpon}
+                      onChange={(e) =>
+                        handleFormChange("nomer_telpon", e.target.value)
+                      }
+                      error={errors.nomer_telpon ? true : false}
+                      required
+                      maxLength={20}
+                      styles={{
+                        input: {
+                          "&::placeholder": {
+                            color: "white",
+                            fontWeight: "700",
+                            opacity: "1",
+                          },
+                        },
+                      }}
+                    />
+                    {errors.nomer_telpon && (
+                      <Text size="sm" c="red" fw={700} mt={4}>
+                        {errors.nomer_telpon}
                       </Text>
                     )}
                   </div>

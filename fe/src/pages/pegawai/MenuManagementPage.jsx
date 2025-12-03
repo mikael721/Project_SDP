@@ -71,7 +71,7 @@ export const MenuManagementPage = () => {
     }
   };
 
-  const editMenu = async (id, nama, harga ,img) => {
+  const editMenu = async (id, nama, harga, img) => {
     try {
       const res = await axios.put(
         `${API_BASE}/api/menu_management/edit/${id}`,
@@ -112,7 +112,7 @@ export const MenuManagementPage = () => {
 
   const onSubmit = (data) => {
     if (isEditing) {
-      editMenu(editingId, data.nama, data.harga ,data.img);
+      editMenu(editingId, data.nama, data.harga, data.img);
     } else {
       addMenu(data.nama, data.harga, data.img);
       reset();

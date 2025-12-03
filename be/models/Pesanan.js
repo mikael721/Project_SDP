@@ -1,4 +1,3 @@
-// models/Pesanan.js
 const { sequelize } = require("../config/sequelize");
 const { DataTypes } = require("sequelize");
 const PesananDetail = require("./PesananDetail");
@@ -31,6 +30,14 @@ const Pesanan = sequelize.define(
       type: DataTypes.ENUM("pending", "diproses", "terkirim"),
       defaultValue: "pending",
       allowNull: false,
+    },
+    pesan: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    nomer_telpon: {
+      type: DataTypes.STRING(200),
+      allowNull: true,
     },
     pesanan_tanggal: {
       type: DataTypes.DATE,

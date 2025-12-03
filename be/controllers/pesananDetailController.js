@@ -24,12 +24,13 @@ exports.createPesananDetail = async (req, res) => {
       });
     }
 
-    const { menu_id, pesanan_detail_jumlah, pesanan_id } = req.body;
+    const { menu_id, pesanan_detail_jumlah, pesanan_id, subtotal } = req.body;
 
     const newPesananDetail = await PesananDetail.create({
       menu_id,
       pesanan_detail_jumlah,
       pesanan_id,
+      subtotal,
     });
 
     return res.status(201).json({
@@ -46,7 +47,6 @@ exports.createPesananDetail = async (req, res) => {
     });
   }
 };
-
 // === CREATE PESANAN ===
 exports.createPesanan = async (req, res) => {
   try {
@@ -62,6 +62,7 @@ exports.createPesanan = async (req, res) => {
       pesanan_nama,
       pesanan_lokasi,
       pesanan_email,
+      nomer_telpon,
       pesanan_tanggal,
       pesanan_tanggal_pengiriman,
     } = req.body;
@@ -70,9 +71,10 @@ exports.createPesanan = async (req, res) => {
       pesanan_nama,
       pesanan_lokasi,
       pesanan_email,
+      nomer_telpon,
       pesanan_tanggal,
       pesanan_tanggal_pengiriman,
-      status: "pending",
+      pesanan_status: "pending",
     });
 
     return res.status(201).json({
@@ -89,7 +91,6 @@ exports.createPesanan = async (req, res) => {
     });
   }
 };
-
 // =================================== TAMBAHAN ==============================
 
 // === SHOW PESANAN DETAIL GROUPED BY PESANAN ID === // wes isa
@@ -105,7 +106,14 @@ exports.showPesananDetailSpesifik = async (req, res) => {
         {
           model: require("../models/Pesanan"), // Pesanan
           as: "pesanan",
-          attributes: ["pesanan_id", "pesanan_nama", "pesanan_status","pesanan_email","pesanan_tanggal","pesanan_tanggal_pengiriman"], // ambil pesanan_status
+          attributes: [
+            "pesanan_id",
+            "pesanan_nama",
+            "pesanan_status",
+            "pesanan_email",
+            "pesanan_tanggal",
+            "pesanan_tanggal_pengiriman",
+          ], // ambil pesanan_status
         },
       ],
       order: [["pesanan_id", "ASC"]],
@@ -316,4 +324,3 @@ exports.getPesananDetailById = async (req, res) => {
     });
   }
 };
-

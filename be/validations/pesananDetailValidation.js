@@ -15,8 +15,12 @@ const createPesananDetailSchema = Joi.object({
     "number.base": "Pesanan ID harus berupa angka yang valid.",
     "any.required": "Pesanan ID wajib diisi.",
   }),
+  subtotal: Joi.number().positive().required().messages({
+    "number.base": "Subtotal harus berupa angka yang valid.",
+    "number.positive": "Subtotal harus lebih dari 0.",
+    "any.required": "Subtotal wajib diisi.",
+  }),
 });
-
 const createPesananSchema = Joi.object({
   pesanan_nama: Joi.string().min(1).max(255).required().trim().messages({
     "string.empty": "Nama pesanan wajib diisi.",
@@ -32,6 +36,15 @@ const createPesananSchema = Joi.object({
     "string.email": "Email harus berupa alamat email yang valid.",
     "string.empty": "Email wajib diisi.",
     "any.required": "Email wajib diisi.",
+  }),
+  nomer_telpon: Joi.string().min(9).max(20).required().messages({
+    "string.empty": "Nomor telepon wajib diisi.",
+    "string.min": "Nomor telepon harus terdiri dari minimal 9 karakter.",
+    "string.max": "Nomor telepon tidak boleh lebih dari 20 karakter.",
+    "any.required": "Nomor telepon wajib diisi.",
+  }),
+  pesan: Joi.string().allow("", null).messages({
+    "string.empty": "Pesan tidak valid.",
   }),
   pesanan_tanggal: Joi.string().allow(null).messages({
     "string.empty": "Tanggal pesanan tidak valid.",

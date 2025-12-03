@@ -22,6 +22,10 @@ const PesananDetail = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    subtotal: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+    },
     pesanan_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
