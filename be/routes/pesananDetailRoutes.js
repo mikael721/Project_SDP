@@ -10,7 +10,6 @@ router.get("/showspesifik", pesananDetailController.showPesananDetailSpesifik); 
 router.post("/update/:id", pesananDetailController.updateStatusPesanan); // udh bisa
 router.post("/passcek", pesananDetailController.cekPasswordPemesanan); // udh bisa
 
-// TAMBAHAN 
 router.get("/showdetail/:id", pesananDetailController.getPesananDetailById); // udh bisa
 
 module.exports = router;

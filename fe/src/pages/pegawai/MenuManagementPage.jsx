@@ -8,12 +8,12 @@ import axios from "axios";
 
 export const MenuManagementPage = () => {
   const API_BASE = import.meta.env.VITE_API_BASE;
-  // === React Hook Form ===
   const {
     control,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm({
     defaultValues: {
       nama: "",
@@ -25,13 +25,13 @@ export const MenuManagementPage = () => {
   const navigate = useNavigate();
   const userToken = useSelector((state) => state.user.userToken);
   const [menu, setMenu] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
-  // === Lifecycle ===
   useEffect(() => {
     cekSudahLogin();
   }, []);
 
-  // === Cek login dan ambil data menu ===
   const cekSudahLogin = () => {
     if (!userToken) {
       navigate("/pegawai");
@@ -40,20 +40,17 @@ export const MenuManagementPage = () => {
     }
   };
 
-  // === GET Menu ===
   const getMenu = async () => {
     try {
       const res = await axios.get(`${API_BASE}/api/menu_management/getall`, {
         headers: { "x-auth-token": userToken },
       });
       setMenu(res.data);
-      //console.log("Data menu:", res.data);
     } catch (err) {
       console.error("Gagal get menu:", err.response?.data || err.message);
     }
   };
 
-  // === ADD Menu ===
   const addMenu = async (nama, harga, img) => {
     try {
       const res = await axios.post(
@@ -74,7 +71,29 @@ export const MenuManagementPage = () => {
     }
   };
 
-  // === Change Status Menu ===
+  const editMenu = async (id, nama, harga ,img) => {
+    try {
+      const res = await axios.put(
+        `${API_BASE}/api/menu_management/edit/${id}`,
+        {
+          menu_nama: nama,
+          menu_harga: harga,
+          menu_gambar: img,
+        },
+        {
+          headers: { "x-auth-token": userToken },
+        }
+      );
+      // console.log("Berhasil Edit Menu:", res.data);
+      getMenu();
+      setIsEditing(false);
+      setEditingId(null);
+      reset();
+    } catch (err) {
+      console.error("Gagal Edit Menu:", err.response?.data || err.message);
+    }
+  };
+
   const changeStatus = async (id) => {
     try {
       const res = await axios.put(
@@ -91,26 +110,40 @@ export const MenuManagementPage = () => {
     }
   };
 
-  // === Handle form submit ===
   const onSubmit = (data) => {
-    addMenu(data.nama, data.harga, data.img);
+    if (isEditing) {
+      editMenu(editingId, data.nama, data.harga ,data.img);
+    } else {
+      addMenu(data.nama, data.harga, data.img);
+      reset();
+    }
+  };
+
+  const handleEdit = (item) => {
+    setIsEditing(true);
+    setEditingId(item.menu_id);
+    setValue("nama", item.menu_nama);
+    setValue("harga", item.menu_harga);
+    setValue("img", item.menu_gambar);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditingId(null);
     reset();
   };
 
-  // === RENDER ===
   return (
     <div className="utamaMMP">
-      {/* === FORM INPUT === */}
       <div className="inputField">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div style={{ textAlign: "center" }}>
             <h3 style={{ fontSize: "40px", fontWeight: "bold" }}>
-              Add New Menu
+              {isEditing ? "Edit Menu" : "Add New Menu"}
             </h3>
             <br />
           </div>
 
-          {/* === Nama === */}
           <div className="inputField">
             <div
               style={{
@@ -134,7 +167,6 @@ export const MenuManagementPage = () => {
             />
           </div>
 
-          {/* === Harga === */}
           <div className="inputField">
             <div
               style={{
@@ -160,12 +192,12 @@ export const MenuManagementPage = () => {
                   value={field.value || ""}
                   onChange={(value) => field.onChange(value)}
                   error={error?.message}
+                  disabled={isEditing}
                 />
               )}
             />
           </div>
 
-          {/* === Img === */}
           <div className="inputField">
             <div
               style={{
@@ -191,13 +223,21 @@ export const MenuManagementPage = () => {
 
           <div style={{ textAlign: "center" }}>
             <button type="submit" className="btnSubmitMMP">
-              Submit
+              {isEditing ? "Update" : "Submit"}
             </button>
+            {isEditing && (
+              <button
+                type="button"
+                className="btnCancelMMP"
+                onClick={handleCancel}
+                style={{ marginLeft: "10px" }}>
+                Cancel
+              </button>
+            )}
           </div>
         </form>
       </div>
 
-      {/* === TABEL MENU === */}
       <div className="utamaTabelMMP">
         <div className="tabelMMP">
           <div
@@ -217,6 +257,7 @@ export const MenuManagementPage = () => {
                 <th className="tableSet">Harga</th>
                 <th className="tableSet">Gambar</th>
                 <th className="tableSet">Detail</th>
+                <th className="tableSet">Edit</th>
                 <th className="tableSet">Status</th>
               </tr>
             </thead>
@@ -238,7 +279,11 @@ export const MenuManagementPage = () => {
                       DETAIL MENU
                     </Button>
                   </td>
-
+                  <td className="tableSet">
+                    <Button color="orange" onClick={() => handleEdit(d)}>
+                      EDIT
+                    </Button>
+                  </td>
                   {d.menu_status_aktif !== 1 ? (
                     <td
                       className="tableSet iR isHV"

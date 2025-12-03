@@ -11,4 +11,7 @@ router.put("/status/:id", isAuthenticate  , menuManagement.ubahStatus);
 // untuk customer (gk butuh token)
 router.get("/customer/getall" , menuManagement.getMenu);
 
+// edit menu management
+router.put("/edit/:id", menuManagement.editMenuManagement)
+
 module.exports = router;
