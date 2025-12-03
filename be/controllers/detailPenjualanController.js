@@ -1,6 +1,8 @@
 const HeaderPenjualan = require("../models/headerPenjualanModel");
 const Penjualan = require("../models/penjualanModel");
 const Menu = require("../models/menuModels");
+const DetailMenu = require("../models/detailMenu");
+const BahanBaku = require("../models/bahanBakuModel");
 const {
   headerPenjualanSchema,
   updateHeaderPenjualanSchema,
@@ -65,6 +67,44 @@ const createDetailPenjualan = async (req, res) => {
     }
 
     const penjualan = await Penjualan.create(value);
+
+    // Reduce bahan_baku stock based on menu recipe
+    try {
+      const { sequelize } = require("../config/sequelize");
+      const detailMenus = await DetailMenu.findAll({
+        where: { menu_id: value.menu_id },
+      });
+
+      // For each ingredient in the menu recipe
+      for (const detail of detailMenus) {
+        // Find bahan_baku by name match
+        const bahanBaku = await BahanBaku.findOne({
+          where: {
+            bahan_baku_nama: detail.detail_menu_nama_bahan,
+          },
+        });
+
+        if (bahanBaku) {
+          // Calculate total amount to reduce (detail amount * quantity sold)
+          const amountToReduce =
+            detail.detail_menu_jumlah * value.penjualan_jumlah;
+
+          // Update bahan_baku stock using raw query
+          await sequelize.query(
+            `UPDATE bahan_baku SET bahan_baku_jumlah = bahan_baku_jumlah - :amountToReduce WHERE bahan_baku_id = :bahanBakuId`,
+            {
+              replacements: {
+                amountToReduce: amountToReduce,
+                bahanBakuId: bahanBaku.bahan_baku_id,
+              },
+            }
+          );
+        }
+      }
+    } catch (stockErr) {
+      console.error("Error reducing bahan_baku stock:", stockErr);
+      // Log the error but don't fail the penjualan creation
+    }
 
     return res.status(201).json({
       message: "Detail penjualan berhasil dibuat",
