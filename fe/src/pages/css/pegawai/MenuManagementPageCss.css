@@ -52,3 +52,12 @@
 .iG {
   background-color: green;
 }
+
+.setButtonDetailInfo{
+  min-width: 130px;
+  margin-right: 10px;
+}
+
+.setOneHundretPx{
+    max-width: 100px;
+}

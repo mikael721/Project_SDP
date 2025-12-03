@@ -67,6 +67,35 @@ exports.ubahStatus = async (req,res) => {
     }
 }
 
+// === Edit Menu ===
+exports.editMenuManagement = async(req,res) => {
+    let {menu_nama,menu_harga,menu_gambar} = req.body;
+    let {id} = req.params;
+    try {
+        let findMenu = await MenuManagement.findByPk(id);
+        
+        await findMenu.update({
+            menu_nama: menu_nama ?? findMenu.menu_nama,
+            menu_harga: menu_harga ?? findMenu.menu_harga,
+            menu_gambar: menu_gambar ?? findMenu.menu_gambar,
+        });
+
+        return res.status(200).send({
+            message: "Menu berhasil diperbarui",
+            data: findMenu,
+            status: true
+        });
+
+    } catch (error) {
+        console.error("Error fetching pesanan:", error);
+        return res.status(500).json({
+        success: false,
+        message: "Failed to fetch pesanan",
+        error: error.message,
+        });
+  }
+}
+
 // === TEMPLATE ===
 exports.template = async (req,res) => {
     try {
