@@ -47,9 +47,7 @@ const CartPage = () => {
 
   // Helper function to get Indonesian time (UTC+7)
   const getIndonesianTime = (date = new Date()) => {
-    // Get UTC time in milliseconds
     const utcTime = date.getTime() + date.getTimezoneOffset() * 60000;
-    // Add 7 hours for WIB (UTC+7)
     const indonesianTime = new Date(utcTime + 7 * 60 * 60 * 1000);
     return indonesianTime;
   };
@@ -61,7 +59,6 @@ const CartPage = () => {
     minDate.setDate(minDate.getDate() + 2);
     minDate.setHours(0, 0, 0, 0);
 
-    // Format for datetime-local input (YYYY-MM-DDTHH:mm)
     const year = minDate.getFullYear();
     const month = String(minDate.getMonth() + 1).padStart(2, "0");
     const day = String(minDate.getDate()).padStart(2, "0");
@@ -143,6 +140,276 @@ const CartPage = () => {
     }
   };
 
+  // Function to generate and download PDF invoice
+  const generateInvoicePDF = (pesananId, pesananData) => {
+    const totalHarga = cartItems.reduce(
+      (sum, item) => sum + item.price * item.pesanan_detail_jumlah,
+      0
+    );
+
+    const deliveryDate = new Date(form.pesanan_tanggal_pengiriman);
+    const formattedDeliveryDate = deliveryDate.toLocaleDateString("id-ID", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const currentDate = new Date();
+    const formattedCurrentDate = currentDate.toLocaleDateString("id-ID", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    // Create HTML content for the invoice
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Nota Pesanan #${pesananId}</title>
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+          }
+          .container {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            padding: 30px;
+            background: #fff;
+          }
+          .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+          }
+          .company-info h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+          }
+          .invoice-title {
+            text-align: right;
+          }
+          .invoice-title h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #d32f2f;
+          }
+          .invoice-number {
+            font-size: 14px;
+            color: #666;
+          }
+          .invoice-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            gap: 40px;
+          }
+          .info-section {
+            flex: 1;
+          }
+          .info-section h3 {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            color: #333;
+          }
+          .info-section p {
+            font-size: 14px;
+            margin-bottom: 5px;
+          }
+          .table-section {
+            margin-bottom: 30px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+          }
+          th {
+            background-color: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 2px solid #333;
+            font-size: 14px;
+          }
+          td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+          }
+          tr:last-child td {
+            border-bottom: 2px solid #333;
+          }
+          .text-right {
+            text-align: right;
+          }
+          .summary {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+          }
+          .summary-content {
+            width: 300px;
+          }
+          .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+          }
+          .summary-row.total {
+            font-weight: bold;
+            font-size: 18px;
+            border-top: 2px solid #333;
+            padding-top: 10px;
+            color: #d32f2f;
+          }
+          .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+          }
+          .status {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            color: #856404;
+          }
+          @media print {
+            body {
+              padding: 0;
+            }
+            .container {
+              border: none;
+              max-width: 100%;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="company-info">
+              <h1>NOTA PESANAN</h1>
+            </div>
+            <div class="invoice-title">
+              <h2>INVOICE</h2>
+              <div class="invoice-number">#${pesananId}</div>
+            </div>
+          </div>
+
+          <div class="invoice-info">
+            <div class="info-section">
+              <h3>Informasi Pemesan</h3>
+              <p><strong>${form.pesanan_nama}</strong></p>
+              <p>${form.pesanan_email}</p>
+              <p>${form.nomer_telpon}</p>
+            </div>
+            <div class="info-section">
+              <h3>Alamat Pengiriman</h3>
+              <p>${form.pesanan_lokasi}</p>
+            </div>
+            <div class="info-section">
+              <h3>Informasi Pesanan</h3>
+              <p><strong>Tanggal Pesanan:</strong><br>${formattedCurrentDate}</p>
+              <p><strong>Tanggal Pengiriman:</strong><br>${formattedDeliveryDate}</p>
+            </div>
+          </div>
+
+          <div class="table-section">
+            <table>
+              <thead>
+                <tr>
+                  <th>Produk</th>
+                  <th class="text-right">Harga</th>
+                  <th class="text-right">Jumlah</th>
+                  <th class="text-right">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${cartItems
+                  .map(
+                    (item) => `
+                  <tr>
+                    <td>${item.name}</td>
+                    <td class="text-right">Rp ${item.price.toLocaleString(
+                      "id-ID"
+                    )}</td>
+                    <td class="text-right">${item.pesanan_detail_jumlah}</td>
+                    <td class="text-right">Rp ${(
+                      item.price * item.pesanan_detail_jumlah
+                    ).toLocaleString("id-ID")}</td>
+                  </tr>
+                `
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="summary">
+            <div class="summary-content">
+              <div class="summary-row total">
+                <span>TOTAL:</span>
+                <span>Rp ${totalHarga.toLocaleString("id-ID")}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="status">
+            Status: PENDING - Pesanan Anda sedang diproses
+          </div>
+
+          <div class="footer">
+            <p>Terima kasih telah berbelanja. Pesanan Anda akan segera diproses.</p>
+            <p style="margin-top: 10px; color: #999;">Harap simpan nota ini untuk referensi Anda.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Create blob and download
+    const blob = new Blob([htmlContent], { type: "text/html" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `Nota_Pesanan_${pesananId}_${
+      new Date().toISOString().split("T")[0]
+    }.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+  };
+
   const handleCheckOut = async () => {
     try {
       if (!validateForm()) {
@@ -156,19 +423,15 @@ const CartPage = () => {
 
       setLoading(true);
 
-      // Convert local Indonesian time input to UTC for database storage
-      const localDateTime = form.pesanan_tanggal_pengiriman; // Format: YYYY-MM-DDTHH:mm
+      const localDateTime = form.pesanan_tanggal_pengiriman;
       console.log(localDateTime);
 
-      // Parse the local datetime as Indonesian time (UTC+7)
       const deliveryDate = new Date(localDateTime);
-      // Subtract 7 hours to convert to UTC
       const deliveryDateUTC = new Date(
         deliveryDate.getTime() + 7 * 60 * 60 * 1000
       );
       const isoDeliveryDateTime = deliveryDateUTC.toISOString();
 
-      // Get current time in Indonesian timezone (WIB/UTC+7)
       const now = new Date();
       const currentIndonesianTime = new Date(
         now.getTime() + 7 * 60 * 60 * 1000
@@ -183,6 +446,7 @@ const CartPage = () => {
       console.log("Nomor Telepon:", form.nomer_telpon.trim());
       console.log("Pesanan Tanggal:", currentIsoDateTime);
       console.log("Pesanan Tanggal Pengiriman:", isoDeliveryDateTime);
+
       const pesananResponse = await axios.post(
         `${API_BASE}/api/pesanan_detail/detail/header`,
         {
@@ -218,7 +482,16 @@ const CartPage = () => {
       const detailResponses = await Promise.all(detailPromises);
       console.log("All pesanan details created:", detailResponses);
 
-      alert("Pesanan berhasil dibuat! Status: Pending");
+      // Generate and download invoice
+      generateInvoicePDF(pesanan_id, {
+        nama: form.pesanan_nama,
+        email: form.pesanan_email,
+        telepon: form.nomer_telpon,
+        lokasi: form.pesanan_lokasi,
+        tanggalPengiriman: form.pesanan_tanggal_pengiriman,
+      });
+
+      alert("Pesanan berhasil dibuat! Nota telah diunduh. Status: Pending");
 
       setCartItems([]);
       setForm({
