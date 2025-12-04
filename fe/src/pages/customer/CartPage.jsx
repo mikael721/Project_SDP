@@ -49,14 +49,13 @@ const CartPage = () => {
 
   const [errors, setErrors] = useState({});
 
-  // Helper function to get Indonesian time (UTC+7)
   const getIndonesianTime = (date = new Date()) => {
     const utcTime = date.getTime() + date.getTimezoneOffset() * 60000;
     const indonesianTime = new Date(utcTime + 7 * 60 * 60 * 1000);
     return indonesianTime;
   };
 
-  // Calculate minimum datetime (2 days from now) in Indonesian time (WIB/UTC+7)
+  // now + 2
   const minDateTime = useMemo(() => {
     const indonesianNow = getIndonesianTime();
     const minDate = new Date(indonesianNow);
@@ -144,7 +143,7 @@ const CartPage = () => {
     }
   };
 
-  // Function to generate and download PDF invoice
+  // generate dan download PDF invoice
   const generateInvoicePDF = (pesananId, pesananData) => {
     const totalHarga = cartItems.reduce(
       (sum, item) => sum + item.price * item.pesanan_detail_jumlah,
@@ -171,7 +170,7 @@ const CartPage = () => {
       minute: "2-digit",
     });
 
-    // Create HTML content for the invoice
+    // HTMLnya
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -408,7 +407,7 @@ const CartPage = () => {
       </html>
     `;
 
-    // Create blob and download
+    // Create blob dan download
     const blob = new Blob([htmlContent], { type: "text/html" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -463,7 +462,7 @@ const CartPage = () => {
       const detailResponses = await Promise.all(detailPromises);
       console.log("All pesanan details created:", detailResponses);
 
-      // Generate and download invoice
+      // Generate dan download invoice
       generateInvoicePDF(pesanan_id, {
         nama: form.pesanan_nama,
         email: form.pesanan_email,
@@ -717,7 +716,7 @@ const CartPage = () => {
                     <TextInput
                       label={
                         <Text fw={700} size="md">
-                          Tanggal dan Waktu Pengiriman (WIB)
+                          Tanggal dan Waktu Pengiriman
                         </Text>
                       }
                       placeholder="Pilih tanggal dan waktu"
