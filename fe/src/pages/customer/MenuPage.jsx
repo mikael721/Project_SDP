@@ -17,6 +17,17 @@ import lihathistory from '../../asset/CaraLihatRiwayatPesanan/1_KlikHistory.png'
 import masukanemail from '../../asset/CaraLihatRiwayatPesanan/2_MasukanEmail.png'
 import pesananmuncul from '../../asset/CaraLihatRiwayatPesanan/3_PesananTelahMuncul.png'
 
+// === Help Cara Pesan ===
+import pilihmenu from '../../asset/CaraPesan/1_PilihMenuYangAkanDibeli.png'
+import isiinfo from '../../asset/CaraPesan/2_IsiInformasi.png'
+import klikcekout from '../../asset/CaraPesan/3_KlikCheckOut.png'
+import downloadnota from '../../asset/CaraPesan/4_KlikDownloadNota.png'
+
+
+
+
+
+
 
 
 const MenuPage = () => {
@@ -87,7 +98,22 @@ const MenuPage = () => {
     else if(showHelpDetail == 'pesan_menu'){
       return(
         <div className="panelInfo">
-          pesan_menu
+          <h2>Cara Memesan</h2>
+          <br />
+
+          <h5>1. Klik Add to Cart Pada Menu yang Akan Dipilih Hingga Menu Berwarna Kuning</h5>
+          <img src={pilihmenu} alt="" className="setGambarHelpMenu"/> <br />
+          <br />
+          <h5>2. Isi Informasi Pemesanan</h5>
+          <img src={isiinfo} alt="" className="setGambarHelpMenu"/> <br />
+          <br />
+          <h5>3. Anda Dapat Mengatur Jumlah Dengan Klik + Atau - Pada Menu yang Diinginkan, Lalu Klik Check Out Jika Sudah</h5>
+          <img src={klikcekout} alt="" className="setGambarHelpMenu"/> <br />
+          <br />
+          <h5>4. Anda Dapat Melakukan Pembayaran Dengan Scan Qris, Lalu Klik Download Nota dan Pesanan Anda Berhasil Dibuat</h5>
+          <img src={klikcekout} alt="" className="setGambarHelpMenu"/> <br />
+          <br />
+          <h5>Catatan : Untuk Melihat Pesanan Anda Dapat Melihat Instruksi 'Cara Melihat Orderan'</h5>
         </div>
       )
     }
