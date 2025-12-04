@@ -356,7 +356,7 @@ export const DetailMenuManagementPage = () => {
                     <Select
                       label="Satuan"
                       placeholder="Pilih satuan"
-                      data={["kg", "ekor", "liter", "butir", "gram", "ml"]}
+                      data={["kg", "liter", "unit"]}
                       searchable
                       {...field}
                       disabled={loading}
