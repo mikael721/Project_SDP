@@ -14,8 +14,10 @@ import {
   Text,
   Divider,
   Image,
+  Modal,
 } from "@mantine/core";
 import logo from "../../asset/logo.png";
+import qris from "../../asset/dummy_qris.jpg";
 import { useDispatch, useSelector } from "react-redux";
 import { clear } from "../../slice + storage/menuSlice";
 
@@ -27,6 +29,8 @@ const CartPage = () => {
   const API_BASE = import.meta.env.VITE_API_BASE;
 
   const [loading, setLoading] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [pendingCheckoutData, setPendingCheckoutData] = useState(null);
   const [cartItems, setCartItems] = useState(() => {
     const items = menuTerpilih || [];
     return items.map((item, index) => ({
@@ -201,6 +205,13 @@ const CartPage = () => {
             border-bottom: 2px solid #333;
             padding-bottom: 20px;
           }
+          .logo-section {
+            flex-shrink: 0;
+          }
+          .logo-section img {
+            max-width: 80px;
+            height: auto;
+          }
           .company-info h1 {
             font-size: 28px;
             margin-bottom: 5px;
@@ -317,8 +328,8 @@ const CartPage = () => {
       <body>
         <div class="container">
           <div class="header">
-            <div class="company-info">
-              <h1>NOTA PESANAN</h1>
+            <div class="logo-section">
+              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="Logo" />
             </div>
             <div class="invoice-title">
               <h2>INVOICE</h2>
@@ -410,42 +421,12 @@ const CartPage = () => {
     URL.revokeObjectURL(link.href);
   };
 
-  const handleCheckOut = async () => {
+  const proceedWithPayment = async () => {
+    if (!pendingCheckoutData) return;
+
     try {
-      if (!validateForm()) {
-        return;
-      }
-
-      if (cartItems.length === 0) {
-        alert("Keranjang tidak boleh kosong");
-        return;
-      }
-
       setLoading(true);
-
-      const localDateTime = form.pesanan_tanggal_pengiriman;
-      console.log(localDateTime);
-
-      const deliveryDate = new Date(localDateTime);
-      const deliveryDateUTC = new Date(
-        deliveryDate.getTime() + 7 * 60 * 60 * 1000
-      );
-      const isoDeliveryDateTime = deliveryDateUTC.toISOString();
-
-      const now = new Date();
-      const currentIndonesianTime = new Date(
-        now.getTime() + 7 * 60 * 60 * 1000
-      );
-      const currentIsoDateTime = currentIndonesianTime.toISOString();
-
-      console.log("sekarang (WIB as ISO): " + currentIsoDateTime);
-      console.log("nanti (UTC): " + isoDeliveryDateTime);
-      console.log("Pesanan Nama:", form.pesanan_nama.trim());
-      console.log("Pesanan Email:", form.pesanan_email.trim().toLowerCase());
-      console.log("Pesanan Lokasi:", form.pesanan_lokasi.trim());
-      console.log("Nomor Telepon:", form.nomer_telpon.trim());
-      console.log("Pesanan Tanggal:", currentIsoDateTime);
-      console.log("Pesanan Tanggal Pengiriman:", isoDeliveryDateTime);
+      const { currentIsoDateTime, isoDeliveryDateTime } = pendingCheckoutData;
 
       const pesananResponse = await axios.post(
         `${API_BASE}/api/pesanan_detail/detail/header`,
@@ -502,6 +483,8 @@ const CartPage = () => {
         pesanan_tanggal_pengiriman: "",
       });
       setErrors({});
+      setPaymentModalOpen(false);
+      setPendingCheckoutData(null);
     } catch (error) {
       console.error("Error during checkout:", error);
       const errorMessage =
@@ -511,6 +494,47 @@ const CartPage = () => {
       alert(`Error: ${errorMessage}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCheckOut = async () => {
+    try {
+      if (!validateForm()) {
+        return;
+      }
+
+      if (cartItems.length === 0) {
+        alert("Keranjang tidak boleh kosong");
+        return;
+      }
+
+      const localDateTime = form.pesanan_tanggal_pengiriman;
+      console.log(localDateTime);
+
+      const deliveryDate = new Date(localDateTime);
+      const deliveryDateUTC = new Date(
+        deliveryDate.getTime() + 7 * 60 * 60 * 1000
+      );
+      const isoDeliveryDateTime = deliveryDateUTC.toISOString();
+
+      const now = new Date();
+      const currentIndonesianTime = new Date(
+        now.getTime() + 7 * 60 * 60 * 1000
+      );
+      const currentIsoDateTime = currentIndonesianTime.toISOString();
+
+      setPendingCheckoutData({
+        currentIsoDateTime,
+        isoDeliveryDateTime,
+      });
+      setPaymentModalOpen(true);
+    } catch (error) {
+      console.error("Error during checkout:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Terjadi kesalahan saat membuat pesanan";
+      alert(`Error: ${errorMessage}`);
     }
   };
 
@@ -819,6 +843,73 @@ const CartPage = () => {
           </Container>
         </Box>
       </AppShell.Main>
+
+      <Modal
+        opened={paymentModalOpen}
+        onClose={() => {
+          setPaymentModalOpen(false);
+          setPendingCheckoutData(null);
+        }}
+        title="Metode Pembayaran"
+        styles={{
+          header: {
+            backgroundColor: "#4C2E01",
+          },
+          title: {
+            color: "white",
+          },
+          close: {
+            color: "white",
+          },
+        }}
+        centered>
+        <Stack gap="lg" align="center" className="mt-3">
+          <Box ta="center">
+            <Text fw={600} mb="md">
+              Scan QRIS untuk pembayaran:
+            </Text>
+            <Image
+              src={qris}
+              alt="QRIS"
+              radius="md"
+              w={250}
+              h={250}
+              fit="contain"
+            />
+          </Box>
+
+          <Box ta="center" w="100%">
+            <Text fw={600} mb="sm">
+              Atau gunakan Virtual Account:
+            </Text>
+            <Box
+              p="md"
+              style={{
+                border: "2px solid #ddd",
+                borderRadius: "8px",
+                backgroundColor: "#4C2E01",
+              }}>
+              <Text size="lg" fw={700} style={{ letterSpacing: "2px" }}>
+                1152-2363-7412-3455
+              </Text>
+            </Box>
+          </Box>
+
+          <Group w="100%" grow>
+            <Button
+              variant="default"
+              onClick={() => {
+                setPaymentModalOpen(false);
+                setPendingCheckoutData(null);
+              }}>
+              Batal
+            </Button>
+            <Button color="red" onClick={proceedWithPayment} loading={loading}>
+              Download Nota
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
     </AppShell>
   );
 };
