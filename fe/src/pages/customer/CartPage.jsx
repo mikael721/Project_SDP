@@ -49,16 +49,9 @@ const CartPage = () => {
 
   const [errors, setErrors] = useState({});
 
-  const getIndonesianTime = (date = new Date()) => {
-    const utcTime = date.getTime() + date.getTimezoneOffset() * 60000;
-    const indonesianTime = new Date(utcTime + 7 * 60 * 60 * 1000);
-    return indonesianTime;
-  };
-
   // now + 2
   const minDateTime = useMemo(() => {
-    const indonesianNow = getIndonesianTime();
-    const minDate = new Date(indonesianNow);
+    const minDate = new Date();
     minDate.setDate(minDate.getDate() + 2);
     minDate.setHours(0, 0, 0, 0);
 
@@ -510,17 +503,12 @@ const CartPage = () => {
       const localDateTime = form.pesanan_tanggal_pengiriman;
       console.log(localDateTime);
 
+      // Send datetime as-is without timezone conversion
       const deliveryDate = new Date(localDateTime);
-      const deliveryDateUTC = new Date(
-        deliveryDate.getTime() + 7 * 60 * 60 * 1000
-      );
-      const isoDeliveryDateTime = deliveryDateUTC.toISOString();
+      const isoDeliveryDateTime = deliveryDate.toISOString();
 
       const now = new Date();
-      const currentIndonesianTime = new Date(
-        now.getTime() + 7 * 60 * 60 * 1000
-      );
-      const currentIsoDateTime = currentIndonesianTime.toISOString();
+      const currentIsoDateTime = now.toISOString();
 
       setPendingCheckoutData({
         currentIsoDateTime,
