@@ -37,3 +37,52 @@
   padding: 20px;
   justify-content: center;
 }
+
+.getHelp{
+  position: fixed;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 999;
+  color: white;
+  min-width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btnHelp{
+  padding: 5px 15px;
+  font-weight: bold;
+  border: 1px solid black;
+  border-radius: 15px;
+  margin-bottom: 10px;
+}
+
+.helpMain{
+  width: 900px;
+  height: 100vh;
+  display: flex;
+}
+
+.helpKuadran{
+  width: 50%;
+}
+
+.helpChatpanel{
+  height: 63%;
+
+}
+
+.setUkuranGambar{
+  height: 75%;
+  width: 100%;
+}
+
+.setmidle{
+  display: flex;
+  align-items: center;
+}
+
+.panelInformasi{
+  overflow: auto;
+}
