@@ -94,7 +94,12 @@ const Pesanan = () => {
       "Juli", "Agustus", "September", "Oktober", "November", "Desember"
     ];
     const d = new Date(tanggal);
-    return `${d.getDate()} ${bulanIndo[d.getMonth()]} ${d.getFullYear()}`;
+
+    const jam = d.getHours().toString().padStart(2,"0");
+    const menit = d.getMinutes().toString().padStart(2,"0");
+
+
+    return `${d.getDate()} ${bulanIndo[d.getMonth()]} ${d.getFullYear()}  ${jam}:${menit} `;
   };
 
   // panel password

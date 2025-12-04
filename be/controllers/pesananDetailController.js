@@ -111,6 +111,8 @@ exports.showPesananDetailSpesifik = async (req, res) => {
             "pesanan_nama",
             "pesanan_status",
             "pesanan_email",
+            "pesan",
+            "nomer_telpon",
             "pesanan_tanggal",
             "pesanan_tanggal_pengiriman",
           ], // ambil pesanan_status

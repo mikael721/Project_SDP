@@ -19,6 +19,14 @@ const Pesanan = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    pesan: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    nomer_telpon: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     pesanan_email: {
       type: DataTypes.STRING,
       allowNull: false,
