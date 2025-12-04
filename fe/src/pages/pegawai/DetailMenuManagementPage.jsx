@@ -332,7 +332,7 @@ export const DetailMenuManagementPage = () => {
                   name="detail_menu_jumlah"
                   rules={{
                     required: "Jumlah wajib diisi",
-                    min: { value: 1, message: "Jumlah minimal 1" },
+                    min: { value: 0, message: "Jumlah minimal 0" },
                   }}
                   render={({ field, fieldState: { error } }) => (
                     <NumberInput
@@ -342,7 +342,7 @@ export const DetailMenuManagementPage = () => {
                       value={field.value || ""}
                       onChange={(value) => field.onChange(value)}
                       disabled={loading}
-                      min={1}
+                      min={0}
                       error={error?.message}
                     />
                   )}

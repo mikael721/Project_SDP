@@ -80,43 +80,31 @@ export const StokManagementPage = () => {
         `${API_BASE}/api/bahan_baku/new`,
         bahanBakuBaru
       );
-      setBahanBaku((s) => [...s, response.data]);
-      reset();
-      setMode("tambah");
 
-      await getstok();
-    } catch (error) {
-      console.error("Error posting data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      const newBahanBakuId = response.data.newBahanBaku.bahan_baku_id;
 
-  const updateStok = async (data) => {
-    try {
-      setLoading(true);
-      const updatedBahan = {
-        bahan_baku_nama: data.bahan_baku_nama,
-        bahan_baku_jumlah: data.bahan_baku_jumlah,
-        bahan_baku_satuan: data.bahan_baku_satuan,
-        bahan_baku_harga_satuan: data.bahan_baku_harga_satuan,
-        bahan_baku_harga: data.bahan_baku_jumlah * data.bahan_baku_harga_satuan,
+      const pembelianData = {
+        bahan_baku_id: newBahanBakuId,
+        pembelian_jumlah: data.bahan_baku_jumlah,
+        pembelian_satuan: data.bahan_baku_satuan,
+        pembelian_harga_satuan: data.bahan_baku_harga_satuan,
       };
-      await axios.put(
-        `${API_BASE}/api/bahan_baku/${data.bahan_baku_id}`,
-        updatedBahan
+
+      await axios.post(
+        `${API_BASE}/api/bahan_baku/newPembelian`,
+        pembelianData
       );
-      setBahanBaku((s) =>
-        s.map((b) =>
-          b.bahan_baku_id === data.bahan_baku_id ? { ...b, ...updatedBahan } : b
-        )
-      );
+
+      setBahanBaku((s) => [...s, response.data.newBahanBaku]);
       reset();
       setMode("tambah");
 
       await getstok();
     } catch (error) {
-      console.error("Error updating data:", error);
+      console.error(
+        "Error posting data:",
+        error.response?.data || error.message
+      );
     } finally {
       setLoading(false);
     }
@@ -379,7 +367,7 @@ export const StokManagementPage = () => {
                   name="bahan_baku_jumlah"
                   rules={{
                     required: "Jumlah harus diisi",
-                    min: { value: 1, message: "Jumlah minimal 1" },
+                    min: { value: 0, message: "Jumlah minimal 0" },
                   }}
                   render={({ field, fieldState: { error } }) => (
                     <NumberInput
@@ -391,7 +379,7 @@ export const StokManagementPage = () => {
                           : "Jumlah"
                       }
                       placeholder="Jumlah"
-                      min={1}
+                      min={0}
                       {...field}
                       value={field.value || ""}
                       onChange={(val) => field.onChange(val)}
