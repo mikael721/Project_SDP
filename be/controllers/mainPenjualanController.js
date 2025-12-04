@@ -18,7 +18,14 @@ const createHeaderPenjualan = async (req, res) => {
       });
     }
 
-    const headerPenjualan = await HeaderPenjualan.create(value);
+    // Add pegawai_id dari token
+    const pegawai_id = req.hasil?.pegawai_id || null;
+    const headerPayload = {
+      ...value,
+      pegawai_id: pegawai_id,
+    };
+
+    const headerPenjualan = await HeaderPenjualan.create(headerPayload);
 
     return res.status(201).json({
       message: "Header penjualan berhasil dibuat",

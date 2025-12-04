@@ -8,27 +8,20 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import menuSlice from "../../slice + storage/menuSlice";
 import { AppShell, Button, Container, Group, Image } from "@mantine/core";
-import GambarBuLis from '../../asset/bu-Lis-Ask-NoBg.png'
+import GambarBuLis from "../../asset/bu-Lis-Ask-NoBg.png";
 import { useSetState } from "@mantine/hooks";
-import qris from '../../asset/qris.jpg'
+import qris from "../../asset/qris.jpg";
 
 // === Help Lihat Riwayat ===
-import lihathistory from '../../asset/CaraLihatRiwayatPesanan/1_KlikHistory.png'
-import masukanemail from '../../asset/CaraLihatRiwayatPesanan/2_MasukanEmail.png'
-import pesananmuncul from '../../asset/CaraLihatRiwayatPesanan/3_PesananTelahMuncul.png'
+import lihathistory from "../../asset/CaraLihatRiwayatPesanan/1_KlikHistory.png";
+import masukanemail from "../../asset/CaraLihatRiwayatPesanan/2_MasukanEmail.png";
+import pesananmuncul from "../../asset/CaraLihatRiwayatPesanan/3_PesananTelahMuncul.png";
 
 // === Help Cara Pesan ===
-import pilihmenu from '../../asset/CaraPesan/1_PilihMenuYangAkanDibeli.png'
-import isiinfo from '../../asset/CaraPesan/2_IsiInformasi.png'
-import klikcekout from '../../asset/CaraPesan/3_KlikCheckOut.png'
-import downloadnota from '../../asset/CaraPesan/4_KlikDownloadNota.png'
-
-
-
-
-
-
-
+import pilihmenu from "../../asset/CaraPesan/1_PilihMenuYangAkanDibeli.png";
+import isiinfo from "../../asset/CaraPesan/2_IsiInformasi.png";
+import klikcekout from "../../asset/CaraPesan/3_KlikCheckOut.png";
+import downloadnota from "../../asset/CaraPesan/4_KlikDownloadNota.png";
 
 const MenuPage = () => {
   // === VARIABEL ===
@@ -44,9 +37,9 @@ const MenuPage = () => {
 
   // === USE STATE ===
   const [menu, setmenu] = useState([]);
-  const [showHelp, setshowHelp] = useState(false)
-  
-  const [showHelpDetail, setshowHelpDetail] = useState('none');
+  const [showHelp, setshowHelp] = useState(false);
+
+  const [showHelpDetail, setshowHelpDetail] = useState("none");
 
   // === FUNCTION ===
   const getMenu = async () => {
@@ -63,128 +56,159 @@ const MenuPage = () => {
 
   const showHelpPanel = () => {
     setshowHelp(!showHelp);
-  }
+  };
 
   const renderDetailHelp = () => {
-    if(showHelpDetail == 'none'){ // default
-      return(
+    if (showHelpDetail == "none") {
+      // default
+      return (
         <div className="panelInfo">
           <h3>Informasi Umum Warung</h3>
-          <div style={{display:'flex'}}>
+          <div style={{ display: "flex" }}>
             <div className="untukqris">
-              <img src={qris} alt="" className="setGambarQris"/>
+              <img src={qris} alt="" className="setGambarQris" />
               <div className="setMiddleText">
-                <span style={{fontWeight:'bold'}}>
+                <span style={{ fontWeight: "bold" }}>
                   Nomer Virtual Account
                 </span>
                 <br />
-                <span>
-                  1152-2363-7412-3455
-                </span>
+                <span>1152-2363-7412-3455</span>
               </div>
             </div>
             <div className="untukinfowarung">
               <div className="cardInfoWarung">
-                <span style={{fontWeight:'bold'}}>Telpon</span> 📞 : <br />
+                <span style={{ fontWeight: "bold" }}>Telpon</span> 📞 : <br />
                 +62 0895-3377-5527 <br />
-                <span style={{fontWeight:'bold'}}>Email</span> 📨 : <br />
+                <span style={{ fontWeight: "bold" }}>Email</span> 📨 : <br />
                 bulis123@gmail.com
               </div>
             </div>
           </div>
         </div>
-      )
-    }
-    else if(showHelpDetail == 'pesan_menu'){
-      return(
+      );
+    } else if (showHelpDetail == "pesan_menu") {
+      return (
         <div className="panelInfo">
           <h2>Cara Memesan</h2>
           <br />
-
-          <h5>1. Klik Add to Cart Pada Menu yang Akan Dipilih Hingga Menu Berwarna Kuning</h5>
-          <img src={pilihmenu} alt="" className="setGambarHelpMenu"/> <br />
+          <h5>
+            1. Klik Add to Cart Pada Menu yang Akan Dipilih Hingga Menu Berwarna
+            Kuning
+          </h5>
+          <img src={pilihmenu} alt="" className="setGambarHelpMenu" /> <br />
           <br />
           <h5>2. Isi Informasi Pemesanan</h5>
-          <img src={isiinfo} alt="" className="setGambarHelpMenu"/> <br />
+          <img src={isiinfo} alt="" className="setGambarHelpMenu" /> <br />
           <br />
-          <h5>3. Anda Dapat Mengatur Jumlah Dengan Klik + Atau - Pada Menu yang Diinginkan, Lalu Klik Check Out Jika Sudah</h5>
-          <img src={klikcekout} alt="" className="setGambarHelpMenu"/> <br />
+          <h5>
+            3. Anda Dapat Mengatur Jumlah Dengan Klik + Atau - Pada Menu yang
+            Diinginkan, Lalu Klik Check Out Jika Sudah
+          </h5>
+          <img src={klikcekout} alt="" className="setGambarHelpMenu" /> <br />
           <br />
-          <h5>4. Anda Dapat Melakukan Pembayaran Dengan Scan Qris, Lalu Klik Download Nota dan Pesanan Anda Berhasil Dibuat</h5>
-          <img src={klikcekout} alt="" className="setGambarHelpMenu"/> <br />
+          <h5>
+            4. Anda Dapat Melakukan Pembayaran Dengan Scan Qris, Lalu Klik
+            Download Nota dan Pesanan Anda Berhasil Dibuat
+          </h5>
+          <img src={klikcekout} alt="" className="setGambarHelpMenu" /> <br />
           <br />
-          <h5>Catatan : Untuk Melihat Pesanan Anda Dapat Melihat Instruksi 'Cara Melihat Orderan'</h5>
+          <h5>
+            Catatan : Untuk Melihat Pesanan Anda Dapat Melihat Instruksi 'Cara
+            Melihat Orderan'
+          </h5>
         </div>
-      )
-    }
-    else{
-      return(
+      );
+    } else {
+      return (
         <div className="panelInfo">
           <h2>Cara Melihat Riwayat Pesanan</h2>
           <br />
-
           <h5>1. Klik Tombol History</h5>
-          <img src={lihathistory} alt="" className="setGambarHelpMenu"/> <br />
+          <img src={lihathistory} alt="" className="setGambarHelpMenu" /> <br />
           <br />
           <h5>2. Masukan Email yang Digunakan Saat Memesan Dan Klik Cari</h5>
-          <img src={masukanemail} alt="" className="setGambarHelpMenu"/> <br />
+          <img src={masukanemail} alt="" className="setGambarHelpMenu" /> <br />
           <br />
           <h5>3. Pesanan Akan Ditampilkan</h5>
-          <img src={pesananmuncul} alt="" className="setGambarHelpMenu"/> <br />
+          <img src={pesananmuncul} alt="" className="setGambarHelpMenu" />{" "}
+          <br />
           <br />
         </div>
-      )
+      );
     }
-  }
+  };
 
   const renderShowHelpPanel = () => {
-    if(showHelp){
-        console.log('Show halaman');
-        
-        return(
-        <div 
-          className="getHelp"
-        >
+    if (showHelp) {
+      console.log("Show halaman");
+
+      return (
+        <div className="getHelp">
           <div className="helpMain">
             <div className="helpKuadran">
               <div className="helpChatpanel panelInformasi">
-
                 {/* untuk chat nanti muncul di sini*/}
                 {renderDetailHelp()}
-              
               </div>
               <div className="pembungkusOpsi">
-                <h3>Selamat Datang Di Halaman Bantuan Apa yang Bisa Kami Bantu ?</h3>
-                
+                <h3>
+                  Selamat Datang Di Halaman Bantuan.
+                  <br />
+                  Apa yang Bisa Kami Bantu ?
+                </h3>
                 <div className="containerBtn">
-                  <button className="btnHelp" onClick={() => {
-                  setshowHelpDetail('pesan_menu');
-                  }}>Cara Memesan</button> <br />
-                  <button className="btnHelp" onClick={() => {
-                    setshowHelpDetail('lihat_riwayat');
-                  }}>
-                    Cara Melihat Orderan</button> <br />
-                  <button className="btnHelp" onClick={() => {
-                    setshowHelpDetail('none');
-                  }}>
-                    Informasi Umum</button> <br />
+                  <button
+                    className="btnHelp"
+                    onClick={() => {
+                      setshowHelpDetail("pesan_menu");
+                    }}
+                  >
+                    Cara Memesan
+                  </button>{" "}
+                  <br />
+                  <button
+                    className="btnHelp"
+                    onClick={() => {
+                      setshowHelpDetail("lihat_riwayat");
+                    }}
+                  >
+                    Cara Melihat Orderan
+                  </button>{" "}
+                  <br />
+                  <button
+                    className="btnHelp"
+                    onClick={() => {
+                      setshowHelpDetail("none");
+                    }}
+                  >
+                    Informasi Umum
+                  </button>{" "}
+                  <br />
                 </div>
-
-                <button className="btnHelp setRedBtn" onClick={() => {
-                  setshowHelp(!showHelp);
-                  setshowHelpDetail('none');
-                }}>Cancle</button> <br />
+                <button
+                  className="btnHelp setRedBtn"
+                  onClick={() => {
+                    setshowHelp(!showHelp);
+                    setshowHelpDetail("none");
+                  }}
+                >
+                  Cancel
+                </button>{" "}
+                <br />
               </div>
             </div>
             <div className="helpKuadran setmidle">
-              <img src={GambarBuLis} alt="Sedang Memuat" className="setUkuranGambar"/>
+              <img
+                src={GambarBuLis}
+                alt="Sedang Memuat"
+                className="setUkuranGambar"
+              />
             </div>
           </div>
-
         </div>
-      )
+      );
     }
-  }
+  };
 
   const goToCart = () => {
     if (menuTerpesan.length === 0) {
@@ -206,14 +230,14 @@ const MenuPage = () => {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-            }}>
+            }}
+          >
             <Group h="100%">
               <Link to="/" style={{ textDecoration: "none" }}>
                 <Image src={logo} alt="Logo" h={65} fit="contain" />
               </Link>
             </Group>
             <Group style={{ display: "flex" }}>
-              
               <Button
                 size="lg"
                 radius="xl"
@@ -225,7 +249,8 @@ const MenuPage = () => {
                   color: "white",
                   border: `1px solid white`,
                   backgroundColor: "lime",
-                }}>
+                }}
+              >
                 Cara Memesan
               </Button>
 
@@ -240,7 +265,8 @@ const MenuPage = () => {
                   color: "white",
                   border: `1px solid white`,
                   backgroundColor: "blue",
-                }}>
+                }}
+              >
                 History
               </Button>
               <Button
@@ -252,7 +278,8 @@ const MenuPage = () => {
                   color: "white",
                   border: `1px solid white`,
                   backgroundColor: "#CC0000",
-                }}>
+                }}
+              >
                 Cart
               </Button>
             </Group>

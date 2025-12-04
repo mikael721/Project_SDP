@@ -21,7 +21,16 @@ const createHeaderPenjualan = async (req, res) => {
       });
     }
 
-    const headerPenjualan = await HeaderPenjualan.create(value);
+    // Extract pegawai_id dari token yang sudah di-decode oleh middleware
+    const pegawai_id = req.hasil?.pegawai_id || null;
+
+    // Add pegawai_id ke value sebelum create
+    const headerPayload = {
+      ...value,
+      pegawai_id: pegawai_id,
+    };
+
+    const headerPenjualan = await HeaderPenjualan.create(headerPayload);
 
     return res.status(201).json({
       message: "Header penjualan berhasil dibuat",
@@ -156,6 +165,8 @@ const getPenjualanById = async (req, res) => {
   try {
     const { id } = req.params;
 
+    const Pegawai = require("../models/pegawai");
+
     const penjualan = await HeaderPenjualan.findByPk(id, {
       include: [
         {
@@ -167,6 +178,11 @@ const getPenjualanById = async (req, res) => {
               as: "menu",
             },
           ],
+        },
+        {
+          model: Pegawai,
+          as: "pegawai",
+          attributes: ["pegawai_id", "pegawai_nama"],
         },
       ],
     });

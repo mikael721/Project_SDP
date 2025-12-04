@@ -254,7 +254,8 @@ export const DetailPenjualanPage = () => {
         paddingTop: "24px",
         paddingBottom: "24px",
         position: "relative",
-      }}>
+      }}
+    >
       <LoadingOverlay visible={loading} />
 
       <Container size="lg">
@@ -265,7 +266,8 @@ export const DetailPenjualanPage = () => {
             </Text>
             <Button
               variant="default"
-              onClick={() => navigate("/pegawai/penjualan")}>
+              onClick={() => navigate("/pegawai/penjualan")}
+            >
               Kembali
             </Button>
           </Group>
@@ -294,6 +296,16 @@ export const DetailPenjualanPage = () => {
                     </Text>
                     <Text fw={500} tt="capitalize">
                       {headerData.header_penjualan_jenis}
+                    </Text>
+                  </div>
+                  <div>
+                    <Text size="sm" c="gold">
+                      Pegawai ID
+                    </Text>
+                    <Text fw={500}>
+                      {headerData.pegawai?.pegawai_id ||
+                        headerData.pegawai_id ||
+                        "-"}
                     </Text>
                   </div>
                   <div>
@@ -411,7 +423,8 @@ export const DetailPenjualanPage = () => {
                               item.menu_id,
                               item.penjualan_jumlah - 1
                             )
-                          }>
+                          }
+                        >
                           -
                         </Button>
                         <Text
@@ -419,7 +432,8 @@ export const DetailPenjualanPage = () => {
                           style={{
                             minWidth: "30px",
                             textAlign: "center",
-                          }}>
+                          }}
+                        >
                           {item.penjualan_jumlah}
                         </Text>
                         <Button
@@ -430,13 +444,15 @@ export const DetailPenjualanPage = () => {
                               item.menu_id,
                               item.penjualan_jumlah + 1
                             )
-                          }>
+                          }
+                        >
                           +
                         </Button>
                         <Button
                           size="xs"
                           color="gray"
-                          onClick={() => removeFromCart(item.menu_id)}>
+                          onClick={() => removeFromCart(item.menu_id)}
+                        >
                           Hapus
                         </Button>
                       </Group>
@@ -475,7 +491,8 @@ export const DetailPenjualanPage = () => {
                 value={jenisPenjualan}
                 onChange={handleJenisPenjualanChange}
                 label="Jenis Penjualan"
-                required>
+                required
+              >
                 <Group mt="xs">
                   <Radio value="offline" label="Offline" />
                   <Radio value="online" label="Online" />
@@ -547,14 +564,16 @@ export const DetailPenjualanPage = () => {
                   color="blue"
                   size="lg"
                   onClick={handleUpdateHeader}
-                  loading={loading}>
+                  loading={loading}
+                >
                   Update Header
                 </Button>
                 <Button
                   color="green"
                   size="lg"
                   onClick={() => setConfirmOpen(true)}
-                  loading={loading}>
+                  loading={loading}
+                >
                   Selesaikan Transaksi
                 </Button>
               </Group>
@@ -577,7 +596,8 @@ export const DetailPenjualanPage = () => {
                     color: "white",
                     fontWeight: 700,
                   },
-                }}>
+                }}
+              >
                 <Text mb="md" fw={500}>
                   Apakah Anda yakin untuk menyelesaikan transaksi ini?
                 </Text>
@@ -585,7 +605,8 @@ export const DetailPenjualanPage = () => {
                 <Group justify="flex-end">
                   <Button
                     variant="default"
-                    onClick={() => setConfirmOpen(false)}>
+                    onClick={() => setConfirmOpen(false)}
+                  >
                     Tidak
                   </Button>
                   <Button
@@ -593,7 +614,8 @@ export const DetailPenjualanPage = () => {
                     onClick={async () => {
                       setConfirmOpen(false);
                       await handleFinalize();
-                    }}>
+                    }}
+                  >
                     Ya
                   </Button>
                 </Group>
