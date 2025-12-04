@@ -40,6 +40,8 @@ export const DetailPenjualanPage = () => {
   const [biayaTambahan, setBiayaTambahan] = useState(0);
   const [uangMuka, setUangMuka] = useState(0);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [ingredientsByMenu, setIngredientsByMenu] = useState({}); // Store ingredients for each menu
+  const [selectedMenuDetails, setSelectedMenuDetails] = useState(null); // Show details for a menu
 
   // === FETCH DATA FROM DATABASE ===
   useEffect(() => {
@@ -125,6 +127,76 @@ export const DetailPenjualanPage = () => {
     dispatch(removeCartItem(menuId));
   };
 
+  // === FETCH INGREDIENTS FOR A MENU ===
+  const fetchMenuIngredients = async (menuId) => {
+    try {
+      const response = await axios.get(
+        `${API_BASE}/api/menu_management/detail/${menuId}`,
+        {
+          headers: { "x-auth-token": userToken },
+        }
+      );
+
+      if (response.data && response.data.data) {
+        // Fetch stock info for each ingredient
+        const ingredientsWithStock = await Promise.all(
+          response.data.data.map(async (ingredient) => {
+            try {
+              // Try to find bahan baku by matching the name
+              const allBahanBaku = await axios.get(
+                `${API_BASE}/api/bahan_Baku`,
+                {
+                  headers: { "x-auth-token": userToken },
+                }
+              );
+
+              const bahanBaku = allBahanBaku.data.find(
+                (bb) => bb.bahan_baku_nama === ingredient.detail_menu_nama_bahan
+              );
+
+              return {
+                ...ingredient,
+                bahan_baku_id: bahanBaku?.bahan_baku_id || null,
+                bahan_baku_stock: bahanBaku?.bahan_baku_jumlah || 0,
+                stockWarning: bahanBaku && bahanBaku.bahan_baku_jumlah === 0,
+              };
+            } catch (err) {
+              console.error("Error fetching bahan baku:", err);
+              return {
+                ...ingredient,
+                bahan_baku_id: null,
+                bahan_baku_stock: 0,
+                stockWarning: true,
+              };
+            }
+          })
+        );
+
+        setIngredientsByMenu((prev) => ({
+          ...prev,
+          [menuId]: ingredientsWithStock,
+        }));
+
+        // Show selected menu details in modal
+        setSelectedMenuDetails({
+          menuId,
+          ingredients: ingredientsWithStock,
+          canOrder: true,
+          warnings: [],
+        });
+      }
+    } catch (err) {
+      console.error(
+        "Gagal fetch ingredients:",
+        err.response?.data || err.message
+      );
+      alert(
+        "Gagal memuat data bahan baku: " +
+          (err.response?.data?.message || err.message)
+      );
+    }
+  };
+
   // === CALCULATE TOTAL FROM DATABASE ===
   const calculateTotalFromDB = () => {
     if (!detailData || detailData.length === 0) return 0;
@@ -155,6 +227,7 @@ export const DetailPenjualanPage = () => {
       setLoading(true);
 
       // Save each cart item as detail penjualan
+      // The backend will automatically deduct stock after creation
       const detailPromises = cartItems.map((item) =>
         axios.post(
           `${API_BASE}/api/detail_penjualan/detail`,
@@ -171,7 +244,9 @@ export const DetailPenjualanPage = () => {
 
       await Promise.all(detailPromises);
 
-      alert("Detail penjualan berhasil disimpan!");
+      alert(
+        "Detail penjualan berhasil disimpan dan stok bahan baku diperbarui!"
+      );
 
       // Refresh data
       await fetchPenjualanData();
@@ -183,10 +258,25 @@ export const DetailPenjualanPage = () => {
         "Gagal menyimpan detail:",
         err.response?.data || err.message
       );
-      alert(
-        "Gagal menyimpan detail penjualan: " +
-          (err.response?.data?.message || err.message)
-      );
+
+      // Check if error is about stock issues
+      const errorMsg = err.response?.data?.message || err.message;
+      if (
+        errorMsg.includes("stok") ||
+        errorMsg.includes("bahan baku") ||
+        errorMsg.includes("habis")
+      ) {
+        alert(
+          "Gagal menyimpan: " +
+            (err.response?.data?.message || err.message) +
+            "\n\nHarap periksa stok bahan baku untuk menu yang dipilih"
+        );
+      } else {
+        alert(
+          "Gagal menyimpan detail penjualan: " +
+            (err.response?.data?.message || err.message)
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -417,6 +507,13 @@ export const DetailPenjualanPage = () => {
                       <Group gap="xs">
                         <Button
                           size="xs"
+                          color="blue"
+                          onClick={() => fetchMenuIngredients(item.menu_id)}
+                        >
+                          Lihat Bahan
+                        </Button>
+                        <Button
+                          size="xs"
                           color="red"
                           onClick={() =>
                             updateQuantity(
@@ -619,6 +716,192 @@ export const DetailPenjualanPage = () => {
                     Ya
                   </Button>
                 </Group>
+              </Modal>
+
+              {/* Modal untuk menampilkan Bahan Baku */}
+              <Modal
+                opened={!!selectedMenuDetails}
+                onClose={() => setSelectedMenuDetails(null)}
+                title={`Bahan Baku - ${
+                  cartItems.find(
+                    (item) => item.menu_id === selectedMenuDetails?.menuId
+                  )?.menu_nama || "Menu"
+                }`}
+                centered
+                size="lg"
+                styles={{
+                  content: {
+                    backgroundColor: "#f5f5f5",
+                  },
+                  header: {
+                    backgroundColor: "#8B7355",
+                    color: "white",
+                  },
+                  title: {
+                    color: "white",
+                    fontWeight: 700,
+                  },
+                }}
+              >
+                {selectedMenuDetails && (
+                  <Stack gap="md">
+                    {/* Warning Messages */}
+                    {selectedMenuDetails.warnings &&
+                      selectedMenuDetails.warnings.length > 0 && (
+                        <Box
+                          p="md"
+                          style={{
+                            backgroundColor: "#ffe0e0",
+                            borderRadius: "8px",
+                          }}
+                        >
+                          <Text fw={600} c="red" mb="xs">
+                            ⚠️ Peringatan:
+                          </Text>
+                          {selectedMenuDetails.warnings.map((warning, idx) => (
+                            <Text key={idx} c="red" size="sm">
+                              • {warning}
+                            </Text>
+                          ))}
+                        </Box>
+                      )}
+
+                    {/* Can Order Status */}
+                    <Group
+                      justify="space-between"
+                      p="md"
+                      style={{
+                        backgroundColor: selectedMenuDetails.canOrder
+                          ? "#e0f7e0"
+                          : "#ffe0e0",
+                        borderRadius: "8px",
+                      }}
+                    >
+                      <Text fw={600} style={{ color: "green" }}>
+                        Status Pemesanan:
+                      </Text>
+                      <Text
+                        fw={700}
+                        c={selectedMenuDetails.canOrder ? "green" : "red"}
+                      >
+                        {selectedMenuDetails.canOrder
+                          ? "✓ Bisa Dipesan"
+                          : "✗ Tidak Bisa Dipesan"}
+                      </Text>
+                    </Group>
+
+                    {/* Ingredients Table */}
+                    <Text fw={600} size="lg" style={{ color: "brown" }}>
+                      Komposisi Bahan Baku:
+                    </Text>
+                    <Table striped highlightOnHover size="sm">
+                      <Table.Thead style={{ backgroundColor: "#8B7355" }}>
+                        <Table.Tr>
+                          <Table.Th style={{ color: "white" }}>
+                            Bahan Baku
+                          </Table.Th>
+                          <Table.Th
+                            style={{ color: "white", textAlign: "center" }}
+                          >
+                            Jumlah Dipakai
+                          </Table.Th>
+                          <Table.Th
+                            style={{ color: "white", textAlign: "center" }}
+                          >
+                            Satuan
+                          </Table.Th>
+                          <Table.Th
+                            style={{ color: "white", textAlign: "right" }}
+                          >
+                            Stok Tersedia
+                          </Table.Th>
+                          <Table.Th
+                            style={{ color: "white", textAlign: "center" }}
+                          >
+                            Status
+                          </Table.Th>
+                        </Table.Tr>
+                      </Table.Thead>
+                      <Table.Tbody>
+                        {selectedMenuDetails.ingredients.map((ing, idx) => (
+                          <Table.Tr key={idx} style={{ color: "brown" }}>
+                            <Table.Td fw={500}>
+                              {ing.detail_menu_nama_bahan}
+                            </Table.Td>
+                            <Table.Td style={{ textAlign: "center" }}>
+                              {ing.detail_menu_jumlah}
+                            </Table.Td>
+                            <Table.Td style={{ textAlign: "center" }}>
+                              {ing.detail_menu_satuan}
+                            </Table.Td>
+                            <Table.Td style={{ textAlign: "right" }} fw={500}>
+                              {ing.bahan_baku_stock} {ing.detail_menu_satuan}
+                            </Table.Td>
+                            <Table.Td style={{ textAlign: "center" }}>
+                              <Text
+                                fw={600}
+                                c={
+                                  ing.bahan_baku_stock > 0
+                                    ? ing.bahan_baku_stock >=
+                                      ing.detail_menu_jumlah
+                                      ? "green"
+                                      : "orange"
+                                    : "red"
+                                }
+                              >
+                                {ing.stockWarning
+                                  ? "⚠️ Habis"
+                                  : ing.bahan_baku_stock >=
+                                    ing.detail_menu_jumlah
+                                  ? "✓ OK"
+                                  : "⚠️ Kurang"}
+                              </Text>
+                            </Table.Td>
+                          </Table.Tr>
+                        ))}
+                      </Table.Tbody>
+                    </Table>
+
+                    {/* Legend */}
+                    <Box
+                      p="md"
+                      style={{
+                        backgroundColor: "lightblue",
+                        borderRadius: "8px",
+                      }}
+                    >
+                      <Text
+                        fw={700}
+                        mb="xs"
+                        size="sm"
+                        style={{ color: "turquoise" }}
+                      >
+                        Keterangan:
+                      </Text>
+                      <Stack gap="xs">
+                        <Text size="sm" style={{ color: "green" }} fw={500}>
+                          ✓ OK = Stok cukup untuk memenuhi pesanan
+                        </Text>
+                        <Text size="sm" style={{ color: "orange" }} fw={500}>
+                          ⚠️ Kurang = Stok tidak cukup untuk memenuhi pesanan
+                        </Text>
+                        <Text size="sm" style={{ color: "red" }} fw={500}>
+                          ⚠️ Habis = Stok habis (0) sehingga menu tidak bisa
+                          dipesan
+                        </Text>
+                      </Stack>
+                    </Box>
+
+                    <Group justify="flex-end">
+                      <Button
+                        variant="default"
+                        onClick={() => setSelectedMenuDetails(null)}
+                      >
+                        Tutup
+                      </Button>
+                    </Group>
+                  </Stack>
+                )}
               </Modal>
             </Stack>
           </Paper>

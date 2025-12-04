@@ -1,6 +1,8 @@
 const HeaderPenjualan = require("../models/headerPenjualanModel");
 const Penjualan = require("../models/penjualanModel");
 const Menu = require("../models/menuModels");
+const DetailMenu = require("../models/detailMenu");
+const BahanBaku = require("../models/bahanBakuModel");
 const {
   headerPenjualanSchema,
   detailPenjualanSchema,
@@ -70,10 +72,86 @@ const createDetailPenjualan = async (req, res) => {
       });
     }
 
+    // Get menu ingredients to check and deduct stock
+    const ingredients = await DetailMenu.findAll({
+      where: { menu_id: value.menu_id },
+    });
+
+    // Check if all ingredients have sufficient stock
+    const stockChecks = await Promise.all(
+      ingredients.map(async (ingredient) => {
+        const bahanBaku = await BahanBaku.findOne({
+          where: { bahan_baku_nama: ingredient.detail_menu_nama_bahan },
+        });
+
+        const requiredQuantity =
+          ingredient.detail_menu_jumlah * value.penjualan_jumlah;
+
+        return {
+          bahanBaku,
+          ingredient,
+          requiredQuantity,
+          hasEnoughStock:
+            bahanBaku && bahanBaku.bahan_baku_jumlah >= requiredQuantity,
+          isZeroStock: bahanBaku && bahanBaku.bahan_baku_jumlah === 0,
+        };
+      })
+    );
+
+    // Check for zero stock
+    const hasZeroStockIngredient = stockChecks.some(
+      (check) => check.isZeroStock
+    );
+    if (hasZeroStockIngredient) {
+      const zeroStockItems = stockChecks
+        .filter((check) => check.isZeroStock)
+        .map((check) => check.ingredient.detail_menu_nama_bahan);
+
+      return res.status(400).json({
+        message: "Menu tidak bisa dipilih karena bahan baku habis",
+        zeroStockIngredients: zeroStockItems,
+      });
+    }
+
+    // Check if all have sufficient stock
+    const insufficientStock = stockChecks.some(
+      (check) => !check.hasEnoughStock
+    );
+    if (insufficientStock) {
+      const insufficientItems = stockChecks
+        .filter((check) => !check.hasEnoughStock)
+        .map(
+          (check) =>
+            `${check.ingredient.detail_menu_nama_bahan} (butuh: ${
+              check.requiredQuantity
+            }, tersedia: ${check.bahanBaku?.bahan_baku_jumlah || 0})`
+        );
+
+      return res.status(400).json({
+        message: "Stok bahan baku tidak cukup untuk order ini",
+        insufficientIngredients: insufficientItems,
+      });
+    }
+
+    // Create penjualan record
     const penjualan = await Penjualan.create(value);
 
+    // Deduct stock for each ingredient AFTER successful creation
+    await Promise.all(
+      stockChecks.map(async (check) => {
+        if (check.bahanBaku) {
+          const newStock =
+            check.bahanBaku.bahan_baku_jumlah - check.requiredQuantity;
+          await check.bahanBaku.update({
+            bahan_baku_jumlah: newStock,
+          });
+        }
+      })
+    );
+
     return res.status(201).json({
-      message: "Detail penjualan berhasil dibuat",
+      message:
+        "Detail penjualan berhasil dibuat dan stok bahan baku diperbarui",
       data: penjualan,
     });
   } catch (err) {

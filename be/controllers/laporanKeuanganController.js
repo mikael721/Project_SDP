@@ -221,6 +221,7 @@ const getLaporanPembelian = async (req, res) => {
       pembelian_satuan: item.pembelian_satuan,
       pembelian_harga_satuan: item.pembelian_harga_satuan,
       subtotal: item.pembelian_jumlah * item.pembelian_harga_satuan,
+      bahan_baku_jumlah: item.bahan_baku?.bahan_baku_jumlah || 0, // Current stock after deduction
     }));
 
     return res.status(200).json({
@@ -543,6 +544,7 @@ const getLaporanPembelianData = async (
     pembelian_satuan: item.pembelian_satuan,
     pembelian_harga_satuan: item.pembelian_harga_satuan,
     subtotal: item.pembelian_jumlah * item.pembelian_harga_satuan,
+    bahan_baku_jumlah: item.bahan_baku?.bahan_baku_jumlah || 0, // Current stock after deduction
   }));
 };
 

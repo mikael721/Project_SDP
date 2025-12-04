@@ -14,6 +14,7 @@ import {
   Text,
   LoadingOverlay,
   Badge,
+  Pagination,
 } from "@mantine/core";
 import { useSelector } from "react-redux";
 import axios from "axios";
@@ -21,6 +22,7 @@ import axios from "axios";
 export const LaporanKeuanganPage = () => {
   const API_BASE = import.meta.env.VITE_API_BASE;
   const [jenisLaporan, setJenisLaporan] = useState("penjualan");
+  const [currentPage, setCurrentPage] = useState(1);
   const [dataPenjualan, setDataPenjualan] = useState([]);
   const [dataPembelian, setDataPembelian] = useState([]);
   const [dataPesanan, setDataPesanan] = useState([]);
@@ -51,7 +53,6 @@ export const LaporanKeuanganPage = () => {
   // Fetch initial data
   useEffect(() => {
     fetchAllData();
-    console.log(dataPenjualan);
   }, []);
 
   const fetchAllData = async () => {
@@ -187,7 +188,7 @@ export const LaporanKeuanganPage = () => {
   );
 
   const totalPesanan = dataPesanan.reduce(
-    (sum, item) => sum + (item.total || 0),
+    (sum, item) => sum + (item.subtotal || 0),
     0
   );
 
@@ -235,7 +236,8 @@ export const LaporanKeuanganPage = () => {
         paddingTop: 24,
         paddingBottom: 24,
         position: "relative",
-      }}>
+      }}
+    >
       <LoadingOverlay visible={loading} />
 
       <Container size="lg">
@@ -250,8 +252,12 @@ export const LaporanKeuanganPage = () => {
                 <Text weight={500}>Jenis:</Text>
                 <Radio.Group
                   value={jenisLaporan}
-                  onChange={setJenisLaporan}
-                  name="jenisLaporan">
+                  onChange={(value) => {
+                    setJenisLaporan(value);
+                    setCurrentPage(1);
+                  }}
+                  name="jenisLaporan"
+                >
                   <Group spacing="md">
                     <Radio value="penjualan" label="Penjualan" />
                     <Radio value="pembelian" label="Pembelian" />
@@ -262,60 +268,86 @@ export const LaporanKeuanganPage = () => {
               </Group>
               {/* Tanggal & Waktu Filter */}
               <Stack spacing="md">
-                {/* Date and Time Inputs */}
-                <Group spacing="md" align="flex-end">
-                  <Box style={{ flex: 1 }}>
-                    <Text size="sm" weight={500} mb={5}>
-                      Tanggal
-                    </Text>
-                    <Group spacing="xs">
-                      <TextInput
-                        type="date"
-                        placeholder="Tanggal Mulai"
-                        style={{ width: "180px" }}
-                        value={tanggalStart}
-                        onChange={(e) => setTanggalStart(e.currentTarget.value)}
-                      />
-                      <Text>Sampai</Text>
-                      <TextInput
-                        type="date"
-                        placeholder="Tanggal Akhir"
-                        style={{ width: "180px" }}
-                        value={tanggalEnd}
-                        onChange={(e) => setTanggalEnd(e.currentTarget.value)}
-                      />
-                    </Group>
-                  </Box>
-                </Group>
+                {/* For Penjualan, Pesanan, and All - Combined Datetime */}
+                {(jenisLaporan === "penjualan" ||
+                  jenisLaporan === "pesanan" ||
+                  jenisLaporan === "all") && (
+                  <Group spacing="md" align="flex-end">
+                    <Box style={{ flex: 1 }}>
+                      <Text size="sm" weight={500} mb={5}>
+                        Tanggal dan Waktu
+                      </Text>
+                      <Group spacing="xs">
+                        <TextInput
+                          type="datetime-local"
+                          placeholder="Tanggal & Waktu Mulai"
+                          style={{ width: "220px" }}
+                          value={
+                            tanggalStart && jamStart
+                              ? `${tanggalStart}T${jamStart}`
+                              : ""
+                          }
+                          onChange={(e) => {
+                            const [date, time] =
+                              e.currentTarget.value.split("T");
+                            setTanggalStart(date || "");
+                            setJamStart(time || "00:00");
+                          }}
+                        />
+                        <Text>Sampai</Text>
+                        <TextInput
+                          type="datetime-local"
+                          placeholder="Tanggal & Waktu Akhir"
+                          style={{ width: "220px" }}
+                          value={
+                            tanggalEnd && jamEnd
+                              ? `${tanggalEnd}T${jamEnd}`
+                              : ""
+                          }
+                          onChange={(e) => {
+                            const [date, time] =
+                              e.currentTarget.value.split("T");
+                            setTanggalEnd(date || "");
+                            setJamEnd(time || "23:59");
+                          }}
+                        />
+                      </Group>
+                    </Box>
+                  </Group>
+                )}
 
-                {/* Time Inputs */}
-                <Group spacing="md" align="flex-end">
-                  <Box style={{ flex: 1 }}>
-                    <Text size="sm" weight={500} mb={5}>
-                      Waktu
-                    </Text>
-                    <Group spacing="xs">
-                      <TextInput
-                        type="time"
-                        placeholder="Jam Mulai"
-                        style={{ width: "180px" }}
-                        value={jamStart}
-                        onChange={(e) => setJamStart(e.currentTarget.value)}
-                      />
-                      <Text>Sampai</Text>
-                      <TextInput
-                        type="time"
-                        placeholder="Jam Akhir"
-                        style={{ width: "180px" }}
-                        value={jamEnd}
-                        onChange={(e) => setJamEnd(e.currentTarget.value)}
-                      />
-                    </Group>
-                  </Box>
-                </Group>
+                {/* For Pembelian - Date Only */}
+                {jenisLaporan === "pembelian" && (
+                  <Group spacing="md" align="flex-end">
+                    <Box style={{ flex: 1 }}>
+                      <Text size="sm" weight={500} mb={5}>
+                        Tanggal
+                      </Text>
+                      <Group spacing="xs">
+                        <TextInput
+                          type="date"
+                          placeholder="Tanggal Mulai"
+                          style={{ width: "180px" }}
+                          value={tanggalStart}
+                          onChange={(e) =>
+                            setTanggalStart(e.currentTarget.value)
+                          }
+                        />
+                        <Text>Sampai</Text>
+                        <TextInput
+                          type="date"
+                          placeholder="Tanggal Akhir"
+                          style={{ width: "180px" }}
+                          value={tanggalEnd}
+                          onChange={(e) => setTanggalEnd(e.currentTarget.value)}
+                        />
+                      </Group>
+                    </Box>
+                  </Group>
+                )}
 
                 {/* Conditional Filter Fields */}
-                {(jenisLaporan === "penjualan" || jenisLaporan === "all") && (
+                {jenisLaporan === "penjualan" && (
                   <TextInput
                     placeholder="Filter Nama Pemesan"
                     label="Nama Pemesan"
@@ -332,12 +364,14 @@ export const LaporanKeuanganPage = () => {
                       value={filterNama}
                       onChange={(e) => setFilterNama(e.currentTarget.value)}
                     />
-                    <TextInput
-                      placeholder="Filter Menu ID"
-                      label="Menu ID"
-                      value={filterMenuId}
-                      onChange={(e) => setFilterMenuId(e.currentTarget.value)}
-                    />
+                    {(jenisLaporan === "pesanan" || jenisLaporan === "all") && (
+                      <TextInput
+                        placeholder="Filter Menu ID"
+                        label="Menu ID"
+                        value={filterMenuId}
+                        onChange={(e) => setFilterMenuId(e.currentTarget.value)}
+                      />
+                    )}
                   </>
                 )}
 
@@ -355,7 +389,8 @@ export const LaporanKeuanganPage = () => {
                 <Button
                   color="red"
                   onClick={onApplyFilter}
-                  style={{ borderRadius: "20px" }}>
+                  style={{ borderRadius: "20px" }}
+                >
                   Apply Filter
                 </Button>
               </Group>
@@ -363,236 +398,257 @@ export const LaporanKeuanganPage = () => {
           </Paper>
 
           {/* Penjualan Section */}
-          {(jenisLaporan === "penjualan" || jenisLaporan === "all") && (
+          {(jenisLaporan === "penjualan" ||
+            (jenisLaporan === "all" && currentPage === 1)) && (
             <Paper shadow="sm" p="lg" radius="md">
               <Group justify="center" pb="md">
                 <Title order={3}>Penjualan</Title>
               </Group>
               <Stack gap="md">
                 {dataPenjualan.length > 0 ? (
-                  dataPenjualan.map((item, index) => (
-                    <Stack
-                      key={index}
-                      gap="sm"
-                      p="md"
-                      style={{
-                        border: "1px solid #dee2e6",
-                        borderRadius: "8px",
-                      }}>
-                      {/* Header Penjualan */}
-                      <Group justify="space-between">
-                        <div>
-                          <Text size="lg" fw={600}>
-                            Nama Pemesan: {item.pesanan_nama || "-"}
-                          </Text>
-                          {item.pegawai_id && (
-                            <Text size="sm" c="black" mt={5}>
-                              Pegawai ID: {item.pegawai_id}
+                  dataPenjualan
+                    .sort(
+                      (a, b) => a.header_penjualan_id - b.header_penjualan_id
+                    )
+                    .map((item, index) => (
+                      <Stack
+                        key={index}
+                        gap="sm"
+                        p="md"
+                        style={{
+                          border: "1px solid #dee2e6",
+                          borderRadius: "8px",
+                        }}
+                      >
+                        {/* Header Penjualan */}
+                        <Group justify="space-between">
+                          <div>
+                            <Text size="lg" fw={600}>
+                              Nama Pemesan: {item.pesanan_nama || "-"}
                             </Text>
-                          )}
-                        </div>
-                        <div>
-                          <Text size="sm" c="black">
-                            ID Penjualan: {item.header_penjualan_id}
-                          </Text>
-                        </div>
-                      </Group>
+                            {item.pegawai_id && (
+                              <Text size="sm" c="white" mt={5}>
+                                Pegawai ID: {item.pegawai_id}
+                              </Text>
+                            )}
+                          </div>
+                          <div>
+                            <Text size="sm" c="white">
+                              ID Penjualan: {item.header_penjualan_id}
+                            </Text>
+                          </div>
+                        </Group>
 
-                      {/* Informasi Penjualan */}
-                      <Group grow>
-                        <div>
-                          <Text size="sm" c="black">
-                            Tanggal
-                          </Text>
+                        {/* Informasi Penjualan */}
+                        <Group grow>
+                          <div>
+                            <Text size="sm" c="white">
+                              Tanggal
+                            </Text>
+                            <Text size="lg" fw={500}>
+                              {formatDateTime(item.tanggal)}
+                            </Text>
+                          </div>
+                          <div>
+                            <Text size="sm" c="white">
+                              Jenis Transaksi
+                            </Text>
+                            <Text size="lg" fw={500}>
+                              {item.jenis || "-"}
+                            </Text>
+                          </div>
+                        </Group>
+
+                        {/* Detail Penjualan */}
+                        <Stack gap="xs">
                           <Text size="lg" fw={500}>
-                            {formatDateTime(item.tanggal)}
+                            Detail Penjualan:
                           </Text>
-                        </div>
-                        <div>
-                          <Text size="sm" c="black">
-                            Jenis Transaksi
-                          </Text>
-                          <Text size="lg" fw={500}>
-                            {item.jenis || "-"}
-                          </Text>
-                        </div>
-                      </Group>
-
-                      {/* Detail Penjualan */}
-                      <Stack gap="xs">
-                        <Text size="lg" fw={500}>
-                          Detail Penjualan:
-                        </Text>
-                        <Box sx={{ overflowX: "auto" }}>
-                          <Table size="sm">
-                            <Table.Thead>
-                              <Table.Tr style={{ backgroundColor: "#F5F5F5" }}>
-                                <Table.Th
-                                  style={{ fontSize: "14px", color: "brown" }}>
-                                  Menu ID
-                                </Table.Th>
-                                <Table.Th
-                                  style={{ fontSize: "14px", color: "brown" }}>
-                                  Menu
-                                </Table.Th>
-                                <Table.Th
-                                  style={{
-                                    fontSize: "14px",
-                                    textAlign: "right",
-                                    color: "brown",
-                                  }}>
-                                  Harga
-                                </Table.Th>
-                                <Table.Th
-                                  style={{
-                                    fontSize: "14px",
-                                    textAlign: "center",
-                                    color: "brown",
-                                  }}>
-                                  Jumlah
-                                </Table.Th>
-                                <Table.Th
-                                  style={{
-                                    fontSize: "14px",
-                                    textAlign: "right",
-                                    color: "brown",
-                                  }}>
-                                  Subtotal
-                                </Table.Th>
-                              </Table.Tr>
-                            </Table.Thead>
-
-                            <Table.Tbody>
-                              {item.items.map((menuItem, idx) => (
+                          <Box sx={{ overflowX: "auto" }}>
+                            <Table size="sm">
+                              <Table.Thead>
                                 <Table.Tr
-                                  key={idx}
-                                  style={{ backgroundColor: "#F5F5F5" }}>
-                                  <Table.Td
-                                    style={{
-                                      fontSize: "14px",
-                                      color: "brown",
-                                    }}>
-                                    {menuItem.menu_id}
-                                  </Table.Td>
-
-                                  <Table.Td
-                                    style={{
-                                      fontSize: "14px",
-                                      color: "brown",
-                                    }}>
-                                    {menuItem.menu_nama}
-                                  </Table.Td>
-
-                                  <Table.Td
+                                  style={{ backgroundColor: "#F5F5F5" }}
+                                >
+                                  <Table.Th
+                                    style={{ fontSize: "14px", color: "brown" }}
+                                  >
+                                    Menu ID
+                                  </Table.Th>
+                                  <Table.Th
+                                    style={{ fontSize: "14px", color: "brown" }}
+                                  >
+                                    Menu
+                                  </Table.Th>
+                                  <Table.Th
                                     style={{
                                       fontSize: "14px",
                                       textAlign: "right",
                                       color: "brown",
-                                    }}>
-                                    Rp{" "}
-                                    {(menuItem.menu_harga || 0).toLocaleString(
-                                      "id-ID"
-                                    )}
-                                  </Table.Td>
-
-                                  <Table.Td
+                                    }}
+                                  >
+                                    Harga
+                                  </Table.Th>
+                                  <Table.Th
                                     style={{
                                       fontSize: "14px",
                                       textAlign: "center",
                                       color: "brown",
-                                    }}>
-                                    {menuItem.penjualan_jumlah}
-                                  </Table.Td>
-
-                                  <Table.Td
+                                    }}
+                                  >
+                                    Jumlah
+                                  </Table.Th>
+                                  <Table.Th
                                     style={{
                                       fontSize: "14px",
                                       textAlign: "right",
                                       color: "brown",
-                                    }}>
-                                    Rp{" "}
-                                    {(menuItem.subtotal || 0).toLocaleString(
-                                      "id-ID"
-                                    )}
-                                  </Table.Td>
+                                    }}
+                                  >
+                                    Subtotal
+                                  </Table.Th>
                                 </Table.Tr>
-                              ))}
-                            </Table.Tbody>
-                          </Table>
-                        </Box>
+                              </Table.Thead>
 
-                        {/* Calculation Summary */}
-                        <Stack
-                          gap="xs"
-                          p="md"
-                          style={{
-                            backgroundColor: "#f8f9fa",
-                            borderRadius: "8px",
-                          }}>
-                          <Group justify="space-between">
-                            <Text fw={500} c="brown">
-                              Total Subtotal:
-                            </Text>
-                            <Text fw={500} c="brown">
-                              Rp{" "}
-                              {(item.totalSubtotal || 0).toLocaleString(
-                                "id-ID"
-                              )}
-                            </Text>
-                          </Group>
+                              <Table.Tbody>
+                                {item.items.map((menuItem, idx) => (
+                                  <Table.Tr
+                                    key={idx}
+                                    style={{ backgroundColor: "#F5F5F5" }}
+                                  >
+                                    <Table.Td
+                                      style={{
+                                        fontSize: "14px",
+                                        color: "brown",
+                                      }}
+                                    >
+                                      {menuItem.menu_id}
+                                    </Table.Td>
 
-                          <Group justify="space-between">
-                            <Text fw={500} c="brown">
-                              Total Biaya Tambahan:
-                            </Text>
-                            <Text fw={500} c="brown">
-                              Rp{" "}
-                              {(item.totalBiayaTambahan || 0).toLocaleString(
-                                "id-ID"
-                              )}
-                            </Text>
-                          </Group>
+                                    <Table.Td
+                                      style={{
+                                        fontSize: "14px",
+                                        color: "brown",
+                                      }}
+                                    >
+                                      {menuItem.menu_nama}
+                                    </Table.Td>
 
-                          <Group justify="space-between">
-                            <Text fw={500} c="brown">
-                              DP ({item.persentaseDP}% dari Total Subtotal):
-                            </Text>
-                            <Text fw={500} c="brown">
-                              Rp {(item.totalDP || 0).toLocaleString("id-ID")}
-                            </Text>
-                          </Group>
+                                    <Table.Td
+                                      style={{
+                                        fontSize: "14px",
+                                        textAlign: "right",
+                                        color: "brown",
+                                      }}
+                                    >
+                                      Rp{" "}
+                                      {(
+                                        menuItem.menu_harga || 0
+                                      ).toLocaleString("id-ID")}
+                                    </Table.Td>
 
-                          <Group justify="space-between">
-                            <Text fw={500} c="brown">
-                              Grand Total (Subtotal + Biaya):
-                            </Text>
-                            <Text fw={500} c="brown">
-                              Rp{" "}
-                              {(item.grandTotal || 0).toLocaleString("id-ID")}
-                            </Text>
-                          </Group>
+                                    <Table.Td
+                                      style={{
+                                        fontSize: "14px",
+                                        textAlign: "center",
+                                        color: "brown",
+                                      }}
+                                    >
+                                      {menuItem.penjualan_jumlah}
+                                    </Table.Td>
 
-                          <Group
-                            justify="space-between"
+                                    <Table.Td
+                                      style={{
+                                        fontSize: "14px",
+                                        textAlign: "right",
+                                        color: "brown",
+                                      }}
+                                    >
+                                      Rp{" "}
+                                      {(menuItem.subtotal || 0).toLocaleString(
+                                        "id-ID"
+                                      )}
+                                    </Table.Td>
+                                  </Table.Tr>
+                                ))}
+                              </Table.Tbody>
+                            </Table>
+                          </Box>
+
+                          {/* Calculation Summary */}
+                          <Stack
+                            gap="xs"
+                            p="md"
                             style={{
-                              borderTop: "2px solid #8B7355",
-                              paddingTop: "10px",
-                            }}>
-                            <Text fw={700} size="lg" c="brown">
-                              Sisa Pembayaran (Grand Total - DP):
-                            </Text>
+                              backgroundColor: "#f8f9fa",
+                              borderRadius: "8px",
+                            }}
+                          >
+                            <Group justify="space-between">
+                              <Text fw={500} c="brown">
+                                Total Subtotal:
+                              </Text>
+                              <Text fw={500} c="brown">
+                                Rp{" "}
+                                {(item.totalSubtotal || 0).toLocaleString(
+                                  "id-ID"
+                                )}
+                              </Text>
+                            </Group>
 
-                            <Text fw={700} size="lg" c="brown">
-                              Rp{" "}
-                              {(item.sisaPembayaran || 0).toLocaleString(
-                                "id-ID"
-                              )}
-                            </Text>
-                          </Group>
+                            <Group justify="space-between">
+                              <Text fw={500} c="brown">
+                                Total Biaya Tambahan:
+                              </Text>
+                              <Text fw={500} c="brown">
+                                Rp{" "}
+                                {(item.totalBiayaTambahan || 0).toLocaleString(
+                                  "id-ID"
+                                )}
+                              </Text>
+                            </Group>
+
+                            <Group justify="space-between">
+                              <Text fw={500} c="brown">
+                                DP ({item.persentaseDP}% dari Total Subtotal):
+                              </Text>
+                              <Text fw={500} c="brown">
+                                Rp {(item.totalDP || 0).toLocaleString("id-ID")}
+                              </Text>
+                            </Group>
+
+                            <Group justify="space-between">
+                              <Text fw={500} c="brown">
+                                Grand Total (Subtotal + Biaya):
+                              </Text>
+                              <Text fw={500} c="brown">
+                                Rp{" "}
+                                {(item.grandTotal || 0).toLocaleString("id-ID")}
+                              </Text>
+                            </Group>
+
+                            <Group
+                              justify="space-between"
+                              style={{
+                                borderTop: "2px solid #8B7355",
+                                paddingTop: "10px",
+                              }}
+                            >
+                              <Text fw={700} size="lg" c="brown">
+                                Sisa Pembayaran (Grand Total - DP):
+                              </Text>
+
+                              <Text fw={700} size="lg" c="brown">
+                                Rp{" "}
+                                {(item.sisaPembayaran || 0).toLocaleString(
+                                  "id-ID"
+                                )}
+                              </Text>
+                            </Group>
+                          </Stack>
                         </Stack>
                       </Stack>
-                    </Stack>
-                  ))
+                    ))
                 ) : (
                   <Box style={{ textAlign: "center", padding: "20px" }}>
                     <Text>Tidak ada data penjualan</Text>
@@ -605,10 +661,8 @@ export const LaporanKeuanganPage = () => {
                 <Text
                   size="xl"
                   fw={700}
-                  style={{
-                    borderTop: "2px solid #8B7355",
-                    paddingTop: "10px",
-                  }}>
+                  style={{ borderTop: "2px solid #8B7355", paddingTop: "10px" }}
+                >
                   Total Penjualan: Rp {totalPenjualan.toLocaleString("id-ID")}
                 </Text>
               </Group>
@@ -616,7 +670,8 @@ export const LaporanKeuanganPage = () => {
           )}
 
           {/* Pembelian Section */}
-          {(jenisLaporan === "pembelian" || jenisLaporan === "all") && (
+          {(jenisLaporan === "pembelian" ||
+            (jenisLaporan === "all" && currentPage === 2)) && (
             <Paper shadow="sm" p="lg" radius="md">
               <Group justify="center" pb="md">
                 <Title order={3}>Pembelian</Title>
@@ -629,10 +684,11 @@ export const LaporanKeuanganPage = () => {
                       <th style={headerCellStyle}>Tanggal</th>
                       <th style={headerCellStyle}>Bahan Baku ID</th>
                       <th style={headerCellStyle}>Bahan Baku Nama</th>
-                      <th style={headerCellStyle}>Jumlah</th>
+                      <th style={headerCellStyle}>Jumlah Beli</th>
                       <th style={headerCellStyle}>Satuan</th>
                       <th style={headerCellStyle}>Harga/Satuan</th>
                       <th style={headerCellStyle}>Subtotal</th>
+                      <th style={headerCellStyle}>Sisa Stok</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -643,7 +699,8 @@ export const LaporanKeuanganPage = () => {
                           style={{
                             backgroundColor: "white",
                             color: "black",
-                          }}>
+                          }}
+                        >
                           <td style={cellStyle}>{item.pembelian_id}</td>
                           <td style={cellStyle}>{formatDate(item.tanggal)}</td>
                           <td style={cellStyle}>{item.bahan_baku_id}</td>
@@ -659,13 +716,28 @@ export const LaporanKeuanganPage = () => {
                           <td style={cellStyle}>
                             Rp {(item.subtotal || 0).toLocaleString("id-ID")}
                           </td>
+                          <td
+                            style={{
+                              ...cellStyle,
+                              fontWeight: "bold",
+                              color:
+                                item.bahan_baku_jumlah === 0
+                                  ? "#d32f2f"
+                                  : "#2e7d32",
+                            }}
+                          >
+                            {item.bahan_baku_jumlah !== undefined
+                              ? `${item.bahan_baku_jumlah} ${item.pembelian_satuan}`
+                              : "-"}
+                          </td>
                         </tr>
                       ))
                     ) : (
                       <tr style={{ backgroundColor: "white", color: "black" }}>
                         <td
-                          colSpan={8}
-                          style={{ ...cellStyle, textAlign: "center" }}>
+                          colSpan={9}
+                          style={{ ...cellStyle, textAlign: "center" }}
+                        >
                           Tidak ada data pembelian
                         </td>
                       </tr>
@@ -682,7 +754,8 @@ export const LaporanKeuanganPage = () => {
           )}
 
           {/* Pesanan Section */}
-          {(jenisLaporan === "pesanan" || jenisLaporan === "all") && (
+          {(jenisLaporan === "pesanan" ||
+            (jenisLaporan === "all" && currentPage === 3)) && (
             <Paper shadow="sm" p="lg" radius="md">
               <Group justify="center" pb="md">
                 <Title order={3}>Pesanan</Title>
@@ -697,18 +770,13 @@ export const LaporanKeuanganPage = () => {
                       style={{
                         border: "1px solid #dee2e6",
                         borderRadius: "8px",
-                      }}>
+                      }}
+                    >
                       {/* Header Pesanan */}
                       <Group justify="space-between">
                         <div>
                           <Text size="lg" fw={600}>
                             Nama Pemesan: {item.pesanan_nama}
-                          </Text>
-                          <Text size="sm" c="black" mt={5}>
-                            Email: {item.pesanan_email}
-                          </Text>
-                          <Text size="sm" c="black" mt={3}>
-                            Lokasi: {item.pesanan_lokasi}
                           </Text>
                         </div>
                         <Badge color="blue" size="lg">
@@ -719,7 +787,7 @@ export const LaporanKeuanganPage = () => {
                       {/* Informasi Pesanan */}
                       <Group grow>
                         <div>
-                          <Text size="sm" c="black">
+                          <Text size="sm" c="white">
                             Pesanan ID
                           </Text>
                           <Text size="lg" fw={500}>
@@ -727,19 +795,11 @@ export const LaporanKeuanganPage = () => {
                           </Text>
                         </div>
                         <div>
-                          <Text size="sm" c="black">
+                          <Text size="sm" c="white">
                             Tanggal Pesanan
                           </Text>
                           <Text size="lg" fw={500}>
                             {formatDateTime(item.tanggal)}
-                          </Text>
-                        </div>
-                        <div>
-                          <Text size="sm" c="black">
-                            Tanggal Pengiriman
-                          </Text>
-                          <Text size="lg" fw={500}>
-                            {formatDateTime(item.tanggal_pengiriman)}
                           </Text>
                         </div>
                       </Group>
@@ -754,11 +814,13 @@ export const LaporanKeuanganPage = () => {
                             <Table.Thead>
                               <Table.Tr style={{ backgroundColor: "#F5F5F5" }}>
                                 <Table.Th
-                                  style={{ fontSize: "14px", color: "brown" }}>
+                                  style={{ fontSize: "14px", color: "brown" }}
+                                >
                                   Menu ID
                                 </Table.Th>
                                 <Table.Th
-                                  style={{ fontSize: "14px", color: "brown" }}>
+                                  style={{ fontSize: "14px", color: "brown" }}
+                                >
                                   Menu
                                 </Table.Th>
                                 <Table.Th
@@ -766,7 +828,8 @@ export const LaporanKeuanganPage = () => {
                                     fontSize: "14px",
                                     textAlign: "right",
                                     color: "brown",
-                                  }}>
+                                  }}
+                                >
                                   Harga
                                 </Table.Th>
                                 <Table.Th
@@ -774,7 +837,8 @@ export const LaporanKeuanganPage = () => {
                                     fontSize: "14px",
                                     textAlign: "center",
                                     color: "brown",
-                                  }}>
+                                  }}
+                                >
                                   Jumlah
                                 </Table.Th>
                                 <Table.Th
@@ -782,67 +846,61 @@ export const LaporanKeuanganPage = () => {
                                     fontSize: "14px",
                                     textAlign: "right",
                                     color: "brown",
-                                  }}>
+                                  }}
+                                >
                                   Subtotal
                                 </Table.Th>
                               </Table.Tr>
                             </Table.Thead>
 
                             <Table.Tbody>
-                              {item.items.map((menuItem, idx) => (
-                                <Table.Tr
-                                  key={idx}
-                                  style={{ backgroundColor: "#F5F5F5" }}>
-                                  <Table.Td
-                                    style={{
-                                      fontSize: "14px",
-                                      color: "brown",
-                                    }}>
-                                    {menuItem.menu_id}
-                                  </Table.Td>
+                              <Table.Tr style={{ backgroundColor: "#F5F5F5" }}>
+                                <Table.Td
+                                  style={{ fontSize: "14px", color: "brown" }}
+                                >
+                                  {item.menu_id}
+                                </Table.Td>
 
-                                  <Table.Td
-                                    style={{
-                                      fontSize: "14px",
-                                      color: "brown",
-                                    }}>
-                                    {menuItem.menu_nama}
-                                  </Table.Td>
+                                <Table.Td
+                                  style={{ fontSize: "14px", color: "brown" }}
+                                >
+                                  {item.menu_nama}
+                                </Table.Td>
 
-                                  <Table.Td
-                                    style={{
-                                      fontSize: "14px",
-                                      textAlign: "right",
-                                      color: "brown",
-                                    }}>
-                                    Rp{" "}
-                                    {(menuItem.menu_harga || 0).toLocaleString(
-                                      "id-ID"
-                                    )}
-                                  </Table.Td>
+                                <Table.Td
+                                  style={{
+                                    fontSize: "14px",
+                                    textAlign: "right",
+                                    color: "brown",
+                                  }}
+                                >
+                                  Rp{" "}
+                                  {(item.menu_harga || 0).toLocaleString(
+                                    "id-ID"
+                                  )}
+                                </Table.Td>
 
-                                  <Table.Td
-                                    style={{
-                                      fontSize: "14px",
-                                      textAlign: "center",
-                                      color: "brown",
-                                    }}>
-                                    {menuItem.pesanan_detail_jumlah}
-                                  </Table.Td>
+                                <Table.Td
+                                  style={{
+                                    fontSize: "14px",
+                                    textAlign: "center",
+                                    color: "brown",
+                                  }}
+                                >
+                                  {item.pesanan_detail_jumlah}
+                                </Table.Td>
 
-                                  <Table.Td
-                                    style={{
-                                      fontSize: "14px",
-                                      textAlign: "right",
-                                      color: "brown",
-                                    }}>
-                                    Rp{" "}
-                                    {(menuItem.subtotal || 0).toLocaleString(
-                                      "id-ID"
-                                    )}
-                                  </Table.Td>
-                                </Table.Tr>
-                              ))}
+                                <Table.Td
+                                  style={{
+                                    fontSize: "14px",
+                                    textAlign: "right",
+                                    color: "brown",
+                                  }}
+                                >
+                                  Rp{" "}
+                                  {(item.subtotal || 0).toLocaleString("id-ID")}
+                                </Table.Td>
+                              </Table.Tr>
                             </Table.Tbody>
                           </Table>
                         </Box>
@@ -851,8 +909,8 @@ export const LaporanKeuanganPage = () => {
                         <Group justify="flex-end">
                           <Text fw={600} size="lg" c="brown">
                             Subtotal:{" "}
-                            {item.total
-                              ? `Rp ${item.total.toLocaleString("id-ID")}`
+                            {item.subtotal
+                              ? `Rp ${item.subtotal.toLocaleString("id-ID")}`
                               : "Rp 0"}
                           </Text>
                         </Group>
@@ -871,14 +929,24 @@ export const LaporanKeuanganPage = () => {
                 <Text
                   size="xl"
                   fw={700}
-                  style={{
-                    borderTop: "2px solid #8B7355",
-                    paddingTop: "10px",
-                  }}>
+                  style={{ borderTop: "2px solid #8B7355", paddingTop: "10px" }}
+                >
                   Total Pesanan: Rp {totalPesanan.toLocaleString("id-ID")}
                 </Text>
               </Group>
             </Paper>
+          )}
+
+          {/* Pagination for "all" mode */}
+          {jenisLaporan === "all" && (
+            <Group justify="center" mt="lg">
+              <Pagination
+                value={currentPage}
+                onChange={setCurrentPage}
+                total={3}
+                siblings={1}
+              />
+            </Group>
           )}
         </Stack>
       </Container>
