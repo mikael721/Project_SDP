@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { useForm } from "react-hook-form";
+import { useSetState } from "@mantine/hooks";
 
 const Pesanan = () => {
   const API_BASE = import.meta.env.VITE_API_BASE;
@@ -20,9 +21,12 @@ const Pesanan = () => {
     reset();
     const result = {
       password: data.password,
+      pesan: data.pesan,
       token: userToken,
     };
     cekPass(result);
+    console.log('Pesan Jalan');
+    
   };
 
   const cekPass = async (result) => {
@@ -32,7 +36,10 @@ const Pesanan = () => {
         result
       );
       if (res.data.status) {
-        nowChangePesananStatus();
+        let userIDNama = `[${res.data.data.pegawai_id}][${res.data.data.pegawai_nama}] : `
+        nowChangePesananStatus(result.pesan,userIDNama);
+        console.log('Berhasil Cek Pass : ' + userIDNama);
+        
       } else {
         window.alert("Password Anda Salah !!!");
       }
@@ -45,6 +52,7 @@ const Pesanan = () => {
   const [allDetailMenu, setAllDetailMenu] = useState([]);
   const [showPassPanel, setShowPassPanel] = useState(false);
   const [idRubah, setIdRubah] = useState(null);
+  const [pesan, setpesan] = useState('');
 
   // sorting mantine
   const [sortStatus, setSortStatus] = useState({
@@ -94,11 +102,8 @@ const Pesanan = () => {
       "Juli", "Agustus", "September", "Oktober", "November", "Desember"
     ];
     const d = new Date(tanggal);
-
     const jam = d.getHours().toString().padStart(2,"0");
     const menit = d.getMinutes().toString().padStart(2,"0");
-
-
     return `${d.getDate()} ${bulanIndo[d.getMonth()]} ${d.getFullYear()}  ${jam}:${menit} `;
   };
 
@@ -114,13 +119,24 @@ const Pesanan = () => {
       <div className="passPanel">
         <div className="passPanelForm">
           <form onSubmit={handleSubmit(onSubmit)}>
-            <h3 style={{ color: "black" }}>Masukan Password</h3>
+            <h3 style={{ color: "black" }}>Masukan Password dan Pesan</h3>
+            <span style={{color:'black'}}>Password :</span> 
             <input
               type="password"
               className="inputBarPASS"
               {...register("password")}
               required
             />
+
+            {/* Masukin Pesan Di Sini */}
+            <span style={{color:'black'}}>Pesan :</span>
+            <textarea
+              className="textPesan"
+              placeholder="*catatan: id dan nama anda akan tercatat dalam pesan"
+              {...register("pesan")}
+              required
+            />
+
             <button
               type="button"
               className="buttonStyling cm"
@@ -136,10 +152,12 @@ const Pesanan = () => {
     );
   };
 
-  const nowChangePesananStatus = async () => {
+  const nowChangePesananStatus = async (pesan,userInfo) => {
     try {
+      console.log(`Pesan : ${pesan} || UserInfo : ${userInfo}`);
+      
       await axios.post(
-        `${API_BASE}/api/pesanan_detail/detail/update/${idRubah}`
+        `${API_BASE}/api/pesanan_detail/detail/update/${idRubah}`, {pesan,userInfo}
       );
       getDataDetailPesanan();
       setIdRubah(null);
@@ -173,6 +191,31 @@ const Pesanan = () => {
   const lihatDetailPesanan = (id) => {
     navigate(`/pegawai/pesanan/${id}`);
   };
+
+  const lihatPesan = (id_pesan) => {
+    setpesan(id_pesan);
+  }
+
+  const renderPesan = () => {
+    if(pesan != ''){
+      return(
+        <div className="pesan">
+          <div className="panelPesan">
+            <h2>Pesan</h2>
+            <div className="textfield">
+              {!pesan ? '(Belum Ada Pesan)' : pesan}
+            </div> 
+            <button
+              type="button"
+              className="buttonStyling cm"
+              onClick={() => setpesan('')}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )
+    }
+  }
 
   // ========= SORTING OTOMATIS (Mantine) =========
 
@@ -226,88 +269,107 @@ const Pesanan = () => {
   };
 
   return (
-    <div>
+    <>
       {PasswordPanel()}
+      {renderPesan()}
+      <div>
 
-      <div className="barTitle">
-        <h2>Dalam Proses</h2>
-      </div>
+        <div className="barTitle">
+          <h2>Dalam Proses</h2>
+        </div>
 
-      <DataTable
-        withBorder
-        borderRadius="md"
-        striped
-        highlightOnHover
-        records={sortedRecords}
-        sortStatus={sortStatus}
-        onSortStatusChange={setSortStatus}
+        <DataTable
+          withBorder
+          borderRadius="md"
+          striped
+          highlightOnHover
+          records={sortedRecords}
+          sortStatus={sortStatus}
+          onSortStatusChange={setSortStatus}
 
-        // === Kolomnya ===
-        columns={[
-          { accessor: "pesanan_id", title: "ID_Pesanan", sortable: true },
-          { accessor: "pesanan_nama", title: "Atas_Nama", sortable: true },
+          // === Kolomnya ===
+          columns={[
+            { accessor: "pesanan_id", title: "ID_Pesanan", sortable: true },
+            { accessor: "pesanan_nama", title: "Atas_Nama", sortable: true },
 
-          {
-            accessor: "pesanan_status",
-            title: "Status",
-            sortable: true,
-            render: (d) => (
-              <button
-                className="buttonStyling"
-                style={setColor(d.pesanan_status)}
-                onClick={() =>
-                  updateStatusPesanan(d.pesanan_id, d.pesanan_status)
-                }>
-                {d.pesanan_status}
-              </button>
-            ),
-          },
-
-          {
-            accessor: "email",
-            title: "Email",
-            sortable: true,
-            render: (d) => d.data[0].pesanan.pesanan_email,
-          },
-
-          {
-            accessor: "tanggal_dibuat",
-            title: "Pesanan_Dibuat",
-            sortable: true,
-            render: (d) =>
-              perapiTanggal(d.data[0].pesanan.pesanan_tanggal),
-          },
-
-          {
-            accessor: "tanggal_kirim",
-            title: "Pesanan_Terkirim",
-            sortable: true,
-            render: (d) =>
-              perapiTanggal(
-                d.data[0].pesanan.pesanan_tanggal_pengiriman
+            {
+              accessor: "pesanan_status",
+              title: "Status",
+              sortable: true,
+              render: (d) => (
+                <button
+                  className="buttonStyling"
+                  style={setColor(d.pesanan_status)}
+                  onClick={() =>
+                    updateStatusPesanan(d.pesanan_id, d.pesanan_status)
+                  }>
+                  {d.pesanan_status}
+                </button>
               ),
-          },
+            },
 
-          {
-            accessor: "detail",
-            title: "Detail_Pesanan",
-            render: (d) => (
-              <button
-                className="buttonStyling sky"
-                onClick={() => lihatDetailPesanan(d.pesanan_id)}>
-                Lihat Detail
-              </button>
-            ),
-          },
-          {
-            accessor: "subtotal", // harus dirubah ntik
-            title: "Subtotal",
-            sortable: true,
-            render: (d) => pesananDetailTotal(d.pesanan_id)
-          }
-        ]}
-      />
-    </div>
+            {
+              accessor: "email",
+              title: "Email",
+              sortable: true,
+              render: (d) => d.data[0].pesanan.pesanan_email,
+            },
+            {
+              accessor: "Telpon",
+              title: "Telpon",
+              sortable: false,
+              render: (d) => d.data[0].pesanan.nomer_telpon,
+            },
+
+            {
+              accessor: "tanggal_dibuat",
+              title: "Pesanan_Dibuat",
+              sortable: true,
+              render: (d) =>
+                perapiTanggal(d.data[0].pesanan.pesanan_tanggal),
+            },
+
+            {
+              accessor: "tanggal_kirim",
+              title: "Pesanan_Diantar",
+              sortable: true,
+              render: (d) =>
+                perapiTanggal(
+                  d.data[0].pesanan.pesanan_tanggal_pengiriman
+                ),
+            },
+            {
+              accessor: "pesan",
+              title: "Pesan",
+              render: (d) => (
+                <button
+                  className="buttonStyling lime"
+                  onClick={() => lihatPesan(d.data[0].pesanan.pesan)}>
+                  Lihat Pesan
+                </button>
+              ),
+            },
+            {
+              accessor: "detail",
+              title: "Detail_Pesanan",
+              render: (d) => (
+                <button
+                  className="buttonStyling sky"
+                  onClick={() => lihatDetailPesanan(d.pesanan_id)}>
+                  Lihat Detail
+                </button>
+              ),
+            },
+            {
+              accessor: "subtotal", // harus dirubah ntik
+              title: "Subtotal",
+              sortable: true,
+              render: (d) => pesananDetailTotal(d.pesanan_id)
+            }
+          ]}
+        />
+      </div>
+    </>
   );
 };
 

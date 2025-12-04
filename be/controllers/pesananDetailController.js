@@ -150,6 +150,7 @@ exports.showPesananDetailSpesifik = async (req, res) => {
 // === UPDATE STATUS PESANAN DETAIL ===
 exports.updateStatusPesanan = async (req, res) => {
   const { id } = req.params;
+  const { pesan,userInfo } = req.body;
   try {
     // Cari pesanan berdasarkan primary key
     const findPesanan = await Pesanan.findByPk(id);
@@ -166,6 +167,8 @@ exports.updateStatusPesanan = async (req, res) => {
     } else {
       findPesanan.pesanan_status = "pending"; // fallback / reset
     }
+
+    findPesanan.pesan = `${userInfo}${pesan}`;
 
     // Simpan perubahan ke database
     await findPesanan.save();
@@ -187,7 +190,7 @@ exports.updateStatusPesanan = async (req, res) => {
 
 // === Password vs Token // wes isa
 exports.cekPasswordPemesanan = async (req, res) => {
-  const { password, token } = req.body;
+  const { password, pesan ,token } = req.body;
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const pegawai_id = decoded.pegawai_id;

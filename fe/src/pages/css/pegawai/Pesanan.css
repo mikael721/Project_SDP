@@ -53,6 +53,51 @@
     border-radius: 15px;
 }
 
+.lime{
+    background: lime;
+}
+
 .cm{
     margin-right: 10px;
+}
+
+.pesan{
+    position: fixed;
+    z-index: 100;
+    font-weight: bolder;
+    color: black;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(1, 1, 1, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.panelPesan{
+    width: 500px;
+    padding: 15px;
+    border-radius: 20px;
+    border: 1px solid black;
+    background: white;
+}
+
+.textfield{
+    height: 300px;
+    margin-bottom: 10px;
+    border: 1px solid black;
+    border-radius: 15px;
+    font-weight: normal;
+    padding: 15px;
+    overflow: auto;
+}
+
+.textPesan {
+  width: 100%; 
+  height: 100px; 
+  padding: 10px; 
+  margin: 10px 0; 
+  border: 1px solid #ccc; 
+  border-radius: 4px; 
+  resize: none;
 }
