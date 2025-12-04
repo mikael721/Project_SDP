@@ -56,6 +56,7 @@
   border: 1px solid black;
   border-radius: 15px;
   margin-bottom: 10px;
+  margin-right: 20px;
 }
 
 .helpMain{
@@ -69,7 +70,7 @@
 }
 
 .helpChatpanel{
-  height: 63%;
+  height: 58%;
 
 }
 
@@ -85,4 +86,57 @@
 
 .panelInformasi{
   overflow: auto;
+}
+
+.containerBtn{
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.setRedBtn{
+  background: red;
+  color: white;
+}
+
+.panelInfo{
+  margin-top: 30px;
+}
+
+.pembungkusOpsi{
+  background: rgba(102, 102, 102, 0.8);
+  border: 2px solid black;
+  padding: 15px;
+  border-radius: 20px;
+}
+
+.setGambarQris{
+  width: 250px;
+  height: 250px;
+}
+
+.untukqris{
+  width: auto
+}
+
+.untukinfowarung{
+  width: fit-content;
+  display: flex;
+  align-items: center;
+}
+
+.cardInfoWarung{
+  background: rgba(0, 0, 0, 0.8);
+  font-size: 15px;
+  margin-left: 10px;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.setMiddleText{
+  text-align: center;
+}
+
+.setGambarHelpMenu{
+  width: 400px;
+  height: 250px;
 }

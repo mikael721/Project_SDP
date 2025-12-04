@@ -126,7 +126,7 @@ const LoginPage = () => {
                 </div>
               </div>
               <div className="sl3 stz">
-                📨 : bulis123@gmail.com 📞 : +62 000-0000-0000
+                📨 : bulis123@gmail.com 📞 : +62 0895-3377-5527
               </div>
             </div>
           </div>

@@ -10,6 +10,14 @@ import menuSlice from "../../slice + storage/menuSlice";
 import { AppShell, Button, Container, Group, Image } from "@mantine/core";
 import GambarBuLis from '../../asset/bu-Lis-Ask-NoBg.png'
 import { useSetState } from "@mantine/hooks";
+import qris from '../../asset/qris.jpg'
+
+// === Help Lihat Riwayat ===
+import lihathistory from '../../asset/CaraLihatRiwayatPesanan/1_KlikHistory.png'
+import masukanemail from '../../asset/CaraLihatRiwayatPesanan/2_MasukanEmail.png'
+import pesananmuncul from '../../asset/CaraLihatRiwayatPesanan/3_PesananTelahMuncul.png'
+
+
 
 const MenuPage = () => {
   // === VARIABEL ===
@@ -49,22 +57,55 @@ const MenuPage = () => {
   const renderDetailHelp = () => {
     if(showHelpDetail == 'none'){ // default
       return(
-        <div>
-          none
+        <div className="panelInfo">
+          <h3>Informasi Umum Warung</h3>
+          <div style={{display:'flex'}}>
+            <div className="untukqris">
+              <img src={qris} alt="" className="setGambarQris"/>
+              <div className="setMiddleText">
+                <span style={{fontWeight:'bold'}}>
+                  Nomer Virtual Account
+                </span>
+                <br />
+                <span>
+                  1152-2363-7412-3455
+                </span>
+              </div>
+            </div>
+            <div className="untukinfowarung">
+              <div className="cardInfoWarung">
+                <span style={{fontWeight:'bold'}}>Telpon</span> 📞 : <br />
+                +62 0895-3377-5527 <br />
+                <span style={{fontWeight:'bold'}}>Email</span> 📨 : <br />
+                bulis123@gmail.com
+              </div>
+            </div>
+          </div>
         </div>
       )
     }
     else if(showHelpDetail == 'pesan_menu'){
       return(
-        <div>
+        <div className="panelInfo">
           pesan_menu
         </div>
       )
     }
     else{
       return(
-        <div>
-          lihat_riwayat
+        <div className="panelInfo">
+          <h2>Cara Melihat Riwayat Pesanan</h2>
+          <br />
+
+          <h5>1. Klik Tombol History</h5>
+          <img src={lihathistory} alt="" className="setGambarHelpMenu"/> <br />
+          <br />
+          <h5>2. Masukan Email yang Digunakan Saat Memesan Dan Klik Cari</h5>
+          <img src={masukanemail} alt="" className="setGambarHelpMenu"/> <br />
+          <br />
+          <h5>3. Pesanan Akan Ditampilkan</h5>
+          <img src={pesananmuncul} alt="" className="setGambarHelpMenu"/> <br />
+          <br />
         </div>
       )
     }
@@ -86,16 +127,24 @@ const MenuPage = () => {
                 {renderDetailHelp()}
               
               </div>
-              <div className="">
+              <div className="pembungkusOpsi">
                 <h3>Selamat Datang Di Halaman Bantuan Apa yang Bisa Kami Bantu ?</h3>
-                <button className="btnHelp" onClick={() => {
+                
+                <div className="containerBtn">
+                  <button className="btnHelp" onClick={() => {
                   setshowHelpDetail('pesan_menu');
-                }}>Cara Memesan Makanan</button> <br />
-                <button className="btnHelp" onClick={() => {
-                  setshowHelpDetail('lihat_riwayat');
-                }}>
-                  Cara Melihat Orderan</button> <br />
-                <button className="btnHelp" onClick={() => {
+                  }}>Cara Memesan</button> <br />
+                  <button className="btnHelp" onClick={() => {
+                    setshowHelpDetail('lihat_riwayat');
+                  }}>
+                    Cara Melihat Orderan</button> <br />
+                  <button className="btnHelp" onClick={() => {
+                    setshowHelpDetail('none');
+                  }}>
+                    Informasi Umum</button> <br />
+                </div>
+
+                <button className="btnHelp setRedBtn" onClick={() => {
                   setshowHelp(!showHelp);
                   setshowHelpDetail('none');
                 }}>Cancle</button> <br />
