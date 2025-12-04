@@ -17,21 +17,18 @@ const getLaporanPenjualan = async (req, res) => {
     const { tanggal_awal, tanggal_akhir, jam_awal, jam_akhir, nama } =
       req.query;
 
-    let whereClause = {};
     let whereHeader = {};
 
     // Filter by date range
     if (tanggal_awal || tanggal_akhir) {
       whereHeader.header_penjualan_tanggal = {};
       if (tanggal_awal) {
-        // Combine date with time
         const startTime = jam_awal ? ` ${jam_awal}:00` : " 00:00:00";
         whereHeader.header_penjualan_tanggal[Op.gte] = new Date(
           tanggal_awal + startTime
         );
       }
       if (tanggal_akhir) {
-        // Combine date with time
         const endTime = jam_akhir ? ` ${jam_akhir}:59` : " 23:59:59";
         whereHeader.header_penjualan_tanggal[Op.lte] = new Date(
           tanggal_akhir + endTime
@@ -40,7 +37,6 @@ const getLaporanPenjualan = async (req, res) => {
     }
 
     const penjualan = await Penjualan.findAll({
-      where: whereClause,
       include: [
         {
           model: HeaderPenjualan,
@@ -61,8 +57,7 @@ const getLaporanPenjualan = async (req, res) => {
       order: [["createdAt", "ASC"]],
     });
 
-    // Get pesanan data grouped by header_penjualan_id
-    const pesananDataMap = {};
+    // Get all pesanan details to map menu to pesanan
     const pesananDetails = await PesananDetail.findAll({
       include: [
         {
@@ -72,37 +67,20 @@ const getLaporanPenjualan = async (req, res) => {
       ],
     });
 
+    // Create a map of menu_id to pesanan_nama
+    const menuToPesananMap = {};
     pesananDetails.forEach((detail) => {
-      if (!pesananDataMap[detail.pesanan_id]) {
-        pesananDataMap[detail.pesanan_id] = {
-          pesanan_id: detail.pesanan?.pesanan_id,
-          pesanan_nama: detail.pesanan?.pesanan_nama,
-          pesanan_tanggal: detail.pesanan?.pesanan_tanggal,
-        };
+      if (!menuToPesananMap[detail.menu_id]) {
+        menuToPesananMap[detail.menu_id] = detail.pesanan?.pesanan_nama;
       }
     });
 
-    // Group by header_penjualan_id AND pesanan_nama untuk pisah per pemesan
-    // Jika nama sama tapi waktu berbeda, akan tetap dipisah karena header berbeda
+    // Group by header_penjualan_id only
     const groupedData = {};
 
     penjualan.forEach((item) => {
-      // Dapatkan pesanan_nama untuk item ini
-      let pesananNama = null;
-      for (const pesananId in pesananDataMap) {
-        const pesananData = pesananDataMap[pesananId];
-        const pesananDetail = pesananDetails.find(
-          (pd) =>
-            pd.pesanan_id === parseInt(pesananId) && pd.menu_id === item.menu_id
-        );
-        if (pesananDetail) {
-          pesananNama = pesananData.pesanan_nama;
-          break;
-        }
-      }
-
-      // Key berdasarkan header_penjualan_id DAN pesanan_nama untuk pemisahan
-      const key = `${item.header_penjualan_id}_${pesananNama || "unknown"}`;
+      const pesananNama = menuToPesananMap[item.menu_id] || "unknown";
+      const key = `${item.header_penjualan_id}`;
 
       if (!groupedData[key]) {
         groupedData[key] = {
@@ -112,9 +90,15 @@ const getLaporanPenjualan = async (req, res) => {
           biaya_tambahan: item.header?.header_penjualan_biaya_tambahan || 0,
           persentase_dp: item.header?.header_penjualan_uang_muka || 0,
           pegawai_id: item.header?.pegawai_id,
+          pegawai_nama: item.header?.pegawai?.pegawai_nama,
+          pesanan_nama: [],
           items: [],
-          pesanan_nama: pesananNama,
         };
+      }
+
+      // Add pesanan_nama if not already in array
+      if (!groupedData[key].pesanan_nama.includes(pesananNama)) {
+        groupedData[key].pesanan_nama.push(pesananNama);
       }
 
       groupedData[key].items.push({
@@ -123,13 +107,13 @@ const getLaporanPenjualan = async (req, res) => {
         menu_nama: item.menu?.menu_nama,
         menu_harga: item.menu?.menu_harga,
         penjualan_jumlah: item.penjualan_jumlah,
+        pesanan_nama: pesananNama,
         subtotal: (item.menu?.menu_harga || 0) * item.penjualan_jumlah,
       });
     });
 
     // Transform grouped data
     let transformedData = Object.values(groupedData).map((group) => {
-      // Calculate totals berdasarkan user requirements
       const totalSubtotal = group.items.reduce(
         (sum, item) => sum + item.subtotal,
         0
@@ -137,28 +121,25 @@ const getLaporanPenjualan = async (req, res) => {
       const totalBiayaTambahan = group.biaya_tambahan || 0;
       const persentaseDP = group.persentase_dp || 0;
 
-      // Formula yang benar:
-      // DP = Total Subtotal × (persentaseDP / 100)
       const totalDP = totalSubtotal * (persentaseDP / 100);
-
-      // Grand Total = Total Subtotal + Total Biaya Tambahan
       const grandTotal = totalSubtotal + totalBiayaTambahan;
-
-      // Sisa Pembayaran = Grand Total - DP
       const sisaPembayaran = grandTotal - totalDP;
 
       return {
         header_penjualan_id: group.header_penjualan_id,
         pesanan_nama: group.pesanan_nama,
         pegawai_id: group.pegawai_id,
+        pegawai_nama: group.pegawai_nama,
         tanggal: group.tanggal,
         jenis: group.jenis,
         items: group.items.map((item) => {
           return {
+            penjualan_id: item.penjualan_id,
             menu_id: item.menu_id,
             menu_nama: item.menu_nama,
             menu_harga: item.menu_harga,
             penjualan_jumlah: item.penjualan_jumlah,
+            pesanan_nama: item.pesanan_nama,
             subtotal: item.subtotal,
           };
         }),
@@ -174,7 +155,9 @@ const getLaporanPenjualan = async (req, res) => {
     // Filter by nama if provided
     if (nama) {
       transformedData = transformedData.filter((item) =>
-        item.pesanan_nama?.toLowerCase().includes(nama.toLowerCase())
+        item.pesanan_nama.some((name) =>
+          name?.toLowerCase().includes(nama.toLowerCase())
+        )
       );
     }
 
@@ -203,12 +186,10 @@ const getLaporanPembelian = async (req, res) => {
     if (tanggal_awal || tanggal_akhir) {
       whereClause.createdAt = {};
       if (tanggal_awal) {
-        // Combine date with time
         const startTime = jam_awal ? ` ${jam_awal}:00` : " 00:00:00";
         whereClause.createdAt[Op.gte] = new Date(tanggal_awal + startTime);
       }
       if (tanggal_akhir) {
-        // Combine date with time
         const endTime = jam_akhir ? ` ${jam_akhir}:59` : " 23:59:59";
         whereClause.createdAt[Op.lte] = new Date(tanggal_akhir + endTime);
       }
@@ -268,14 +249,12 @@ const getLaporanPesanan = async (req, res) => {
     if (tanggal_awal || tanggal_akhir) {
       wherePesanan.pesanan_tanggal = {};
       if (tanggal_awal) {
-        // Combine date with time
         const startTime = jam_awal ? ` ${jam_awal}:00` : " 00:00:00";
         wherePesanan.pesanan_tanggal[Op.gte] = new Date(
           tanggal_awal + startTime
         );
       }
       if (tanggal_akhir) {
-        // Combine date with time
         const endTime = jam_akhir ? ` ${jam_akhir}:59` : " 23:59:59";
         wherePesanan.pesanan_tanggal[Op.lte] = new Date(
           tanggal_akhir + endTime
@@ -313,25 +292,33 @@ const getLaporanPesanan = async (req, res) => {
       order: [["createdAt", "ASC"]],
     });
 
-    // Transform data for frontend
+    // Transform data for frontend - Group by pesanan_id
     const transformedData = [];
+
     pesanan.forEach((pes) => {
-      pes.details.forEach((detail) => {
-        transformedData.push({
-          pesanan_id: pes.pesanan_id,
-          pesanan_nama: pes.pesanan_nama,
-          pesanan_email: pes.pesanan_email,
-          pesanan_lokasi: pes.pesanan_lokasi,
-          pesanan_status: pes.pesanan_status,
-          tanggal: pes.pesanan_tanggal,
-          tanggal_pengiriman: pes.pesanan_tanggal_pengiriman,
-          menu_id: detail.menu_id,
-          menu_nama: detail.menu?.menu_nama,
-          menu_harga: detail.menu?.menu_harga,
-          pesanan_detail_jumlah: detail.pesanan_detail_jumlah,
-          subtotal:
-            (detail.menu?.menu_harga || 0) * detail.pesanan_detail_jumlah,
-        });
+      const pesananItems = pes.details.map((detail) => ({
+        menu_id: detail.menu_id,
+        menu_nama: detail.menu?.menu_nama,
+        menu_harga: detail.menu?.menu_harga,
+        pesanan_detail_jumlah: detail.pesanan_detail_jumlah,
+        subtotal: (detail.menu?.menu_harga || 0) * detail.pesanan_detail_jumlah,
+      }));
+
+      const totalSubtotal = pesananItems.reduce(
+        (sum, item) => sum + item.subtotal,
+        0
+      );
+
+      transformedData.push({
+        pesanan_id: pes.pesanan_id,
+        pesanan_nama: pes.pesanan_nama,
+        pesanan_email: pes.pesanan_email,
+        pesanan_lokasi: pes.pesanan_lokasi,
+        pesanan_status: pes.pesanan_status,
+        tanggal: pes.pesanan_tanggal,
+        tanggal_pengiriman: pes.pesanan_tanggal_pengiriman,
+        items: pesananItems,
+        total: totalSubtotal,
       });
     });
 
@@ -407,6 +394,12 @@ const getLaporanPenjualanData = async (
         model: HeaderPenjualan,
         as: "header",
         where: Object.keys(whereHeader).length > 0 ? whereHeader : undefined,
+        include: [
+          {
+            model: Pegawai,
+            as: "pegawai",
+          },
+        ],
       },
       {
         model: Menu,
@@ -416,7 +409,7 @@ const getLaporanPenjualanData = async (
     order: [["createdAt", "ASC"]],
   });
 
-  // Get pesanan data grouped by header_penjualan_id
+  // Get all pesanan details to map menu to pesanan
   const pesananDetails = await PesananDetail.findAll({
     include: [
       {
@@ -426,10 +419,19 @@ const getLaporanPenjualanData = async (
     ],
   });
 
-  // Group by header_penjualan_id
+  // Create a map of menu_id to pesanan_nama
+  const menuToPesananMap = {};
+  pesananDetails.forEach((detail) => {
+    if (!menuToPesananMap[detail.menu_id]) {
+      menuToPesananMap[detail.menu_id] = detail.pesanan?.pesanan_nama;
+    }
+  });
+
+  // Group by header_penjualan_id only
   const groupedData = {};
 
   penjualan.forEach((item) => {
+    const pesananNama = menuToPesananMap[item.menu_id] || "unknown";
     const key = `${item.header_penjualan_id}`;
 
     if (!groupedData[key]) {
@@ -439,21 +441,17 @@ const getLaporanPenjualanData = async (
         jenis: item.header?.header_penjualan_jenis,
         biaya_tambahan: item.header?.header_penjualan_biaya_tambahan || 0,
         persentase_dp: item.header?.header_penjualan_uang_muka || 0,
+        pegawai_id: item.header?.pegawai_id,
+        pegawai_nama: item.header?.pegawai?.pegawai_nama,
+        pesanan_nama: [],
         items: [],
-        pesanan_nama: null,
       };
     }
 
-    // Find pesanan name for this menu
-    let pesananNama = null;
-    pesananDetails.forEach((detail) => {
-      if (detail.menu_id === item.menu_id) {
-        pesananNama = detail.pesanan?.pesanan_nama;
-      }
-    });
-
-    groupedData[key].pesanan_nama =
-      pesananNama || groupedData[key].pesanan_nama;
+    // Add pesanan_nama if not already in array
+    if (!groupedData[key].pesanan_nama.includes(pesananNama)) {
+      groupedData[key].pesanan_nama.push(pesananNama);
+    }
 
     groupedData[key].items.push({
       penjualan_id: item.penjualan_id,
@@ -461,6 +459,7 @@ const getLaporanPenjualanData = async (
       menu_nama: item.menu?.menu_nama,
       menu_harga: item.menu?.menu_harga,
       penjualan_jumlah: item.penjualan_jumlah,
+      pesanan_nama: pesananNama,
       subtotal: (item.menu?.menu_harga || 0) * item.penjualan_jumlah,
     });
   });
@@ -478,21 +477,19 @@ const getLaporanPenjualanData = async (
     return {
       header_penjualan_id: group.header_penjualan_id,
       pesanan_nama: group.pesanan_nama,
+      pegawai_id: group.pegawai_id,
+      pegawai_nama: group.pegawai_nama,
       tanggal: group.tanggal,
       jenis: group.jenis,
       items: group.items.map((item) => {
-        const itemSubtotal = item.subtotal;
-        const itemSubtotalSebelumDP = itemSubtotal + biayaTambahan;
-        const itemSubtotalUangMuka =
-          itemSubtotalSebelumDP * (persentaseDP / 100);
-
         return {
+          penjualan_id: item.penjualan_id,
+          menu_id: item.menu_id,
           menu_nama: item.menu_nama,
           menu_harga: item.menu_harga,
           penjualan_jumlah: item.penjualan_jumlah,
-          subtotal: itemSubtotal,
-          subtotalSebelumDP: itemSubtotalSebelumDP,
-          subtotalUangMuka: itemSubtotalUangMuka,
+          pesanan_nama: item.pesanan_nama,
+          subtotal: item.subtotal,
         };
       }),
       totalMenu,
@@ -567,20 +564,51 @@ const getLaporanPesananData = async (tanggal_awal, tanggal_akhir, menu_id) => {
     whereDetail.menu_id = menu_id;
   }
 
+  const pesanan = await Pesanan.findAll({
+    where: Object.keys(wherePesanan).length > 0 ? wherePesanan : undefined,
+    include: [
+      {
+        model: PesananDetail,
+        as: "details",
+        where: Object.keys(whereDetail).length > 0 ? whereDetail : undefined,
+        include: [
+          {
+            model: Menu,
+            as: "menu",
+          },
+        ],
+      },
+    ],
+    order: [["createdAt", "ASC"]],
+  });
+
+  // Transform data - Group by pesanan_id
   const transformedData = [];
+
   pesanan.forEach((pes) => {
-    pes.details.forEach((detail) => {
-      transformedData.push({
-        pesanan_id: pes.pesanan_id,
-        pesanan_nama: pes.pesanan_nama,
-        pesanan_status: pes.pesanan_status,
-        tanggal: pes.pesanan_tanggal,
-        menu_id: detail.menu_id,
-        menu_nama: detail.menu?.menu_nama,
-        menu_harga: detail.menu?.menu_harga,
-        pesanan_detail_jumlah: detail.pesanan_detail_jumlah,
-        subtotal: (detail.menu?.menu_harga || 0) * detail.pesanan_detail_jumlah,
-      });
+    const pesananItems = pes.details.map((detail) => ({
+      menu_id: detail.menu_id,
+      menu_nama: detail.menu?.menu_nama,
+      menu_harga: detail.menu?.menu_harga,
+      pesanan_detail_jumlah: detail.pesanan_detail_jumlah,
+      subtotal: (detail.menu?.menu_harga || 0) * detail.pesanan_detail_jumlah,
+    }));
+
+    const totalSubtotal = pesananItems.reduce(
+      (sum, item) => sum + item.subtotal,
+      0
+    );
+
+    transformedData.push({
+      pesanan_id: pes.pesanan_id,
+      pesanan_nama: pes.pesanan_nama,
+      pesanan_email: pes.pesanan_email,
+      pesanan_lokasi: pes.pesanan_lokasi,
+      pesanan_status: pes.pesanan_status,
+      tanggal: pes.pesanan_tanggal,
+      tanggal_pengiriman: pes.pesanan_tanggal_pengiriman,
+      items: pesananItems,
+      total: totalSubtotal,
     });
   });
 

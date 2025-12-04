@@ -51,6 +51,7 @@ export const LaporanKeuanganPage = () => {
   // Fetch initial data
   useEffect(() => {
     fetchAllData();
+    console.log(dataPenjualan);
   }, []);
 
   const fetchAllData = async () => {
@@ -186,7 +187,7 @@ export const LaporanKeuanganPage = () => {
   );
 
   const totalPesanan = dataPesanan.reduce(
-    (sum, item) => sum + (item.subtotal || 0),
+    (sum, item) => sum + (item.total || 0),
     0
   );
 
@@ -234,8 +235,7 @@ export const LaporanKeuanganPage = () => {
         paddingTop: 24,
         paddingBottom: 24,
         position: "relative",
-      }}
-    >
+      }}>
       <LoadingOverlay visible={loading} />
 
       <Container size="lg">
@@ -251,8 +251,7 @@ export const LaporanKeuanganPage = () => {
                 <Radio.Group
                   value={jenisLaporan}
                   onChange={setJenisLaporan}
-                  name="jenisLaporan"
-                >
+                  name="jenisLaporan">
                   <Group spacing="md">
                     <Radio value="penjualan" label="Penjualan" />
                     <Radio value="pembelian" label="Pembelian" />
@@ -356,8 +355,7 @@ export const LaporanKeuanganPage = () => {
                 <Button
                   color="red"
                   onClick={onApplyFilter}
-                  style={{ borderRadius: "20px" }}
-                >
+                  style={{ borderRadius: "20px" }}>
                   Apply Filter
                 </Button>
               </Group>
@@ -380,8 +378,7 @@ export const LaporanKeuanganPage = () => {
                       style={{
                         border: "1px solid #dee2e6",
                         borderRadius: "8px",
-                      }}
-                    >
+                      }}>
                       {/* Header Penjualan */}
                       <Group justify="space-between">
                         <div>
@@ -427,17 +424,15 @@ export const LaporanKeuanganPage = () => {
                           Detail Penjualan:
                         </Text>
                         <Box sx={{ overflowX: "auto" }}>
-                          <Table size="sm" striped>
+                          <Table size="sm">
                             <Table.Thead>
                               <Table.Tr style={{ backgroundColor: "#F5F5F5" }}>
                                 <Table.Th
-                                  style={{ fontSize: "14px", color: "brown" }}
-                                >
+                                  style={{ fontSize: "14px", color: "brown" }}>
                                   Menu ID
                                 </Table.Th>
                                 <Table.Th
-                                  style={{ fontSize: "14px", color: "brown" }}
-                                >
+                                  style={{ fontSize: "14px", color: "brown" }}>
                                   Menu
                                 </Table.Th>
                                 <Table.Th
@@ -445,8 +440,7 @@ export const LaporanKeuanganPage = () => {
                                     fontSize: "14px",
                                     textAlign: "right",
                                     color: "brown",
-                                  }}
-                                >
+                                  }}>
                                   Harga
                                 </Table.Th>
                                 <Table.Th
@@ -454,8 +448,7 @@ export const LaporanKeuanganPage = () => {
                                     fontSize: "14px",
                                     textAlign: "center",
                                     color: "brown",
-                                  }}
-                                >
+                                  }}>
                                   Jumlah
                                 </Table.Th>
                                 <Table.Th
@@ -463,8 +456,7 @@ export const LaporanKeuanganPage = () => {
                                     fontSize: "14px",
                                     textAlign: "right",
                                     color: "brown",
-                                  }}
-                                >
+                                  }}>
                                   Subtotal
                                 </Table.Th>
                               </Table.Tr>
@@ -472,16 +464,22 @@ export const LaporanKeuanganPage = () => {
 
                             <Table.Tbody>
                               {item.items.map((menuItem, idx) => (
-                                <Table.Tr key={idx}>
+                                <Table.Tr
+                                  key={idx}
+                                  style={{ backgroundColor: "#F5F5F5" }}>
                                   <Table.Td
-                                    style={{ fontSize: "14px", color: "brown" }}
-                                  >
+                                    style={{
+                                      fontSize: "14px",
+                                      color: "brown",
+                                    }}>
                                     {menuItem.menu_id}
                                   </Table.Td>
 
                                   <Table.Td
-                                    style={{ fontSize: "14px", color: "brown" }}
-                                  >
+                                    style={{
+                                      fontSize: "14px",
+                                      color: "brown",
+                                    }}>
                                     {menuItem.menu_nama}
                                   </Table.Td>
 
@@ -490,8 +488,7 @@ export const LaporanKeuanganPage = () => {
                                       fontSize: "14px",
                                       textAlign: "right",
                                       color: "brown",
-                                    }}
-                                  >
+                                    }}>
                                     Rp{" "}
                                     {(menuItem.menu_harga || 0).toLocaleString(
                                       "id-ID"
@@ -503,8 +500,7 @@ export const LaporanKeuanganPage = () => {
                                       fontSize: "14px",
                                       textAlign: "center",
                                       color: "brown",
-                                    }}
-                                  >
+                                    }}>
                                     {menuItem.penjualan_jumlah}
                                   </Table.Td>
 
@@ -513,8 +509,7 @@ export const LaporanKeuanganPage = () => {
                                       fontSize: "14px",
                                       textAlign: "right",
                                       color: "brown",
-                                    }}
-                                  >
+                                    }}>
                                     Rp{" "}
                                     {(menuItem.subtotal || 0).toLocaleString(
                                       "id-ID"
@@ -533,8 +528,7 @@ export const LaporanKeuanganPage = () => {
                           style={{
                             backgroundColor: "#f8f9fa",
                             borderRadius: "8px",
-                          }}
-                        >
+                          }}>
                           <Group justify="space-between">
                             <Text fw={500} c="brown">
                               Total Subtotal:
@@ -583,8 +577,7 @@ export const LaporanKeuanganPage = () => {
                             style={{
                               borderTop: "2px solid #8B7355",
                               paddingTop: "10px",
-                            }}
-                          >
+                            }}>
                             <Text fw={700} size="lg" c="brown">
                               Sisa Pembayaran (Grand Total - DP):
                             </Text>
@@ -612,8 +605,10 @@ export const LaporanKeuanganPage = () => {
                 <Text
                   size="xl"
                   fw={700}
-                  style={{ borderTop: "2px solid #8B7355", paddingTop: "10px" }}
-                >
+                  style={{
+                    borderTop: "2px solid #8B7355",
+                    paddingTop: "10px",
+                  }}>
                   Total Penjualan: Rp {totalPenjualan.toLocaleString("id-ID")}
                 </Text>
               </Group>
@@ -648,8 +643,7 @@ export const LaporanKeuanganPage = () => {
                           style={{
                             backgroundColor: "white",
                             color: "black",
-                          }}
-                        >
+                          }}>
                           <td style={cellStyle}>{item.pembelian_id}</td>
                           <td style={cellStyle}>{formatDate(item.tanggal)}</td>
                           <td style={cellStyle}>{item.bahan_baku_id}</td>
@@ -671,8 +665,7 @@ export const LaporanKeuanganPage = () => {
                       <tr style={{ backgroundColor: "white", color: "black" }}>
                         <td
                           colSpan={8}
-                          style={{ ...cellStyle, textAlign: "center" }}
-                        >
+                          style={{ ...cellStyle, textAlign: "center" }}>
                           Tidak ada data pembelian
                         </td>
                       </tr>
@@ -704,13 +697,18 @@ export const LaporanKeuanganPage = () => {
                       style={{
                         border: "1px solid #dee2e6",
                         borderRadius: "8px",
-                      }}
-                    >
+                      }}>
                       {/* Header Pesanan */}
                       <Group justify="space-between">
                         <div>
                           <Text size="lg" fw={600}>
                             Nama Pemesan: {item.pesanan_nama}
+                          </Text>
+                          <Text size="sm" c="black" mt={5}>
+                            Email: {item.pesanan_email}
+                          </Text>
+                          <Text size="sm" c="black" mt={3}>
+                            Lokasi: {item.pesanan_lokasi}
                           </Text>
                         </div>
                         <Badge color="blue" size="lg">
@@ -736,6 +734,14 @@ export const LaporanKeuanganPage = () => {
                             {formatDateTime(item.tanggal)}
                           </Text>
                         </div>
+                        <div>
+                          <Text size="sm" c="black">
+                            Tanggal Pengiriman
+                          </Text>
+                          <Text size="lg" fw={500}>
+                            {formatDateTime(item.tanggal_pengiriman)}
+                          </Text>
+                        </div>
                       </Group>
 
                       {/* Detail Pesanan */}
@@ -744,17 +750,15 @@ export const LaporanKeuanganPage = () => {
                           Detail Pesanan:
                         </Text>
                         <Box sx={{ overflowX: "auto" }}>
-                          <Table size="sm" striped>
+                          <Table size="sm">
                             <Table.Thead>
                               <Table.Tr style={{ backgroundColor: "#F5F5F5" }}>
                                 <Table.Th
-                                  style={{ fontSize: "14px", color: "brown" }}
-                                >
+                                  style={{ fontSize: "14px", color: "brown" }}>
                                   Menu ID
                                 </Table.Th>
                                 <Table.Th
-                                  style={{ fontSize: "14px", color: "brown" }}
-                                >
+                                  style={{ fontSize: "14px", color: "brown" }}>
                                   Menu
                                 </Table.Th>
                                 <Table.Th
@@ -762,8 +766,7 @@ export const LaporanKeuanganPage = () => {
                                     fontSize: "14px",
                                     textAlign: "right",
                                     color: "brown",
-                                  }}
-                                >
+                                  }}>
                                   Harga
                                 </Table.Th>
                                 <Table.Th
@@ -771,8 +774,7 @@ export const LaporanKeuanganPage = () => {
                                     fontSize: "14px",
                                     textAlign: "center",
                                     color: "brown",
-                                  }}
-                                >
+                                  }}>
                                   Jumlah
                                 </Table.Th>
                                 <Table.Th
@@ -780,61 +782,67 @@ export const LaporanKeuanganPage = () => {
                                     fontSize: "14px",
                                     textAlign: "right",
                                     color: "brown",
-                                  }}
-                                >
+                                  }}>
                                   Subtotal
                                 </Table.Th>
                               </Table.Tr>
                             </Table.Thead>
 
                             <Table.Tbody>
-                              <Table.Tr>
-                                <Table.Td
-                                  style={{ fontSize: "14px", color: "brown" }}
-                                >
-                                  {item.menu_id}
-                                </Table.Td>
+                              {item.items.map((menuItem, idx) => (
+                                <Table.Tr
+                                  key={idx}
+                                  style={{ backgroundColor: "#F5F5F5" }}>
+                                  <Table.Td
+                                    style={{
+                                      fontSize: "14px",
+                                      color: "brown",
+                                    }}>
+                                    {menuItem.menu_id}
+                                  </Table.Td>
 
-                                <Table.Td
-                                  style={{ fontSize: "14px", color: "brown" }}
-                                >
-                                  {item.menu_nama}
-                                </Table.Td>
+                                  <Table.Td
+                                    style={{
+                                      fontSize: "14px",
+                                      color: "brown",
+                                    }}>
+                                    {menuItem.menu_nama}
+                                  </Table.Td>
 
-                                <Table.Td
-                                  style={{
-                                    fontSize: "14px",
-                                    textAlign: "right",
-                                    color: "brown",
-                                  }}
-                                >
-                                  Rp{" "}
-                                  {(item.menu_harga || 0).toLocaleString(
-                                    "id-ID"
-                                  )}
-                                </Table.Td>
+                                  <Table.Td
+                                    style={{
+                                      fontSize: "14px",
+                                      textAlign: "right",
+                                      color: "brown",
+                                    }}>
+                                    Rp{" "}
+                                    {(menuItem.menu_harga || 0).toLocaleString(
+                                      "id-ID"
+                                    )}
+                                  </Table.Td>
 
-                                <Table.Td
-                                  style={{
-                                    fontSize: "14px",
-                                    textAlign: "center",
-                                    color: "brown",
-                                  }}
-                                >
-                                  {item.pesanan_detail_jumlah}
-                                </Table.Td>
+                                  <Table.Td
+                                    style={{
+                                      fontSize: "14px",
+                                      textAlign: "center",
+                                      color: "brown",
+                                    }}>
+                                    {menuItem.pesanan_detail_jumlah}
+                                  </Table.Td>
 
-                                <Table.Td
-                                  style={{
-                                    fontSize: "14px",
-                                    textAlign: "right",
-                                    color: "brown",
-                                  }}
-                                >
-                                  Rp{" "}
-                                  {(item.subtotal || 0).toLocaleString("id-ID")}
-                                </Table.Td>
-                              </Table.Tr>
+                                  <Table.Td
+                                    style={{
+                                      fontSize: "14px",
+                                      textAlign: "right",
+                                      color: "brown",
+                                    }}>
+                                    Rp{" "}
+                                    {(menuItem.subtotal || 0).toLocaleString(
+                                      "id-ID"
+                                    )}
+                                  </Table.Td>
+                                </Table.Tr>
+                              ))}
                             </Table.Tbody>
                           </Table>
                         </Box>
@@ -843,8 +851,8 @@ export const LaporanKeuanganPage = () => {
                         <Group justify="flex-end">
                           <Text fw={600} size="lg" c="brown">
                             Subtotal:{" "}
-                            {item.subtotal
-                              ? `Rp ${item.subtotal.toLocaleString("id-ID")}`
+                            {item.total
+                              ? `Rp ${item.total.toLocaleString("id-ID")}`
                               : "Rp 0"}
                           </Text>
                         </Group>
@@ -863,8 +871,10 @@ export const LaporanKeuanganPage = () => {
                 <Text
                   size="xl"
                   fw={700}
-                  style={{ borderTop: "2px solid #8B7355", paddingTop: "10px" }}
-                >
+                  style={{
+                    borderTop: "2px solid #8B7355",
+                    paddingTop: "10px",
+                  }}>
                   Total Pesanan: Rp {totalPesanan.toLocaleString("id-ID")}
                 </Text>
               </Group>
