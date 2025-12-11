@@ -42,6 +42,9 @@ export const DetailPenjualanPage = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [ingredientsByMenu, setIngredientsByMenu] = useState({}); // Store ingredients for each menu
   const [selectedMenuDetails, setSelectedMenuDetails] = useState(null); // Show details for a menu
+  const [stockValidationErrors, setStockValidationErrors] = useState([]);
+  const [insufficientStockModalOpen, setInsufficientStockModalOpen] =
+    useState(false);
 
   // === FETCH DATA FROM DATABASE ===
   useEffect(() => {
@@ -319,6 +322,15 @@ export const DetailPenjualanPage = () => {
   // === FINALIZE TRANSACTION ===
   const handleFinalize = async () => {
     try {
+      // Validasi stok sebelum finalisasi
+      const validationErrors = await validateAllStocks();
+
+      if (validationErrors.length > 0) {
+        setStockValidationErrors(validationErrors);
+        setInsufficientStockModalOpen(true);
+        return;
+      }
+
       // Save cart items first if any
       if (cartItems.length > 0) {
         await handleSaveDetails();
@@ -335,6 +347,88 @@ export const DetailPenjualanPage = () => {
     } catch (err) {
       console.error("Gagal finalize:", err);
     }
+  };
+
+  // === VALIDATE ALL STOCKS ===
+  const validateAllStocks = async () => {
+    const errors = [];
+
+    try {
+      // Check combined cart items (both new items and database details)
+      const allItems = [
+        ...cartItems.map((item) => ({
+          menu_id: item.menu_id,
+          menu_nama: item.menu_nama,
+          quantity: item.penjualan_jumlah,
+          isNew: true,
+        })),
+        ...detailData.map((item) => ({
+          menu_id: item.menu_id,
+          menu_nama: item.menu?.menu_nama,
+          quantity: item.penjualan_jumlah,
+          isNew: false,
+        })),
+      ];
+
+      // For each menu item, check ingredients
+      for (const menuItem of allItems) {
+        try {
+          const response = await axios.get(
+            `${API_BASE}/api/menu_management/detail/${menuItem.menu_id}`,
+            {
+              headers: { "x-auth-token": userToken },
+            }
+          );
+
+          if (response.data && response.data.data) {
+            // For each ingredient in the menu
+            for (const ingredient of response.data.data) {
+              try {
+                // Get all bahan baku to find stock
+                const allBahanBaku = await axios.get(
+                  `${API_BASE}/api/bahan_Baku`,
+                  {
+                    headers: { "x-auth-token": userToken },
+                  }
+                );
+
+                const bahanBaku = allBahanBaku.data.find(
+                  (bb) =>
+                    bb.bahan_baku_nama === ingredient.detail_menu_nama_bahan
+                );
+
+                const requiredAmount =
+                  ingredient.detail_menu_jumlah * menuItem.quantity;
+                const availableStock = bahanBaku?.bahan_baku_jumlah || 0;
+
+                if (availableStock < requiredAmount) {
+                  errors.push({
+                    menu_nama: menuItem.menu_nama,
+                    bahan_baku_nama: ingredient.detail_menu_nama_bahan,
+                    required: requiredAmount,
+                    available: availableStock,
+                    satuan: ingredient.detail_menu_satuan,
+                  });
+                }
+              } catch (err) {
+                console.error("Error checking ingredient stock:", err);
+                errors.push({
+                  menu_nama: menuItem.menu_nama,
+                  bahan_baku_nama: ingredient.detail_menu_nama_bahan,
+                  error: "Gagal mengecek stok",
+                });
+              }
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching menu details:", err);
+        }
+      }
+    } catch (err) {
+      console.error("Error validating stocks:", err);
+    }
+
+    return errors;
   };
 
   return (
@@ -902,6 +996,116 @@ export const DetailPenjualanPage = () => {
                     </Group>
                   </Stack>
                 )}
+              </Modal>
+
+              {/* Modal untuk Peringatan Stok Tidak Mencukupi */}
+              <Modal
+                opened={insufficientStockModalOpen}
+                onClose={() => {
+                  setInsufficientStockModalOpen(false);
+                  setStockValidationErrors([]);
+                }}
+                title="⚠️ Stok Bahan Baku Tidak Mencukupi"
+                centered
+                size="lg"
+                styles={{
+                  content: {
+                    backgroundColor: "#fff5f5",
+                  },
+                  header: {
+                    backgroundColor: "#d32f2f",
+                    color: "white",
+                  },
+                  title: {
+                    color: "white",
+                    fontWeight: 700,
+                  },
+                }}
+              >
+                <Stack gap="md">
+                  <Box
+                    p="md"
+                    style={{
+                      backgroundColor: "#ffe0e0",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <Text fw={600} c="red" mb="sm">
+                      Transaksi TIDAK BISA DIPROSES karena stok bahan baku tidak
+                      mencukupi:
+                    </Text>
+                  </Box>
+
+                  <Table striped highlightOnHover>
+                    <Table.Thead>
+                      <Table.Tr style={{ backgroundColor: "#d32f2f" }}>
+                        <Table.Th style={{ color: "white" }}>Menu</Table.Th>
+                        <Table.Th style={{ color: "white" }}>
+                          Bahan Baku
+                        </Table.Th>
+                        <Table.Th
+                          style={{ color: "white", textAlign: "center" }}
+                        >
+                          Dibutuhkan
+                        </Table.Th>
+                        <Table.Th
+                          style={{ color: "white", textAlign: "center" }}
+                        >
+                          Tersedia
+                        </Table.Th>
+                        <Table.Th
+                          style={{ color: "white", textAlign: "center" }}
+                        >
+                          Kurang
+                        </Table.Th>
+                      </Table.Tr>
+                    </Table.Thead>
+                    <Table.Tbody>
+                      {stockValidationErrors.map((error, idx) => (
+                        <Table.Tr key={idx} style={{ color: "red" }}>
+                          <Table.Td fw={500}>{error.menu_nama}</Table.Td>
+                          <Table.Td>{error.bahan_baku_nama}</Table.Td>
+                          <Table.Td style={{ textAlign: "center" }}>
+                            {error.required} {error.satuan}
+                          </Table.Td>
+                          <Table.Td style={{ textAlign: "center" }}>
+                            {error.available} {error.satuan}
+                          </Table.Td>
+                          <Table.Td style={{ textAlign: "center" }}>
+                            <Text fw={600} c="red">
+                              {error.required - error.available} {error.satuan}
+                            </Text>
+                          </Table.Td>
+                        </Table.Tr>
+                      ))}
+                    </Table.Tbody>
+                  </Table>
+
+                  <Box
+                    p="md"
+                    style={{
+                      backgroundColor: "#fff3cd",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <Text size="sm" fw={500} style={{ color: "#856404" }}>
+                      Silakan periksa dan perbarui stok bahan baku di Menu
+                      Manajemen Stok sebelum menyelesaikan transaksi.
+                    </Text>
+                  </Box>
+
+                  <Group justify="flex-end">
+                    <Button
+                      color="red"
+                      onClick={() => {
+                        setInsufficientStockModalOpen(false);
+                        setStockValidationErrors([]);
+                      }}
+                    >
+                      Tutup
+                    </Button>
+                  </Group>
+                </Stack>
               </Modal>
             </Stack>
           </Paper>
