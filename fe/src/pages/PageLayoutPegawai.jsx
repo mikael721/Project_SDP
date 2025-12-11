@@ -1,4 +1,4 @@
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   AppShell,
   Burger,
@@ -13,6 +13,18 @@ import logo from "../asset/logo.png";
 
 const PageLayoutPegawai = () => {
   const [opened, { toggle, close }] = useDisclosure(false);
+  const location = useLocation();
+
+  const isActive = (path) => location.pathname === path;
+
+  const getLinkStyle = (path) => ({
+    textDecoration: "none",
+    color: isActive(path) ? "#FFD700" : "white",
+    fontWeight: isActive(path) ? "bold" : "normal",
+    borderBottom: isActive(path) ? "3px solid #FFD700" : "none",
+    paddingBottom: isActive(path) ? "5px" : "0px",
+    transition: "all 0.3s ease",
+  });
 
   return (
     <AppShell header={{ height: 70 }} padding="md">
@@ -29,34 +41,30 @@ const PageLayoutPegawai = () => {
             <Group visibleFrom="sm">
               <Link
                 to="/pegawai/pesanan"
-                style={{ textDecoration: "none", color: "white" }}>
+                style={getLinkStyle("/pegawai/pesanan")}>
                 Pesanan
               </Link>
               <Link
                 to="/pegawai/penjualan"
-                style={{ textDecoration: "none", color: "white" }}>
+                style={getLinkStyle("/pegawai/penjualan")}>
                 Penjualan
               </Link>
-              <Link
-                to="/pegawai/menu"
-                style={{ textDecoration: "none", color: "white" }}>
+              <Link to="/pegawai/menu" style={getLinkStyle("/pegawai/menu")}>
                 Menu
               </Link>
-              <Link
-                to="/pegawai/stok"
-                style={{ textDecoration: "none", color: "white" }}>
+              <Link to="/pegawai/stok" style={getLinkStyle("/pegawai/stok")}>
                 Stok
               </Link>
               <Link
                 to="/pegawai/laporan"
-                style={{ textDecoration: "none", color: "white" }}>
+                style={getLinkStyle("/pegawai/laporan")}>
                 Laporan
               </Link>
               <Link
                 to="/pegawai"
                 style={{
                   backgroundColor: "red",
-                  borderRadius: "10PX",
+                  borderRadius: "10px",
                   border: "1px solid black",
                   color: "white",
                   fontWeight: "bolder",
@@ -90,25 +98,56 @@ const PageLayoutPegawai = () => {
                 <Menu.Item
                   component={Link}
                   to="/pegawai/pesanan"
-                  onClick={close}>
+                  onClick={close}
+                  style={
+                    isActive("/pegawai/pesanan")
+                      ? { backgroundColor: "#e0e0e0", fontWeight: "bold" }
+                      : {}
+                  }>
                   Pesanan
                 </Menu.Item>
                 <Menu.Item
                   component={Link}
                   to="/pegawai/penjualan"
-                  onClick={close}>
+                  onClick={close}
+                  style={
+                    isActive("/pegawai/penjualan")
+                      ? { backgroundColor: "#e0e0e0", fontWeight: "bold" }
+                      : {}
+                  }>
                   Penjualan
                 </Menu.Item>
-                <Menu.Item component={Link} to="/pegawai/menu" onClick={close}>
+                <Menu.Item
+                  component={Link}
+                  to="/pegawai/menu"
+                  onClick={close}
+                  style={
+                    isActive("/pegawai/menu")
+                      ? { backgroundColor: "#e0e0e0", fontWeight: "bold" }
+                      : {}
+                  }>
                   Menu
                 </Menu.Item>
-                <Menu.Item component={Link} to="/pegawai/stok" onClick={close}>
+                <Menu.Item
+                  component={Link}
+                  to="/pegawai/stok"
+                  onClick={close}
+                  style={
+                    isActive("/pegawai/stok")
+                      ? { backgroundColor: "#e0e0e0", fontWeight: "bold" }
+                      : {}
+                  }>
                   Stok
                 </Menu.Item>
                 <Menu.Item
                   component={Link}
                   to="/pegawai/laporan"
-                  onClick={close}>
+                  onClick={close}
+                  style={
+                    isActive("/pegawai/laporan")
+                      ? { backgroundColor: "#e0e0e0", fontWeight: "bold" }
+                      : {}
+                  }>
                   Laporan
                 </Menu.Item>
                 <Menu.Item
