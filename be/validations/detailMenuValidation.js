@@ -47,7 +47,7 @@ const detailMenuValidation = {
       detail_menu_nama_bahan: Joi.string().optional().messages({
         "string.empty": "Nama bahan cannot be empty",
       }),
-      detail_menu_jumlah: Joi.number().positive().min(1).optional().messages({
+      detail_menu_jumlah: Joi.number().positive().min(0).optional().messages({
         "number.base": "Jumlah must be a number",
         "number.positive": "Jumlah must be positive",
       }),

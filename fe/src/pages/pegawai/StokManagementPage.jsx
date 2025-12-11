@@ -409,7 +409,7 @@ export const StokManagementPage = () => {
                     <Select
                       label="Satuan"
                       placeholder="Pilih satuan atau ketik"
-                      data={["kg", "ekor", "liter", "butir", "gram", "ml"]}
+                      data={["kg", "unit", "liter"]}
                       searchable
                       {...field}
                       disabled={loading || mode === "update"}

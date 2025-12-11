@@ -5,9 +5,9 @@ const addBahanBakuSchema = Joi.object({
     "string.empty": "Nama bahan baku tidak boleh kosong!",
     "any.required": "Nama bahan baku harus diisi!",
   }),
-  bahan_baku_jumlah: Joi.number().min(1).required().messages({
+  bahan_baku_jumlah: Joi.number().min(0).required().messages({
     "number.base": "Jumlah bahan baku harus berupa angka!",
-    "number.min": "Jumlah bahan baku harus lebih dari 0!",
+    "number.min": "Jumlah bahan baku harus lebih / sama dari 0!",
     "any.required": "Jumlah bahan baku harus diisi!",
   }),
   bahan_baku_harga: Joi.number().min(1).required().messages({
