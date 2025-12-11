@@ -381,6 +381,8 @@ const Pesanan = () => {
           records={sortedRecords}
           sortStatus={sortStatus}
           onSortStatusChange={setSortStatus}
+          noRecordsText=""
+          noRecordsIcon={<></>}
           // === Kolomnya ===
           columns={[
             { accessor: "pesanan_id", title: "ID_Pesanan", sortable: true },
