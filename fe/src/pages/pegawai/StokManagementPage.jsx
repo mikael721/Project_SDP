@@ -379,7 +379,7 @@ export const StokManagementPage = () => {
                   name="bahan_baku_jumlah"
                   rules={{
                     required: "Jumlah harus diisi",
-                    min: { value: 1, message: "Jumlah minimal 1" },
+                    min: { value: 0, message: "Jumlah minimal 0" },
                   }}
                   render={({ field, fieldState: { error } }) => (
                     <NumberInput
@@ -391,7 +391,7 @@ export const StokManagementPage = () => {
                           : "Jumlah"
                       }
                       placeholder="Jumlah"
-                      min={1}
+                      min={0}
                       {...field}
                       value={field.value || ""}
                       onChange={(val) => field.onChange(val)}
