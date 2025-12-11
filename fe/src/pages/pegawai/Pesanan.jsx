@@ -25,8 +25,7 @@ const Pesanan = () => {
       token: userToken,
     };
     cekPass(result);
-    console.log('Pesan Jalan');
-    
+    console.log("Pesan Jalan");
   };
 
   const cekPass = async (result) => {
@@ -36,10 +35,19 @@ const Pesanan = () => {
         result
       );
       if (res.data.status) {
-        let userIDNama = `[${res.data.data.pegawai_id}][${res.data.data.pegawai_nama}] : `
-        nowChangePesananStatus(result.pesan,userIDNama);
-        console.log('Berhasil Cek Pass : ' + userIDNama);
-        
+        let userIDNama = `[${res.data.data.pegawai_id}][${res.data.data.pegawai_nama}] : `;
+
+        // Check if current status is "diproses" before adding to header and detail
+        const currentPesanan = allDetailMenu.find(
+          (p) => p.pesanan_id === idRubah
+        );
+
+        if (currentPesanan && currentPesanan.pesanan_status === "diproses") {
+          await addToHeaderAndDetail(idRubah, currentPesanan);
+        }
+
+        nowChangePesananStatus(result.pesan, userIDNama);
+        console.log("Berhasil Cek Pass : " + userIDNama);
       } else {
         window.alert("Password Anda Salah !!!");
       }
@@ -48,11 +56,86 @@ const Pesanan = () => {
     }
   };
 
+  // Add to header_penjualan and detail_penjualan
+  const addToHeaderAndDetail = async (pesananId, pesananData) => {
+    try {
+      // Get detailed order menu data
+      const detailRes = await axios.get(
+        `${API_BASE}/api/pesanan_detail/detail/showdetail/${pesananId}`
+      );
+
+      const orderDetails = detailRes.data;
+
+      // Calculate total
+      let total = 0;
+      orderDetails.forEach((item) => {
+        total += item.pesanan_detail_jumlah * item.menu.menu_harga;
+      });
+
+      const biayaTambahan = total * 0.1; // 10% dari total
+      const uangMuka = 50; // 50% dari total
+
+      // Create header payload
+      const tanggalDibuat =
+        pesananData.data[0]?.pesanan?.pesanan_tanggal ||
+        new Date().toISOString();
+      const tanggalDiantar =
+        pesananData.data[0]?.pesanan?.pesanan_tanggal_pengiriman || "-";
+
+      const keterangan = `Pesanan atas nama ${
+        pesananData.pesanan_nama
+      } dengan id ${pesananId} dibuat tanggal ${perapiTanggal(
+        tanggalDibuat
+      )} diantar pada ${perapiTanggal(tanggalDiantar)}`;
+
+      const headerPayload = {
+        header_penjualan_tanggal: new Date().toISOString(),
+        header_penjualan_jenis: "online",
+        header_penjualan_keterangan: keterangan,
+        header_penjualan_biaya_tambahan: biayaTambahan,
+        header_penjualan_uang_muka: uangMuka,
+      };
+
+      // Insert header
+      const headerRes = await axios.post(
+        `${API_BASE}/api/detail_penjualan/header`,
+        headerPayload,
+        {
+          headers: { "x-auth-token": userToken },
+        }
+      );
+
+      const headerId = headerRes.data.data.header_penjualan_id;
+
+      // Insert each detail
+      for (const item of orderDetails) {
+        await axios.post(
+          `${API_BASE}/api/detail_penjualan/detail`,
+          {
+            header_penjualan_id: parseInt(headerId),
+            menu_id: item.menu_id,
+            penjualan_jumlah: item.pesanan_detail_jumlah,
+          },
+          {
+            headers: { "x-auth-token": userToken },
+          }
+        );
+      }
+
+      console.log(
+        "Successfully added to header_penjualan and detail_penjualan"
+      );
+    } catch (error) {
+      console.error("Error adding to header and detail:", error);
+      window.alert("Gagal menambahkan ke database penjualan!");
+    }
+  };
+
   // state utama
   const [allDetailMenu, setAllDetailMenu] = useState([]);
   const [showPassPanel, setShowPassPanel] = useState(false);
   const [idRubah, setIdRubah] = useState(null);
-  const [pesan, setpesan] = useState('');
+  const [pesan, setpesan] = useState("");
 
   // sorting mantine
   const [sortStatus, setSortStatus] = useState({
@@ -98,13 +181,25 @@ const Pesanan = () => {
   const perapiTanggal = (tanggal) => {
     if (!tanggal) return "-";
     const bulanIndo = [
-      "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-      "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+      "Januari",
+      "Februari",
+      "Maret",
+      "April",
+      "Mei",
+      "Juni",
+      "Juli",
+      "Agustus",
+      "September",
+      "Oktober",
+      "November",
+      "Desember",
     ];
     const d = new Date(tanggal);
-    const jam = d.getHours().toString().padStart(2,"0");
-    const menit = d.getMinutes().toString().padStart(2,"0");
-    return `${d.getDate()} ${bulanIndo[d.getMonth()]} ${d.getFullYear()}  ${jam}:${menit} `;
+    const jam = d.getHours().toString().padStart(2, "0");
+    const menit = d.getMinutes().toString().padStart(2, "0");
+    return `${d.getDate()} ${
+      bulanIndo[d.getMonth()]
+    } ${d.getFullYear()}  ${jam}:${menit} `;
   };
 
   // panel password
@@ -120,7 +215,7 @@ const Pesanan = () => {
         <div className="passPanelForm">
           <form onSubmit={handleSubmit(onSubmit)}>
             <h3 style={{ color: "black" }}>Masukan Password dan Pesan</h3>
-            <span style={{color:'black'}}>Password :</span> 
+            <span style={{ color: "black" }}>Password :</span>
             <input
               type="password"
               className="inputBarPASS"
@@ -129,7 +224,7 @@ const Pesanan = () => {
             />
 
             {/* Masukin Pesan Di Sini */}
-            <span style={{color:'black'}}>Pesan :</span>
+            <span style={{ color: "black" }}>Pesan :</span>
             <textarea
               className="textPesan"
               placeholder="*catatan: id dan nama anda akan tercatat dalam pesan"
@@ -152,12 +247,13 @@ const Pesanan = () => {
     );
   };
 
-  const nowChangePesananStatus = async (pesan,userInfo) => {
+  const nowChangePesananStatus = async (pesan, userInfo) => {
     try {
       console.log(`Pesan : ${pesan} || UserInfo : ${userInfo}`);
-      
+
       await axios.post(
-        `${API_BASE}/api/pesanan_detail/detail/update/${idRubah}`, {pesan,userInfo}
+        `${API_BASE}/api/pesanan_detail/detail/update/${idRubah}`,
+        { pesan, userInfo }
       );
       getDataDetailPesanan();
       setIdRubah(null);
@@ -179,9 +275,9 @@ const Pesanan = () => {
   // buat itung subtotal
   const pesananDetailTotal = (id_pesanan) => {
     let total = 0;
-    const pesanan = allDetailMenu.find(p => p.pesanan_id === id_pesanan); // Cari item pesanan sesuai id
+    const pesanan = allDetailMenu.find((p) => p.pesanan_id === id_pesanan);
     if (!pesanan) return 0;
-    pesanan.data.forEach(item => { // Loop semua detail dalam "data"
+    pesanan.data.forEach((item) => {
       total += item.pesanan_detail_jumlah * item.menu.menu_harga;
     });
     return total;
@@ -194,28 +290,28 @@ const Pesanan = () => {
 
   const lihatPesan = (id_pesan) => {
     setpesan(id_pesan);
-  }
+  };
 
   const renderPesan = () => {
-    if(pesan != ''){
-      return(
+    if (pesan != "") {
+      return (
         <div className="pesan">
           <div className="panelPesan">
             <h2>Pesan</h2>
             <div className="textfield">
-              {!pesan ? '(Belum Ada Pesan)' : pesan}
-            </div> 
+              {!pesan ? "(Belum Ada Pesan)" : pesan}
+            </div>
             <button
               type="button"
               className="buttonStyling cm"
-              onClick={() => setpesan('')}>
+              onClick={() => setpesan("")}>
               Cancel
             </button>
           </div>
         </div>
-      )
+      );
     }
-  }
+  };
 
   // ========= SORTING OTOMATIS (Mantine) =========
 
@@ -242,7 +338,7 @@ const Pesanan = () => {
           A = new Date(a.data[0].pesanan.pesanan_tanggal_pengiriman);
           B = new Date(b.data[0].pesanan.pesanan_tanggal_pengiriman);
           break;
-        case "subtotal": 
+        case "subtotal":
           A = pesananDetailTotal(a.pesanan_id);
           B = pesananDetailTotal(b.pesanan_id);
           break;
@@ -273,7 +369,6 @@ const Pesanan = () => {
       {PasswordPanel()}
       {renderPesan()}
       <div>
-
         <div className="barTitle">
           <h2>Dalam Proses</h2>
         </div>
@@ -286,7 +381,6 @@ const Pesanan = () => {
           records={sortedRecords}
           sortStatus={sortStatus}
           onSortStatusChange={setSortStatus}
-
           // === Kolomnya ===
           columns={[
             { accessor: "pesanan_id", title: "ID_Pesanan", sortable: true },
@@ -325,8 +419,7 @@ const Pesanan = () => {
               accessor: "tanggal_dibuat",
               title: "Pesanan_Dibuat",
               sortable: true,
-              render: (d) =>
-                perapiTanggal(d.data[0].pesanan.pesanan_tanggal),
+              render: (d) => perapiTanggal(d.data[0].pesanan.pesanan_tanggal),
             },
 
             {
@@ -334,9 +427,7 @@ const Pesanan = () => {
               title: "Pesanan_Diantar",
               sortable: true,
               render: (d) =>
-                perapiTanggal(
-                  d.data[0].pesanan.pesanan_tanggal_pengiriman
-                ),
+                perapiTanggal(d.data[0].pesanan.pesanan_tanggal_pengiriman),
             },
             {
               accessor: "pesan",
@@ -361,11 +452,11 @@ const Pesanan = () => {
               ),
             },
             {
-              accessor: "subtotal", // harus dirubah ntik
+              accessor: "subtotal",
               title: "Subtotal",
               sortable: true,
-              render: (d) => pesananDetailTotal(d.pesanan_id)
-            }
+              render: (d) => pesananDetailTotal(d.pesanan_id),
+            },
           ]}
         />
       </div>
