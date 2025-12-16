@@ -31,15 +31,24 @@ const MenuPage = () => {
   let menuTerpesan = useSelector((state) => state.menu.menuTerpilih);
   const API_BASE = import.meta.env.VITE_API_BASE;
 
+  // === USE STATE ===
+  const [menu, setmenu] = useState([]);
+  const [showHelp, setshowHelp] = useState(false);
+  const [showHelpDetail, setshowHelpDetail] = useState("none");
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
+
   // === USE EFFECT ===
   useEffect(() => {
     getMenu();
   }, []);
 
-  // === USE STATE ===
-  const [menu, setmenu] = useState([]);
-  const [showHelp, setshowHelp] = useState(false);
-  const [showHelpDetail, setshowHelpDetail] = useState("none");
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 640);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // === FUNCTION ===
   const getMenu = async () => {
@@ -340,13 +349,13 @@ const MenuPage = () => {
                 display: "flex",
                 overflow: "hidden",
                 boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-                flexDirection: window.innerWidth <= 768 ? "column" : "row",
+                flexDirection: isMobile ? "column" : "row",
               }}>
               {/* Left Panel - Content */}
               <div
                 style={{
                   flex: 1,
-                  padding: window.innerWidth <= 768 ? "20px" : "30px",
+                  padding: isMobile ? "20px" : "30px",
                   overflowY: "auto",
                   backgroundColor: "#ffffff",
                 }}>
@@ -356,15 +365,13 @@ const MenuPage = () => {
               {/* Right Panel - Navigation & Image */}
               <div
                 style={{
-                  width: window.innerWidth <= 768 ? "100%" : "300px",
+                  width: isMobile ? "100%" : "300px",
                   backgroundColor: "#f9fafb",
-                  padding: window.innerWidth <= 768 ? "20px" : "30px",
+                  padding: isMobile ? "20px" : "30px",
                   display: "flex",
                   flexDirection: "column",
-                  borderLeft:
-                    window.innerWidth <= 768 ? "none" : "1px solid #e5e7eb",
-                  borderTop:
-                    window.innerWidth <= 768 ? "1px solid #e5e7eb" : "none",
+                  borderLeft: isMobile ? "none" : "1px solid #e5e7eb",
+                  borderTop: isMobile ? "1px solid #e5e7eb" : "none",
                 }}>
                 <h3
                   style={{
@@ -379,9 +386,9 @@ const MenuPage = () => {
                 <div
                   style={{
                     display: "flex",
-                    flexDirection: window.innerWidth <= 768 ? "row" : "column",
-                    gap: window.innerWidth <= 768 ? "8px" : "12px",
-                    flexWrap: window.innerWidth <= 768 ? "wrap" : "nowrap",
+                    flexDirection: isMobile ? "row" : "column",
+                    gap: isMobile ? "8px" : "12px",
+                    flexWrap: isMobile ? "wrap" : "nowrap",
                   }}>
                   {[
                     { label: "Cara Memesan", value: "pesan_menu" },
@@ -395,8 +402,7 @@ const MenuPage = () => {
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setshowHelpDetail(item.value)}
                       style={{
-                        padding:
-                          window.innerWidth <= 768 ? "10px 12px" : "12px 16px",
+                        padding: isMobile ? "8px 10px" : "12px 16px",
                         border: "none",
                         borderRadius: "8px",
                         backgroundColor:
@@ -406,8 +412,8 @@ const MenuPage = () => {
                         fontWeight: "500",
                         cursor: "pointer",
                         transition: "all 0.2s ease",
-                        fontSize: window.innerWidth <= 768 ? "12px" : "14px",
-                        flex: window.innerWidth <= 768 ? "1 1 auto" : "auto",
+                        fontSize: isMobile ? "11px" : "14px",
+                        flex: isMobile ? "1 1 auto" : "auto",
                         whiteSpace: "nowrap",
                       }}>
                       {item.label}
@@ -418,7 +424,7 @@ const MenuPage = () => {
                 <div
                   style={{
                     flex: 1,
-                    display: window.innerWidth <= 768 ? "none" : "flex",
+                    display: isMobile ? "none" : "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     marginTop: "30px",
@@ -449,16 +455,15 @@ const MenuPage = () => {
                     setshowHelpDetail("none");
                   }}
                   style={{
-                    padding:
-                      window.innerWidth <= 768 ? "10px 12px" : "12px 16px",
+                    padding: isMobile ? "8px 10px" : "12px 16px",
                     border: "none",
                     borderRadius: "8px",
                     backgroundColor: "#ef4444",
                     color: "white",
                     fontWeight: "500",
                     cursor: "pointer",
-                    marginTop: window.innerWidth <= 768 ? "12px" : "15px",
-                    fontSize: window.innerWidth <= 768 ? "12px" : "14px",
+                    marginTop: isMobile ? "12px" : "15px",
+                    fontSize: isMobile ? "11px" : "14px",
                     width: "100%",
                   }}>
                   Tutup
@@ -502,26 +507,23 @@ const MenuPage = () => {
             <Group
               style={{
                 display: "flex",
-                gap: window.innerWidth <= 640 ? "8px" : "12px",
-                flexWrap: "wrap",
+                gap: isMobile ? "6px" : "12px",
+                flexWrap: "nowrap",
               }}>
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}>
                 <Button
-                  size={window.innerWidth <= 640 ? "md" : "lg"}
+                  size={isMobile ? "sm" : "xl"}
                   radius="xl"
                   onClick={() => {
                     showHelpPanel();
                   }}
                   style={{
-                    marginLeft: "auto",
                     color: "white",
                     border: `1px solid white`,
                     backgroundColor: "lime",
                     cursor: "pointer",
-                    padding: window.innerWidth <= 640 ? "8px 16px" : undefined,
-                    fontSize: window.innerWidth <= 640 ? "12px" : "14px",
                   }}>
                   Help
                 </Button>
@@ -531,19 +533,16 @@ const MenuPage = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}>
                 <Button
-                  size={window.innerWidth <= 640 ? "md" : "lg"}
+                  size={isMobile ? "sm" : "xl"}
                   radius="xl"
                   onClick={() => {
                     navigate(`/customer/history`);
                   }}
                   style={{
-                    marginLeft: "auto",
                     color: "white",
                     border: `1px solid white`,
                     backgroundColor: "blue",
                     cursor: "pointer",
-                    padding: window.innerWidth <= 640 ? "8px 16px" : undefined,
-                    fontSize: window.innerWidth <= 640 ? "12px" : "14px",
                   }}>
                   History
                 </Button>
@@ -553,17 +552,14 @@ const MenuPage = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}>
                 <Button
-                  size={window.innerWidth <= 640 ? "md" : "lg"}
+                  size={isMobile ? "sm" : "xl"}
                   radius="xl"
                   onClick={goToCart}
                   style={{
-                    marginLeft: window.innerWidth <= 640 ? "0" : "10px",
                     color: "white",
                     border: `1px solid white`,
                     backgroundColor: "#CC0000",
                     cursor: "pointer",
-                    padding: window.innerWidth <= 640 ? "8px 16px" : undefined,
-                    fontSize: window.innerWidth <= 640 ? "12px" : "14px",
                   }}>
                   Cart
                 </Button>
