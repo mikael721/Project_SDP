@@ -89,8 +89,13 @@ const MenuPage = () => {
               transition={{ type: "spring", stiffness: 300 }}>
               <img src={qris} alt="" className="setGambarQris" />
               <div className="setMiddleText" style={{ marginTop: "15px" }}>
-                <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-                  Nomer Virtual Account
+                <span
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                    color: "black",
+                  }}>
+                  Nomer/Link Virtual Account Pembayaran
                 </span>
                 <br />
                 <span
@@ -115,14 +120,20 @@ const MenuPage = () => {
                   borderRadius: "8px",
                 }}>
                 <div style={{ marginBottom: "15px" }}>
-                  <span style={{ fontWeight: "bold" }}>Telpon</span> 📞
+                  <span style={{ fontWeight: "bold", color: "black" }}>
+                    Telpon
+                  </span>{" "}
+                  📞
                   <br />
                   <span style={{ color: "#0369a1", fontWeight: "500" }}>
                     +62 0895-3377-5527
                   </span>
                 </div>
                 <div>
-                  <span style={{ fontWeight: "bold" }}>Email</span> 📨
+                  <span style={{ fontWeight: "bold", color: "black" }}>
+                    Email
+                  </span>{" "}
+                  📨
                   <br />
                   <span style={{ color: "#0369a1", fontWeight: "500" }}>
                     bulis123@gmail.com
