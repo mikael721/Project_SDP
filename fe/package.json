@@ -20,6 +20,7 @@
     "@mui/material": "^7.3.4",
     "@reduxjs/toolkit": "^2.9.2",
     "axios": "^1.13.0",
+    "framer-motion": "^12.23.26",
     "joi": "^18.0.1",
     "mantine-datatable": "^8.3.8",
     "react": "^19.1.1",
