@@ -194,7 +194,7 @@ export const HistoryPage = () => {
                       border: "1px solid #dee2e6",
                       borderRadius: "8px",
                     }}>
-                    <Group justify="space-between">
+                    <Group justify="space-between" style={{ flexWrap: "wrap" }}>
                       <div>
                         <Text size="lg">Nama: {pesanan.pesanan_nama}</Text>
                       </div>
@@ -209,7 +209,7 @@ export const HistoryPage = () => {
                       </Badge>
                     </Group>
 
-                    <Group grow>
+                    <Group grow style={{ flexWrap: "wrap" }}>
                       <div>
                         <Text size="sm">Lokasi</Text>
                         <Text size="lg">{pesanan.pesanan_lokasi}</Text>
@@ -233,74 +233,79 @@ export const HistoryPage = () => {
                         <Text size="lg" fw={500}>
                           Detail Pesanan:
                         </Text>
-                        <Table size="md">
-                          <Table.Thead>
-                            <Table.Tr>
-                              <Table.Th
-                                style={{ fontSize: "16px", textAlign: "left" }}>
-                                Menu
-                              </Table.Th>
-                              <Table.Th
-                                style={{
-                                  fontSize: "16px",
-                                  textAlign: "center",
-                                }}>
-                                Harga
-                              </Table.Th>
-                              <Table.Th
-                                style={{
-                                  fontSize: "16px",
-                                  textAlign: "center",
-                                }}>
-                                Jumlah
-                              </Table.Th>
-                              <Table.Th
-                                style={{
-                                  fontSize: "16px",
-                                  textAlign: "right",
-                                }}>
-                                Subtotal
-                              </Table.Th>
-                            </Table.Tr>
-                          </Table.Thead>
-                          <Table.Tbody>
-                            {pesanan.details.map((detail) => (
-                              <Table.Tr key={detail.pesanan_detail_id}>
-                                <Table.Td
+                        <div style={{ overflowX: "auto" }}>
+                          <Table size="md" style={{ minWidth: "500px" }}>
+                            <Table.Thead>
+                              <Table.Tr>
+                                <Table.Th
                                   style={{
                                     fontSize: "16px",
                                     textAlign: "left",
                                   }}>
-                                  {detail.menu_nama}
-                                </Table.Td>
-                                <Table.Td
+                                  Menu
+                                </Table.Th>
+                                <Table.Th
                                   style={{
                                     fontSize: "16px",
                                     textAlign: "center",
                                   }}>
-                                  {formatCurrency(detail.menu_harga)}
-                                </Table.Td>
-                                <Table.Td
+                                  Harga
+                                </Table.Th>
+                                <Table.Th
                                   style={{
                                     fontSize: "16px",
                                     textAlign: "center",
                                   }}>
-                                  {detail.pesanan_detail_jumlah}
-                                </Table.Td>
-                                <Table.Td
+                                  Jumlah
+                                </Table.Th>
+                                <Table.Th
                                   style={{
                                     fontSize: "16px",
                                     textAlign: "right",
                                   }}>
-                                  {formatCurrency(
-                                    detail.menu_harga *
-                                      detail.pesanan_detail_jumlah
-                                  )}
-                                </Table.Td>
+                                  Subtotal
+                                </Table.Th>
                               </Table.Tr>
-                            ))}
-                          </Table.Tbody>
-                        </Table>
+                            </Table.Thead>
+                            <Table.Tbody>
+                              {pesanan.details.map((detail) => (
+                                <Table.Tr key={detail.pesanan_detail_id}>
+                                  <Table.Td
+                                    style={{
+                                      fontSize: "16px",
+                                      textAlign: "left",
+                                    }}>
+                                    {detail.menu_nama}
+                                  </Table.Td>
+                                  <Table.Td
+                                    style={{
+                                      fontSize: "16px",
+                                      textAlign: "center",
+                                    }}>
+                                    {formatCurrency(detail.menu_harga)}
+                                  </Table.Td>
+                                  <Table.Td
+                                    style={{
+                                      fontSize: "16px",
+                                      textAlign: "center",
+                                    }}>
+                                    {detail.pesanan_detail_jumlah}
+                                  </Table.Td>
+                                  <Table.Td
+                                    style={{
+                                      fontSize: "16px",
+                                      textAlign: "right",
+                                    }}>
+                                    {formatCurrency(
+                                      detail.menu_harga *
+                                        detail.pesanan_detail_jumlah
+                                    )}
+                                  </Table.Td>
+                                </Table.Tr>
+                              ))}
+                            </Table.Tbody>
+                          </Table>
+                        </div>
                         <Group justify="flex-end">
                           <Text fw={600} size="lg">
                             Total:{" "}
