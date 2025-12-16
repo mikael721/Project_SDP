@@ -393,6 +393,7 @@ const CartPage = () => {
 
           <div class="footer">
             <p>Terima kasih telah berbelanja. Pesanan Anda akan segera diproses.</p>
+            <p>Warung Bu Lis. Jln penataran no 1. 087851868</p>
             <p style="margin-top: 10px; color: #999;">Harap simpan nota ini untuk referensi Anda.</p>
           </div>
         </div>

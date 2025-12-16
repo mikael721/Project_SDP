@@ -122,8 +122,8 @@ const Pesanan = () => {
         );
       }
 
-      console.log(
-        "Successfully added to header_penjualan and detail_penjualan"
+      window.alert(
+        "Berhasil menambah header_penjualan dan detail_penjualan ke laporan keuangan"
       );
     } catch (error) {
       console.error("Error adding to header and detail:", error);

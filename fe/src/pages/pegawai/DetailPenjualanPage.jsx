@@ -219,6 +219,301 @@ export const DetailPenjualanPage = () => {
     );
   };
 
+  // === GENERATE NOTA HTML ===
+  const generateNotaHTML = () => {
+    const totalDB = calculateTotalFromDB();
+    const totalCart = calculateTotalFromCart();
+    const totalKeseluruhan = totalDB + totalCart + (biayaTambahan || 0);
+
+    const currentDate = new Date();
+    const formattedCurrentDate = currentDate.toLocaleDateString("id-ID", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    // Combine detailData and cartItems for the table
+    const allItems = [
+      ...detailData.map((item) => ({
+        name: item.menu?.menu_nama || "N/A",
+        harga: item.menu?.menu_harga || 0,
+        jumlah: item.penjualan_jumlah,
+      })),
+      ...cartItems.map((item) => ({
+        name: item.menu_nama,
+        harga: item.menu_harga,
+        jumlah: item.penjualan_jumlah,
+      })),
+    ];
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Nota Penjualan #${id}</title>
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+          }
+          .container {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            padding: 30px;
+            background: #fff;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+          }
+          .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+          }
+          .header h2 {
+            font-size: 20px;
+            color: #d32f2f;
+            margin-bottom: 5px;
+          }
+          .invoice-number {
+            font-size: 14px;
+            color: #666;
+          }
+          .invoice-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            gap: 40px;
+          }
+          .info-section {
+            flex: 1;
+          }
+          .info-section h3 {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            color: #333;
+          }
+          .info-section p {
+            font-size: 14px;
+            margin-bottom: 5px;
+          }
+          .table-section {
+            margin-bottom: 30px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+          }
+          th {
+            background-color: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 2px solid #333;
+            font-size: 14px;
+          }
+          td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+          }
+          tr:last-child td {
+            border-bottom: 2px solid #333;
+          }
+          .text-right {
+            text-align: right;
+          }
+          .summary {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+          }
+          .summary-content {
+            width: 300px;
+          }
+          .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+          }
+          .summary-row.total {
+            font-weight: bold;
+            font-size: 18px;
+            border-top: 2px solid #333;
+            padding-top: 10px;
+            color: #d32f2f;
+          }
+          .summary-row.biaya-tambahan {
+            font-size: 14px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+          }
+          .summary-row.uang-muka {
+            font-size: 14px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+          }
+          .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+          }
+          .status {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            color: #856404;
+          }
+          @media print {
+            body {
+              padding: 0;
+            }
+            .container {
+              border: none;
+              max-width: 100%;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>NOTA PENJUALAN</h1>
+            <h2>#${id}</h2>
+            <div class="invoice-number">Tanggal: ${formattedCurrentDate}</div>
+          </div>
+
+          <div class="invoice-info">
+            <div class="info-section">
+              <h3>Informasi Transaksi</h3>
+              <p><strong>Header ID:</strong> ${id}</p>
+              <p><strong>Jenis Penjualan:</strong> ${
+                jenisPenjualan.charAt(0).toUpperCase() + jenisPenjualan.slice(1)
+              }</p>
+              ${
+                keterangan
+                  ? `<p><strong>Keterangan:</strong> ${keterangan}</p>`
+                  : ""
+              }
+            </div>
+          </div>
+
+          <div class="table-section">
+            <table>
+              <thead>
+                <tr>
+                  <th>Produk</th>
+                  <th class="text-right">Harga</th>
+                  <th class="text-right">Jumlah</th>
+                  <th class="text-right">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${allItems
+                  .map(
+                    (item) => `
+                  <tr>
+                    <td>${item.name}</td>
+                    <td class="text-right">Rp ${item.harga.toLocaleString(
+                      "id-ID"
+                    )}</td>
+                    <td class="text-right">${item.jumlah}</td>
+                    <td class="text-right">Rp ${(
+                      item.harga * item.jumlah
+                    ).toLocaleString("id-ID")}</td>
+                  </tr>
+                `
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="summary">
+            <div class="summary-content">
+              ${
+                biayaTambahan > 0
+                  ? `
+                <div class="summary-row biaya-tambahan">
+                  <span>Biaya Tambahan:</span>
+                  <span>Rp ${biayaTambahan.toLocaleString("id-ID")}</span>
+                </div>
+              `
+                  : ""
+              }
+              ${
+                jenisPenjualan === "online" && uangMuka > 0
+                  ? `
+                <div class="summary-row uang-muka">
+                  <span>Uang Muka (${uangMuka}%):</span>
+                  <span>Rp ${(
+                    ((totalDB + totalCart) * uangMuka) /
+                    100
+                  ).toLocaleString("id-ID")}</span>
+                </div>
+              `
+                  : ""
+              }
+              <div class="summary-row total">
+                <span>TOTAL:</span>
+                <span>Rp ${totalKeseluruhan.toLocaleString("id-ID")}</span>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="footer">
+            <p>Warung Bu Lis. Jln penataran no 1, 087851868</p>
+            <p style="margin-top: 10px; color: #999;">Harap simpan nota ini untuk referensi Anda.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    return htmlContent;
+  };
+
+  // === DOWNLOAD NOTA ===
+  const downloadNota = () => {
+    const htmlContent = generateNotaHTML();
+    const blob = new Blob([htmlContent], { type: "text/html" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `Nota_Penjualan_${id}_${
+      new Date().toISOString().split("T")[0]
+    }.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+  };
+
   // === SAVE DETAIL PENJUALAN ===
   const handleSaveDetails = async () => {
     try {
@@ -246,10 +541,6 @@ export const DetailPenjualanPage = () => {
       );
 
       await Promise.all(detailPromises);
-
-      alert(
-        "Detail penjualan berhasil disimpan dan stok bahan baku diperbarui!"
-      );
 
       // Refresh data
       await fetchPenjualanData();
@@ -307,7 +598,6 @@ export const DetailPenjualanPage = () => {
         }
       );
 
-      alert("Header penjualan berhasil diupdate!");
       await fetchPenjualanData();
     } catch (err) {
       console.error("Gagal update header:", err.response?.data || err.message);
@@ -339,7 +629,10 @@ export const DetailPenjualanPage = () => {
       // Update header
       await handleUpdateHeader();
 
-      alert("Transaksi berhasil diselesaikan!");
+      // Download nota
+      downloadNota();
+
+      alert("Transaksi berhasil diselesaikan! Nota telah diunduh.");
 
       // Clear cart and navigate back
       dispatch(clearCart());
@@ -438,8 +731,7 @@ export const DetailPenjualanPage = () => {
         paddingTop: "24px",
         paddingBottom: "24px",
         position: "relative",
-      }}
-    >
+      }}>
       <LoadingOverlay visible={loading} />
 
       <Container size="lg">
@@ -450,8 +742,7 @@ export const DetailPenjualanPage = () => {
             </Text>
             <Button
               variant="default"
-              onClick={() => navigate("/pegawai/penjualan")}
-            >
+              onClick={() => navigate("/pegawai/penjualan")}>
               Kembali
             </Button>
           </Group>
@@ -602,8 +893,7 @@ export const DetailPenjualanPage = () => {
                         <Button
                           size="xs"
                           color="blue"
-                          onClick={() => fetchMenuIngredients(item.menu_id)}
-                        >
+                          onClick={() => fetchMenuIngredients(item.menu_id)}>
                           Lihat Bahan
                         </Button>
                         <Button
@@ -614,8 +904,7 @@ export const DetailPenjualanPage = () => {
                               item.menu_id,
                               item.penjualan_jumlah - 1
                             )
-                          }
-                        >
+                          }>
                           -
                         </Button>
                         <Text
@@ -623,8 +912,7 @@ export const DetailPenjualanPage = () => {
                           style={{
                             minWidth: "30px",
                             textAlign: "center",
-                          }}
-                        >
+                          }}>
                           {item.penjualan_jumlah}
                         </Text>
                         <Button
@@ -635,15 +923,13 @@ export const DetailPenjualanPage = () => {
                               item.menu_id,
                               item.penjualan_jumlah + 1
                             )
-                          }
-                        >
+                          }>
                           +
                         </Button>
                         <Button
                           size="xs"
                           color="gray"
-                          onClick={() => removeFromCart(item.menu_id)}
-                        >
+                          onClick={() => removeFromCart(item.menu_id)}>
                           Hapus
                         </Button>
                       </Group>
@@ -682,8 +968,7 @@ export const DetailPenjualanPage = () => {
                 value={jenisPenjualan}
                 onChange={handleJenisPenjualanChange}
                 label="Jenis Penjualan"
-                required
-              >
+                required>
                 <Group mt="xs">
                   <Radio value="offline" label="Offline" />
                   <Radio value="online" label="Online" />
@@ -755,16 +1040,14 @@ export const DetailPenjualanPage = () => {
                   color="blue"
                   size="lg"
                   onClick={handleUpdateHeader}
-                  loading={loading}
-                >
+                  loading={loading}>
                   Update Header
                 </Button>
                 <Button
                   color="green"
                   size="lg"
                   onClick={() => setConfirmOpen(true)}
-                  loading={loading}
-                >
+                  loading={loading}>
                   Selesaikan Transaksi
                 </Button>
               </Group>
@@ -787,8 +1070,7 @@ export const DetailPenjualanPage = () => {
                     color: "white",
                     fontWeight: 700,
                   },
-                }}
-              >
+                }}>
                 <Text mb="md" fw={500}>
                   Apakah Anda yakin untuk menyelesaikan transaksi ini?
                 </Text>
@@ -796,8 +1078,7 @@ export const DetailPenjualanPage = () => {
                 <Group justify="flex-end">
                   <Button
                     variant="default"
-                    onClick={() => setConfirmOpen(false)}
-                  >
+                    onClick={() => setConfirmOpen(false)}>
                     Tidak
                   </Button>
                   <Button
@@ -805,8 +1086,7 @@ export const DetailPenjualanPage = () => {
                     onClick={async () => {
                       setConfirmOpen(false);
                       await handleFinalize();
-                    }}
-                  >
+                    }}>
                     Ya
                   </Button>
                 </Group>
@@ -835,8 +1115,7 @@ export const DetailPenjualanPage = () => {
                     color: "white",
                     fontWeight: 700,
                   },
-                }}
-              >
+                }}>
                 {selectedMenuDetails && (
                   <Stack gap="md">
                     {/* Warning Messages */}
@@ -847,8 +1126,7 @@ export const DetailPenjualanPage = () => {
                           style={{
                             backgroundColor: "#ffe0e0",
                             borderRadius: "8px",
-                          }}
-                        >
+                          }}>
                           <Text fw={600} c="red" mb="xs">
                             ⚠️ Peringatan:
                           </Text>
@@ -869,15 +1147,13 @@ export const DetailPenjualanPage = () => {
                           ? "#e0f7e0"
                           : "#ffe0e0",
                         borderRadius: "8px",
-                      }}
-                    >
+                      }}>
                       <Text fw={600} style={{ color: "green" }}>
                         Status Pemesanan:
                       </Text>
                       <Text
                         fw={700}
-                        c={selectedMenuDetails.canOrder ? "green" : "red"}
-                      >
+                        c={selectedMenuDetails.canOrder ? "green" : "red"}>
                         {selectedMenuDetails.canOrder
                           ? "✓ Bisa Dipesan"
                           : "✗ Tidak Bisa Dipesan"}
@@ -895,23 +1171,19 @@ export const DetailPenjualanPage = () => {
                             Bahan Baku
                           </Table.Th>
                           <Table.Th
-                            style={{ color: "white", textAlign: "center" }}
-                          >
+                            style={{ color: "white", textAlign: "center" }}>
                             Jumlah Dipakai
                           </Table.Th>
                           <Table.Th
-                            style={{ color: "white", textAlign: "center" }}
-                          >
+                            style={{ color: "white", textAlign: "center" }}>
                             Satuan
                           </Table.Th>
                           <Table.Th
-                            style={{ color: "white", textAlign: "right" }}
-                          >
+                            style={{ color: "white", textAlign: "right" }}>
                             Stok Tersedia
                           </Table.Th>
                           <Table.Th
-                            style={{ color: "white", textAlign: "center" }}
-                          >
+                            style={{ color: "white", textAlign: "center" }}>
                             Status
                           </Table.Th>
                         </Table.Tr>
@@ -941,8 +1213,7 @@ export const DetailPenjualanPage = () => {
                                       ? "green"
                                       : "orange"
                                     : "red"
-                                }
-                              >
+                                }>
                                 {ing.stockWarning
                                   ? "⚠️ Habis"
                                   : ing.bahan_baku_stock >=
@@ -962,14 +1233,12 @@ export const DetailPenjualanPage = () => {
                       style={{
                         backgroundColor: "lightblue",
                         borderRadius: "8px",
-                      }}
-                    >
+                      }}>
                       <Text
                         fw={700}
                         mb="xs"
                         size="sm"
-                        style={{ color: "turquoise" }}
-                      >
+                        style={{ color: "turquoise" }}>
                         Keterangan:
                       </Text>
                       <Stack gap="xs">
@@ -989,8 +1258,7 @@ export const DetailPenjualanPage = () => {
                     <Group justify="flex-end">
                       <Button
                         variant="default"
-                        onClick={() => setSelectedMenuDetails(null)}
-                      >
+                        onClick={() => setSelectedMenuDetails(null)}>
                         Tutup
                       </Button>
                     </Group>
@@ -1020,16 +1288,14 @@ export const DetailPenjualanPage = () => {
                     color: "white",
                     fontWeight: 700,
                   },
-                }}
-              >
+                }}>
                 <Stack gap="md">
                   <Box
                     p="md"
                     style={{
                       backgroundColor: "#ffe0e0",
                       borderRadius: "8px",
-                    }}
-                  >
+                    }}>
                     <Text fw={600} c="red" mb="sm">
                       Transaksi TIDAK BISA DIPROSES karena stok bahan baku tidak
                       mencukupi:
@@ -1044,18 +1310,15 @@ export const DetailPenjualanPage = () => {
                           Bahan Baku
                         </Table.Th>
                         <Table.Th
-                          style={{ color: "white", textAlign: "center" }}
-                        >
+                          style={{ color: "white", textAlign: "center" }}>
                           Dibutuhkan
                         </Table.Th>
                         <Table.Th
-                          style={{ color: "white", textAlign: "center" }}
-                        >
+                          style={{ color: "white", textAlign: "center" }}>
                           Tersedia
                         </Table.Th>
                         <Table.Th
-                          style={{ color: "white", textAlign: "center" }}
-                        >
+                          style={{ color: "white", textAlign: "center" }}>
                           Kurang
                         </Table.Th>
                       </Table.Tr>
@@ -1086,8 +1349,7 @@ export const DetailPenjualanPage = () => {
                     style={{
                       backgroundColor: "#fff3cd",
                       borderRadius: "8px",
-                    }}
-                  >
+                    }}>
                     <Text size="sm" fw={500} style={{ color: "#856404" }}>
                       Silakan periksa dan perbarui stok bahan baku di Menu
                       Manajemen Stok sebelum menyelesaikan transaksi.
@@ -1100,8 +1362,7 @@ export const DetailPenjualanPage = () => {
                       onClick={() => {
                         setInsufficientStockModalOpen(false);
                         setStockValidationErrors([]);
-                      }}
-                    >
+                      }}>
                       Tutup
                     </Button>
                   </Group>

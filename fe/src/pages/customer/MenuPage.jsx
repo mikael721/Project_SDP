@@ -11,6 +11,7 @@ import { AppShell, Button, Container, Group, Image } from "@mantine/core";
 import GambarBuLis from "../../asset/bu-Lis-Ask-NoBg.png";
 import { useSetState } from "@mantine/hooks";
 import qris from "../../asset/qris.jpg";
+import { motion, AnimatePresence } from "framer-motion";
 
 // === Help Lihat Riwayat ===
 import lihathistory from "../../asset/CaraLihatRiwayatPesanan/1_KlikHistory.png";
@@ -38,7 +39,6 @@ const MenuPage = () => {
   // === USE STATE ===
   const [menu, setmenu] = useState([]);
   const [showHelp, setshowHelp] = useState(false);
-
   const [showHelpDetail, setshowHelpDetail] = useState("none");
 
   // === FUNCTION ===
@@ -56,158 +56,396 @@ const MenuPage = () => {
 
   const showHelpPanel = () => {
     setshowHelp(!showHelp);
+    if (showHelp) {
+      setshowHelpDetail("none");
+    }
   };
 
   const renderDetailHelp = () => {
     if (showHelpDetail == "none") {
-      // default
       return (
-        <div className="panelInfo">
-          <h3>Informasi Umum Warung</h3>
-          <div style={{ display: "flex" }}>
-            <div className="untukqris">
+        <motion.div
+          className="panelInfo"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          transition={{ duration: 0.3 }}>
+          <h3 style={{ marginBottom: "20px", color: "#333" }}>
+            Informasi Umum Warung
+          </h3>
+          <div style={{ display: "flex", gap: "30px", flexWrap: "wrap" }}>
+            <motion.div
+              className="untukqris"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}>
               <img src={qris} alt="" className="setGambarQris" />
-              <div className="setMiddleText">
-                <span style={{ fontWeight: "bold" }}>
+              <div className="setMiddleText" style={{ marginTop: "15px" }}>
+                <span style={{ fontWeight: "bold", fontSize: "14px" }}>
                   Nomer Virtual Account
                 </span>
                 <br />
-                <span>1152-2363-7412-3455</span>
+                <span
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: "600",
+                    color: "#2563eb",
+                  }}>
+                  1152-2363-7412-3455
+                </span>
               </div>
-            </div>
-            <div className="untukinfowarung">
-              <div className="cardInfoWarung">
-                <span style={{ fontWeight: "bold" }}>Telpon</span> 📞 : <br />
-                +62 0895-3377-5527 <br />
-                <span style={{ fontWeight: "bold" }}>Email</span> 📨 : <br />
-                bulis123@gmail.com
+            </motion.div>
+            <motion.div
+              className="untukinfowarung"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}>
+              <div
+                className="cardInfoWarung"
+                style={{
+                  padding: "20px",
+                  backgroundColor: "#f3f4f6",
+                  borderRadius: "8px",
+                }}>
+                <div style={{ marginBottom: "15px" }}>
+                  <span style={{ fontWeight: "bold" }}>Telpon</span> 📞
+                  <br />
+                  <span style={{ color: "#0369a1", fontWeight: "500" }}>
+                    +62 0895-3377-5527
+                  </span>
+                </div>
+                <div>
+                  <span style={{ fontWeight: "bold" }}>Email</span> 📨
+                  <br />
+                  <span style={{ color: "#0369a1", fontWeight: "500" }}>
+                    bulis123@gmail.com
+                  </span>
+                </div>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       );
     } else if (showHelpDetail == "pesan_menu") {
       return (
-        <div className="panelInfo">
-          <h2>Cara Memesan</h2>
-          <br />
-          <h5>
-            1. Klik Add to Cart Pada Menu yang Akan Dipilih Hingga Menu Berwarna
-            Kuning
-          </h5>
-          <img src={pilihmenu} alt="" className="setGambarHelpMenu" /> <br />
-          <br />
-          <h5>2. Isi Informasi Pemesanan</h5>
-          <img src={isiinfo} alt="" className="setGambarHelpMenu" /> <br />
-          <br />
-          <h5>
-            3. Anda Dapat Mengatur Jumlah Dengan Klik + Atau - Pada Menu yang
-            Diinginkan, Lalu Klik Check Out Jika Sudah
-          </h5>
-          <img src={klikcekout} alt="" className="setGambarHelpMenu" /> <br />
-          <br />
-          <h5>
-            4. Anda Dapat Melakukan Pembayaran Dengan Scan Qris, Lalu Klik
-            Download Nota dan Pesanan Anda Berhasil Dibuat
-          </h5>
-          <img src={klikcekout} alt="" className="setGambarHelpMenu" /> <br />
-          <br />
-          <h5>
-            Catatan : Untuk Melihat Pesanan Anda Dapat Melihat Instruksi 'Cara
-            Melihat Orderan'
-          </h5>
-        </div>
+        <motion.div
+          className="panelInfo"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          transition={{ duration: 0.3 }}>
+          <h2 style={{ marginBottom: "20px", color: "#333" }}>Cara Memesan</h2>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
+            {[
+              {
+                step: "1",
+                title: "Klik Add to Cart Pada Menu yang Akan Dipilih",
+                img: pilihmenu,
+              },
+              {
+                step: "2",
+                title: "Isi Informasi Pemesanan",
+                img: isiinfo,
+              },
+              {
+                step: "3",
+                title: "Atur Jumlah & Klik Check Out",
+                img: klikcekout,
+              },
+              {
+                step: "4",
+                title: "Lakukan Pembayaran & Download Nota",
+                img: downloadnota,
+              },
+            ].map((item, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: idx * 0.1 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    marginBottom: "10px",
+                  }}>
+                  <span
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "32px",
+                      height: "32px",
+                      backgroundColor: "#10b981",
+                      color: "white",
+                      borderRadius: "50%",
+                      fontWeight: "bold",
+                      fontSize: "16px",
+                    }}>
+                    {item.step}
+                  </span>
+                  <h5 style={{ margin: 0, color: "#333" }}>{item.title}</h5>
+                </div>
+                <img
+                  src={item.img}
+                  alt=""
+                  className="setGambarHelpMenu"
+                  style={{ borderRadius: "8px" }}
+                />
+              </motion.div>
+            ))}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.4 }}
+              style={{
+                backgroundColor: "#fef3c7",
+                padding: "15px",
+                borderRadius: "8px",
+                borderLeft: "4px solid #f59e0b",
+                marginTop: "10px",
+              }}>
+              <h5 style={{ margin: "0 0 5px 0", color: "#92400e" }}>
+                💡 Catatan:
+              </h5>
+              <p style={{ margin: 0, color: "#b45309", fontSize: "14px" }}>
+                Untuk melihat pesanan Anda, gunakan fitur 'Cara Melihat Orderan'
+              </p>
+            </motion.div>
+          </div>
+        </motion.div>
       );
     } else {
       return (
-        <div className="panelInfo">
-          <h2>Cara Melihat Riwayat Pesanan</h2>
-          <br />
-          <h5>1. Klik Tombol History</h5>
-          <img src={lihathistory} alt="" className="setGambarHelpMenu" /> <br />
-          <br />
-          <h5>2. Masukan Email yang Digunakan Saat Memesan Dan Klik Cari</h5>
-          <img src={masukanemail} alt="" className="setGambarHelpMenu" /> <br />
-          <br />
-          <h5>3. Pesanan Akan Ditampilkan</h5>
-          <img src={pesananmuncul} alt="" className="setGambarHelpMenu" />{" "}
-          <br />
-          <br />
-        </div>
+        <motion.div
+          className="panelInfo"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          transition={{ duration: 0.3 }}>
+          <h2 style={{ marginBottom: "20px", color: "#333" }}>
+            Cara Melihat Riwayat Pesanan
+          </h2>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
+            {[
+              {
+                step: "1",
+                title: "Klik Tombol History",
+                img: lihathistory,
+              },
+              {
+                step: "2",
+                title: "Masukan Email & Klik Cari",
+                img: masukanemail,
+              },
+              {
+                step: "3",
+                title: "Pesanan Akan Ditampilkan",
+                img: pesananmuncul,
+              },
+            ].map((item, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: idx * 0.1 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    marginBottom: "10px",
+                  }}>
+                  <span
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "32px",
+                      height: "32px",
+                      backgroundColor: "#3b82f6",
+                      color: "white",
+                      borderRadius: "50%",
+                      fontWeight: "bold",
+                      fontSize: "16px",
+                    }}>
+                    {item.step}
+                  </span>
+                  <h5 style={{ margin: 0, color: "#333" }}>{item.title}</h5>
+                </div>
+                <img
+                  src={item.img}
+                  alt=""
+                  className="setGambarHelpMenu"
+                  style={{ borderRadius: "8px" }}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       );
     }
   };
 
   const renderShowHelpPanel = () => {
-    if (showHelp) {
-      console.log("Show halaman");
-
-      return (
-        <div className="getHelp">
-          <div className="helpMain">
-            <div className="helpKuadran">
-              <div className="helpChatpanel panelInformasi">
-                {/* untuk chat nanti muncul di sini*/}
+    return (
+      <AnimatePresence>
+        {showHelp && (
+          <motion.div
+            className="getHelp"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => {
+              setshowHelp(false);
+              setshowHelpDetail("none");
+            }}
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              zIndex: 1000,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.3 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                backgroundColor: "white",
+                borderRadius: "12px",
+                maxWidth: "900px",
+                width: "90%",
+                maxHeight: "85vh",
+                display: "flex",
+                overflow: "hidden",
+                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+              }}>
+              {/* Left Panel - Content */}
+              <div
+                style={{
+                  flex: 1,
+                  padding: "30px",
+                  overflowY: "auto",
+                  backgroundColor: "#ffffff",
+                }}>
                 {renderDetailHelp()}
               </div>
-              <div className="pembungkusOpsi">
-                <h3>
-                  Selamat Datang Di Halaman Bantuan.
-                  <br />
-                  Apa yang Bisa Kami Bantu ?
+
+              {/* Right Panel - Navigation & Image */}
+              <div
+                style={{
+                  width: "300px",
+                  backgroundColor: "#f9fafb",
+                  padding: "30px",
+                  display: "flex",
+                  flexDirection: "column",
+                  borderLeft: "1px solid #e5e7eb",
+                }}>
+                <h3
+                  style={{
+                    margin: "0 0 25px 0",
+                    color: "#111827",
+                    fontSize: "16px",
+                    fontWeight: "600",
+                  }}>
+                  Apa yang Bisa Kami Bantu?
                 </h3>
-                <div className="containerBtn">
-                  <button
-                    className="btnHelp"
-                    onClick={() => {
-                      setshowHelpDetail("pesan_menu");
-                    }}
-                  >
-                    Cara Memesan
-                  </button>{" "}
-                  <br />
-                  <button
-                    className="btnHelp"
-                    onClick={() => {
-                      setshowHelpDetail("lihat_riwayat");
-                    }}
-                  >
-                    Cara Melihat Orderan
-                  </button>{" "}
-                  <br />
-                  <button
-                    className="btnHelp"
-                    onClick={() => {
-                      setshowHelpDetail("none");
-                    }}
-                  >
-                    Informasi Umum
-                  </button>{" "}
-                  <br />
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "12px",
+                  }}>
+                  {[
+                    { label: "Cara Memesan", value: "pesan_menu" },
+                    { label: "Cara Melihat Orderan", value: "lihat_riwayat" },
+                    { label: "Informasi Umum", value: "none" },
+                  ].map((item) => (
+                    <motion.button
+                      key={item.value}
+                      className="btnHelp"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setshowHelpDetail(item.value)}
+                      style={{
+                        padding: "12px 16px",
+                        border: "none",
+                        borderRadius: "8px",
+                        backgroundColor:
+                          showHelpDetail === item.value ? "#10b981" : "#e5e7eb",
+                        color:
+                          showHelpDetail === item.value ? "white" : "#374151",
+                        fontWeight: "500",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                      }}>
+                      {item.label}
+                    </motion.button>
+                  ))}
                 </div>
-                <button
+
+                <div
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginTop: "30px",
+                  }}>
+                  <motion.img
+                    src={GambarBuLis}
+                    alt="Bantuan"
+                    style={{
+                      width: "100%",
+                      maxWidth: "200px",
+                      opacity: 0.9,
+                    }}
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  />
+                </div>
+
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   className="btnHelp setRedBtn"
                   onClick={() => {
-                    setshowHelp(!showHelp);
+                    setshowHelp(false);
                     setshowHelpDetail("none");
                   }}
-                >
-                  Cancel
-                </button>{" "}
-                <br />
+                  style={{
+                    padding: "12px 16px",
+                    border: "none",
+                    borderRadius: "8px",
+                    backgroundColor: "#ef4444",
+                    color: "white",
+                    fontWeight: "500",
+                    cursor: "pointer",
+                    marginTop: "15px",
+                  }}>
+                  Tutup
+                </motion.button>
               </div>
-            </div>
-            <div className="helpKuadran setmidle">
-              <img
-                src={GambarBuLis}
-                alt="Sedang Memuat"
-                className="setUkuranGambar"
-              />
-            </div>
-          </div>
-        </div>
-      );
-    }
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
   };
 
   const goToCart = () => {
@@ -230,58 +468,70 @@ const MenuPage = () => {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-            }}
-          >
+            }}>
             <Group h="100%">
               <Link to="/" style={{ textDecoration: "none" }}>
                 <Image src={logo} alt="Logo" h={65} fit="contain" />
               </Link>
             </Group>
             <Group style={{ display: "flex" }}>
-              <Button
-                size="lg"
-                radius="xl"
-                onClick={() => {
-                  showHelpPanel();
-                }}
-                style={{
-                  marginLeft: "auto",
-                  color: "white",
-                  border: `1px solid white`,
-                  backgroundColor: "lime",
-                }}
-              >
-                Cara Memesan
-              </Button>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}>
+                <Button
+                  size="lg"
+                  radius="xl"
+                  onClick={() => {
+                    showHelpPanel();
+                  }}
+                  style={{
+                    marginLeft: "auto",
+                    color: "white",
+                    border: `1px solid white`,
+                    backgroundColor: "lime",
+                    cursor: "pointer",
+                  }}>
+                  Cara Memesan
+                </Button>
+              </motion.div>
 
-              <Button
-                size="lg"
-                radius="xl"
-                onClick={() => {
-                  navigate(`/customer/history`);
-                }}
-                style={{
-                  marginLeft: "auto",
-                  color: "white",
-                  border: `1px solid white`,
-                  backgroundColor: "blue",
-                }}
-              >
-                History
-              </Button>
-              <Button
-                size="lg"
-                radius="xl"
-                onClick={goToCart}
-                style={{
-                  marginLeft: "10px",
-                  color: "white",
-                  border: `1px solid white`,
-                  backgroundColor: "#CC0000",
-                }}
-              >
-                Cart
-              </Button>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}>
+                <Button
+                  size="lg"
+                  radius="xl"
+                  onClick={() => {
+                    navigate(`/customer/history`);
+                  }}
+                  style={{
+                    marginLeft: "auto",
+                    color: "white",
+                    border: `1px solid white`,
+                    backgroundColor: "blue",
+                    cursor: "pointer",
+                  }}>
+                  History
+                </Button>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}>
+                <Button
+                  size="lg"
+                  radius="xl"
+                  onClick={goToCart}
+                  style={{
+                    marginLeft: "10px",
+                    color: "white",
+                    border: `1px solid white`,
+                    backgroundColor: "#CC0000",
+                    cursor: "pointer",
+                  }}>
+                  Cart
+                </Button>
+              </motion.div>
             </Group>
           </Container>
         </AppShell.Header>
