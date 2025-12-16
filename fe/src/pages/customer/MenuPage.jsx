@@ -491,7 +491,7 @@ const MenuPage = () => {
                     backgroundColor: "lime",
                     cursor: "pointer",
                   }}>
-                  Cara Memesan
+                  Help
                 </Button>
               </motion.div>
 
