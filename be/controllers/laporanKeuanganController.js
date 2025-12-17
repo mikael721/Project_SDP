@@ -11,7 +11,6 @@ const Pesanan = require("../models/Pesanan");
 const PesananDetail = require("../models/PesananDetail");
 const Pegawai = require("../models/pegawai");
 
-// Get Laporan Penjualan
 const getLaporanPenjualan = async (req, res) => {
   try {
     const { tanggal_awal, tanggal_akhir, jam_awal, jam_akhir, nama } =
@@ -19,7 +18,6 @@ const getLaporanPenjualan = async (req, res) => {
 
     let whereHeader = {};
 
-    // Filter by date range
     if (tanggal_awal || tanggal_akhir) {
       whereHeader.header_penjualan_tanggal = {};
       if (tanggal_awal) {
@@ -53,33 +51,18 @@ const getLaporanPenjualan = async (req, res) => {
           model: Menu,
           as: "menu",
         },
+        {
+          model: Pesanan,
+          as: "pesanan", // Add this relationship
+        },
       ],
       order: [["createdAt", "ASC"]],
     });
 
-    // Get all pesanan details to map menu to pesanan
-    const pesananDetails = await PesananDetail.findAll({
-      include: [
-        {
-          model: Pesanan,
-          as: "pesanan",
-        },
-      ],
-    });
-
-    // Create a map of menu_id to pesanan_nama
-    const menuToPesananMap = {};
-    pesananDetails.forEach((detail) => {
-      if (!menuToPesananMap[detail.menu_id]) {
-        menuToPesananMap[detail.menu_id] = detail.pesanan?.pesanan_nama;
-      }
-    });
-
-    // Group by header_penjualan_id only
     const groupedData = {};
 
     penjualan.forEach((item) => {
-      const pesananNama = menuToPesananMap[item.menu_id] || "unknown";
+      const pesananNama = item.pesanan?.pesanan_nama || "Walk-in"; // Use direct relationship
       const key = `${item.header_penjualan_id}`;
 
       if (!groupedData[key]) {
@@ -96,7 +79,6 @@ const getLaporanPenjualan = async (req, res) => {
         };
       }
 
-      // Add pesanan_nama if not already in array
       if (!groupedData[key].pesanan_nama.includes(pesananNama)) {
         groupedData[key].pesanan_nama.push(pesananNama);
       }
@@ -112,7 +94,6 @@ const getLaporanPenjualan = async (req, res) => {
       });
     });
 
-    // Transform grouped data
     let transformedData = Object.values(groupedData).map((group) => {
       const totalSubtotal = group.items.reduce(
         (sum, item) => sum + item.subtotal,
@@ -152,7 +133,6 @@ const getLaporanPenjualan = async (req, res) => {
       };
     });
 
-    // Filter by nama if provided
     if (nama) {
       transformedData = transformedData.filter((item) =>
         item.pesanan_nama.some((name) =>
@@ -174,7 +154,6 @@ const getLaporanPenjualan = async (req, res) => {
   }
 };
 
-// Get Laporan Pembelian
 const getLaporanPembelian = async (req, res) => {
   try {
     const { tanggal_awal, tanggal_akhir, jam_awal, jam_akhir, bahan_baku_id } =
@@ -182,7 +161,6 @@ const getLaporanPembelian = async (req, res) => {
 
     let whereClause = {};
 
-    // Filter by date range
     if (tanggal_awal || tanggal_akhir) {
       whereClause.createdAt = {};
       if (tanggal_awal) {
@@ -195,8 +173,8 @@ const getLaporanPembelian = async (req, res) => {
       }
     }
 
-    // Filter by bahan_baku_id
-    if (bahan_baku_id) {
+    // Only add bahan_baku_id filter if it's not null/undefined/empty
+    if (bahan_baku_id && bahan_baku_id !== "null" && bahan_baku_id !== "") {
       whereClause.bahan_baku_id = bahan_baku_id;
     }
 
@@ -211,7 +189,6 @@ const getLaporanPembelian = async (req, res) => {
       order: [["createdAt", "ASC"]],
     });
 
-    // Transform data for frontend
     const transformedData = pembelian.map((item) => ({
       pembelian_id: item.pembelian_id,
       tanggal: item.createdAt,
@@ -221,7 +198,7 @@ const getLaporanPembelian = async (req, res) => {
       pembelian_satuan: item.pembelian_satuan,
       pembelian_harga_satuan: item.pembelian_harga_satuan,
       subtotal: item.pembelian_jumlah * item.pembelian_harga_satuan,
-      bahan_baku_jumlah: item.bahan_baku?.bahan_baku_jumlah || 0, // Current stock after deduction
+      bahan_baku_jumlah: item.bahan_baku?.bahan_baku_jumlah || 0,
     }));
 
     return res.status(200).json({
@@ -243,37 +220,60 @@ const getLaporanPesanan = async (req, res) => {
     const { tanggal_awal, tanggal_akhir, jam_awal, jam_akhir, nama, menu_id } =
       req.query;
 
+    console.log("Query params received:", {
+      tanggal_awal,
+      tanggal_akhir,
+      jam_awal,
+      jam_akhir,
+      nama,
+      menu_id,
+    });
+
     let wherePesanan = {};
     let whereDetail = {};
 
-    // Filter by date range
+    // Filter by pesanan_tanggal_pengiriman (delivery date)
     if (tanggal_awal || tanggal_akhir) {
-      wherePesanan.pesanan_tanggal = {};
+      wherePesanan.pesanan_tanggal_pengiriman = {};
       if (tanggal_awal) {
         const startTime = jam_awal ? ` ${jam_awal}:00` : " 00:00:00";
-        wherePesanan.pesanan_tanggal[Op.gte] = new Date(
+        wherePesanan.pesanan_tanggal_pengiriman[Op.gte] = new Date(
           tanggal_awal + startTime
         );
       }
       if (tanggal_akhir) {
         const endTime = jam_akhir ? ` ${jam_akhir}:59` : " 23:59:59";
-        wherePesanan.pesanan_tanggal[Op.lte] = new Date(
+        wherePesanan.pesanan_tanggal_pengiriman[Op.lte] = new Date(
           tanggal_akhir + endTime
         );
       }
     }
 
-    // Filter by nama
-    if (nama) {
+    // FIX: Properly check if nama exists and is not null/empty
+    if (
+      nama &&
+      String(nama).trim() !== "" &&
+      String(nama) !== "null" &&
+      String(nama) !== "undefined"
+    ) {
       wherePesanan.pesanan_nama = {
-        [Op.iLike]: `%${nama}%`,
+        [Op.iLike]: `%${String(nama).trim()}%`,
       };
+      console.log("Applied nama filter:", wherePesanan.pesanan_nama);
     }
 
-    // Filter by menu_id
-    if (menu_id) {
+    // FIX: Properly check if menu_id exists and is not null/empty
+    if (
+      menu_id &&
+      String(menu_id).trim() !== "" &&
+      String(menu_id) !== "null" &&
+      String(menu_id) !== "undefined"
+    ) {
       whereDetail.menu_id = menu_id;
     }
+
+    console.log("Final wherePesanan:", wherePesanan);
+    console.log("Final whereDetail:", whereDetail);
 
     const pesanan = await Pesanan.findAll({
       where: Object.keys(wherePesanan).length > 0 ? wherePesanan : undefined,
@@ -293,10 +293,7 @@ const getLaporanPesanan = async (req, res) => {
       order: [["createdAt", "ASC"]],
     });
 
-    // Transform data for frontend - Group by pesanan_id
-    const transformedData = [];
-
-    pesanan.forEach((pes) => {
+    const transformedData = pesanan.map((pes) => {
       const pesananItems = pes.details.map((detail) => ({
         menu_id: detail.menu_id,
         menu_nama: detail.menu?.menu_nama,
@@ -310,7 +307,7 @@ const getLaporanPesanan = async (req, res) => {
         0
       );
 
-      transformedData.push({
+      return {
         pesanan_id: pes.pesanan_id,
         pesanan_nama: pes.pesanan_nama,
         pesanan_email: pes.pesanan_email,
@@ -320,8 +317,10 @@ const getLaporanPesanan = async (req, res) => {
         tanggal_pengiriman: pes.pesanan_tanggal_pengiriman,
         items: pesananItems,
         total: totalSubtotal,
-      });
+      };
     });
+
+    console.log("Transformed data count:", transformedData.length);
 
     return res.status(200).json({
       message: "Berhasil mengambil laporan pesanan",
@@ -552,17 +551,18 @@ const getLaporanPesananData = async (tanggal_awal, tanggal_akhir, menu_id) => {
   let wherePesanan = {};
   let whereDetail = {};
 
+  // Filter by pesanan_tanggal_pengiriman (delivery date)
   if (tanggal_awal || tanggal_akhir) {
-    wherePesanan.pesanan_tanggal = {};
+    wherePesanan.pesanan_tanggal_pengiriman = {};
     if (tanggal_awal) {
-      wherePesanan.pesanan_tanggal[Op.gte] = new Date(tanggal_awal);
+      wherePesanan.pesanan_tanggal_pengiriman[Op.gte] = new Date(tanggal_awal);
     }
     if (tanggal_akhir) {
-      wherePesanan.pesanan_tanggal[Op.lte] = new Date(tanggal_akhir);
+      wherePesanan.pesanan_tanggal_pengiriman[Op.lte] = new Date(tanggal_akhir);
     }
   }
 
-  if (menu_id) {
+  if (menu_id && String(menu_id).trim() !== "") {
     whereDetail.menu_id = menu_id;
   }
 
@@ -584,7 +584,6 @@ const getLaporanPesananData = async (tanggal_awal, tanggal_akhir, menu_id) => {
     order: [["createdAt", "ASC"]],
   });
 
-  // Transform data - Group by pesanan_id
   const transformedData = [];
 
   pesanan.forEach((pes) => {
