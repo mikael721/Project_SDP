@@ -51,10 +51,6 @@ const getLaporanPenjualan = async (req, res) => {
           model: Menu,
           as: "menu",
         },
-        {
-          model: Pesanan,
-          as: "pesanan", // Add this relationship
-        },
       ],
       order: [["createdAt", "ASC"]],
     });
@@ -249,7 +245,7 @@ const getLaporanPesanan = async (req, res) => {
       }
     }
 
-    // FIX: Properly check if nama exists and is not null/empty
+    // FIX: Gunakan Op.like untuk MySQL, bukan Op.iLike
     if (
       nama &&
       String(nama).trim() !== "" &&
@@ -257,7 +253,7 @@ const getLaporanPesanan = async (req, res) => {
       String(nama) !== "undefined"
     ) {
       wherePesanan.pesanan_nama = {
-        [Op.iLike]: `%${String(nama).trim()}%`,
+        [Op.like]: `%${String(nama).trim()}%`, // Ubah dari Op.iLike ke Op.like
       };
       console.log("Applied nama filter:", wherePesanan.pesanan_nama);
     }
@@ -388,7 +384,6 @@ const getLaporanPenjualanData = async (
   }
 
   const penjualan = await Penjualan.findAll({
-    where: whereClause,
     include: [
       {
         model: HeaderPenjualan,

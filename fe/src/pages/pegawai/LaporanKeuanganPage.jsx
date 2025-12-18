@@ -66,7 +66,7 @@ export const LaporanKeuanganPage = () => {
     }
   };
 
-  // Fetch data penjualan
+  // Fetch data penjualan fix
   const fetchPenjualan = async (filters = {}) => {
     try {
       setLoading(true);

@@ -43,6 +43,17 @@ const Pesanan = () => {
         );
 
         if (currentPesanan && currentPesanan.pesanan_status === "diproses") {
+          const stockValidation = await validateStokBahanBaku(
+            idRubah,
+            currentPesanan
+          );
+
+          if (!stockValidation.isValid) {
+            // Jika stok tidak mencukupi, tampilkan error
+            showStockErrorModal(stockValidation.errors);
+            return;
+          }
+
           await addToHeaderAndDetail(idRubah, currentPesanan);
         }
 
@@ -53,7 +64,104 @@ const Pesanan = () => {
       }
     } catch (error) {
       console.error(error);
+      window.alert("Terjadi kesalahan saat verifikasi password");
     }
+  };
+
+  // === VALIDASI STOK BAHAN BAKU ===
+  const validateStokBahanBaku = async (pesananId, pesananData) => {
+    try {
+      // Get detailed order menu data
+      const detailRes = await axios.get(
+        `${API_BASE}/api/pesanan_detail/detail/showdetail/${pesananId}`
+      );
+
+      const orderDetails = detailRes.data;
+      const errors = [];
+
+      // For each menu item in the order
+      for (const item of orderDetails) {
+        const menuId = item.menu_id;
+        const quantityOrdered = item.pesanan_detail_jumlah;
+
+        try {
+          // Get menu ingredients
+          const menuResponse = await axios.get(
+            `${API_BASE}/api/menu_management/detail/${menuId}`,
+            {
+              headers: { "x-auth-token": userToken },
+            }
+          );
+
+          if (menuResponse.data && menuResponse.data.data) {
+            // Get all bahan baku untuk cek stok
+            const bahanBakuResponse = await axios.get(
+              `${API_BASE}/api/bahan_Baku`,
+              {
+                headers: { "x-auth-token": userToken },
+              }
+            );
+
+            const allBahanBaku = bahanBakuResponse.data;
+
+            // Check each ingredient
+            for (const ingredient of menuResponse.data.data) {
+              const bahanBaku = allBahanBaku.find(
+                (bb) => bb.bahan_baku_nama === ingredient.detail_menu_nama_bahan
+              );
+
+              const requiredAmount =
+                ingredient.detail_menu_jumlah * quantityOrdered;
+              const availableStock = bahanBaku?.bahan_baku_jumlah || 0;
+
+              if (availableStock < requiredAmount) {
+                errors.push({
+                  menu_nama: item.menu.menu_nama,
+                  bahan_baku_nama: ingredient.detail_menu_nama_bahan,
+                  required: requiredAmount,
+                  available: availableStock,
+                  satuan: ingredient.detail_menu_satuan,
+                  kurang: requiredAmount - availableStock,
+                });
+              }
+            }
+          }
+        } catch (err) {
+          console.error(`Error validating menu ${menuId}:`, err);
+          errors.push({
+            menu_nama: item.menu.menu_nama,
+            error: "Gagal mengecek stok bahan baku",
+          });
+        }
+      }
+
+      return {
+        isValid: errors.length === 0,
+        errors: errors,
+      };
+    } catch (error) {
+      console.error("Error during stock validation:", error);
+      return {
+        isValid: false,
+        errors: [{ error: "Gagal melakukan validasi stok" }],
+      };
+    }
+  };
+
+  // === TAMPILKAN MODAL ERROR STOK ===
+  const showStockErrorModal = (errors) => {
+    const errorMessage = errors
+      .map((err) => {
+        if (err.error) {
+          return `• ${err.error}`;
+        }
+        return `• Menu: ${err.menu_nama}\n  Bahan: ${err.bahan_baku_nama}\n  Dibutuhkan: ${err.required} ${err.satuan}, Tersedia: ${err.available} ${err.satuan}\n  Kurang: ${err.kurang} ${err.satuan}`;
+      })
+      .join("\n\n");
+
+    window.alert(
+      `❌ STOK BAHAN BAKU TIDAK MENCUKUPI!\n\nDetail:\n${errorMessage}\n\nSilakan periksa dan perbarui stok di menu Manajemen Stok sebelum melanjutkan.`
+    );
   };
 
   // Add to header_penjualan and detail_penjualan
@@ -123,11 +231,11 @@ const Pesanan = () => {
       }
 
       window.alert(
-        "Berhasil menambah header_penjualan dan detail_penjualan ke laporan keuangan"
+        "✓ Berhasil menambah header_penjualan dan detail_penjualan ke laporan keuangan"
       );
     } catch (error) {
       console.error("Error adding to header and detail:", error);
-      window.alert("Gagal menambahkan ke database penjualan!");
+      window.alert("❌ Gagal menambahkan ke database penjualan!");
     }
   };
 
